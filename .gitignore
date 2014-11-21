@@ -1,0 +1,6 @@
+sessions
+errors
+uploads
+models/1_dbconn.py
+databases
+*.pyc
