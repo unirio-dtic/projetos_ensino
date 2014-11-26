@@ -1,3 +1,4 @@
+# coding=utf-8
 from gluon import current
 from unirio.api import UNIRIOAPIRequest
 
@@ -17,3 +18,13 @@ class SIEProjetos(object):
         ]
         meuResultado = self.api.performGETRequest(self.path, params)
         return meuResultado
+
+    def salvarProjeto(self, projeto):
+        """
+
+
+        :type projeto: dict
+        :param projeto: Um dicionário contendo os valores do novo projeto
+        :return: APIPOSTResponse
+        """
+        return self.api.performPOSTRequest(self.path, projeto)
