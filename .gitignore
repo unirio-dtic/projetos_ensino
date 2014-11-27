@@ -4,3 +4,5 @@ uploads
 models/1_dbconn.py
 databases
 *.pyc
+modules/unirio/api/certs
+controllers/sandbox.py
