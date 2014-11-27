@@ -26,6 +26,11 @@ response.menu = [
     (T('Home'), False, URL('default', 'index'), [])
 ]
 
+response.menu += [
+    (T('Registro'), False, URL('registro', 'index'), []),
+    (T('Avaliação'), False, URL('avaliacao', 'index'), [])
+]
+
 DEVELOPMENT_MENU = False
 
 #########################################################################
