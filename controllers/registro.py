@@ -8,7 +8,7 @@ def index():
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj()
 
     form = FormProjetos(classificacoes).formRegistro()
-
+    # form = FormProjetos(classificacoes).registroFactory()
     if form.process().accepted:
         try:
             projetos = SIEProjetos()

@@ -8,11 +8,18 @@ service = Service()
 plugins = PluginManager()
 
 ## create all tables needed by auth if not custom tables
-auth.define_tables(username=False, signature=False)
+auth.define_tables(username=True, signature=False)
+auth.settings.actions_disabled = [
+    'register',
+    'retrieve_username',
+    'profile',
+    'lost_password'
+]
+db.auth_user.username.label = 'CPF'
 
 if not request.is_local:
     from gluon.contrib.login_methods.ldap_auth import ldap_auth
-    auth.settings.login_methods=[ldap_auth(mode='uid',server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
+    auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
 
 db.define_table('edicao',
                 Field('nome', 'string', notnull=True, required=True, label='Edital*'),
