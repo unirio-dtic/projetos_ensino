@@ -23,8 +23,10 @@ if not request.is_local:
 
 db.define_table('edicao',
                 Field('nome', 'string', notnull=True, required=True, label='Edital*'),
-                Field('dt_inicial', 'date', notnull=True, required=True, label='Data inicial*'),
-                Field('dt_conclusao', 'date', notnull=True, required=True, label="Data final*"),
+                Field('dt_inicial', 'date', notnull=True, required=True, label='Data inicial de registro*'),
+                Field('dt_conclusao', 'date', notnull=True, required=True, label="Data final de registro*"),
+                Field('dt_inicial_projeto', 'date', notnull=True, required=True, label='Data inicial do projeto*'),
+                Field('dt_conclusao_projeto', 'date', notnull=True, required=True, label="Data final do projeto*"),
                 Field('disciplinas_obrigatorias', 'boolean', notnull=True, required=True, label='Mostrar somente disciplinas obrigatórias?*'))
 
 ## configure email

@@ -1,20 +1,38 @@
 # -*- coding: utf-8 -*-
 
-#@auth.requires_login()
+
+def requires_edicao(f):
+    if not session.edicao:
+        session.flash = 'Você precisa selecionar uma edição'
+        redirect(URL('registro', 'index'))
+    return f
+
+
 def index():
+    from forms import FormEdicoes
+    session.edicao = None
+
+    form = FormEdicoes().form()
+
+    if form.process().accepted:
+        session.edicao = db(db.edicao.id == form.vars.edicao).select().first()
+
+        session.funcionario = ""
+        redirect(URL('registro', 'registro'))
+
+    return dict(form=form)
+
+
+def registro():
     from SIEProjetos import SIEProjetos, SIEClassificacoesPrj
     from forms import FormProjetos
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj()
 
     form = FormProjetos(classificacoes).formRegistro()
-    # form = FormProjetos(classificacoes).registroFactory()
     if form.process().accepted:
-        try:
-            projetos = SIEProjetos()
-            projetos.salvarProjeto(form.vars)
-        except Exception as e:
-            response.flash = e.message
+        projetos = SIEProjetos()
+        projetos.salvarProjeto(form.vars)
 
     else:
         pass

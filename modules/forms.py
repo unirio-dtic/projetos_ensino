@@ -1,9 +1,56 @@
 # -*- coding: utf-8 -*-
-from gluon import SQLFORM, Field, IS_NOT_EMPTY
+from datetime import date
+from gluon import SQLFORM, Field, IS_NOT_EMPTY, current
 from gluon.html import *
 
 
-class FormProjetos(object):
+class CustomFormHelper(object):
+    def _inputComponent(self, label, name, isNotEmpty=True):
+        return self._component(INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+                               label,
+                               name)
+
+    def _bigTextComponent(self, label, name, isNotEmpty=True):
+        return self._component(TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+                               label,
+                               name)
+
+    def _selectComponent(self, label, name, options, isNotEmpty=True):
+        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY()), label, name)
+
+    def _component(self, component, label, name):
+        return SPAN(
+            LABEL(label + " ", _for=name),
+            component,
+            BR()
+        )
+
+
+class FormEdicoes(CustomFormHelper):
+    def __init__(self):
+        self.db = current.db
+
+    @property
+    def edicoes(self):
+        """
+        Retorna um SELECT com as edições possiveis de cadastro para a data atual
+
+        :rtype : gluon.html.SELECT
+        :return: Um SELECT com as possíeis edições
+        """
+        edicoes = self.db((self.db.edicao.dt_inicial <= date.today())
+                          &(self.db.edicao.dt_conclusao >= date.today())).select()
+        if edicoes:
+            return [OPTION(edicao.nome, _value=edicao.id) for edicao in edicoes]
+
+    def form(self):
+        return FORM(
+            self._selectComponent("Edição*:", "edicao", self.edicoes),
+            INPUT(_type='submit', _value='Selecionar Edição')
+        )
+
+
+class FormProjetos(CustomFormHelper):
     def __init__(self, classificacoes):
         self.classificacoes = classificacoes
 
@@ -23,26 +70,6 @@ class FormProjetos(object):
             self._inputComponent("Palavra-chave*:", "PALAVRA_CHAVE03"),
             self._inputComponent("Palavra-chave*:", "PALAVRA_CHAVE04"),
             INPUT(_type='submit', _value='Salvar')
-        )
-
-    def _inputComponent(self, label, name, isNotEmpty=True):
-        return self._component(INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
-                               label,
-                               name)
-
-    def _bigTextComponent(self, label, name, isNotEmpty=True):
-        return self._component(TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
-                               label,
-                               name)
-
-    def _selectComponent(self, label, name, options, isNotEmpty=True):
-        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY()), label, name)
-
-    def _component(self, component, label, name):
-        return SPAN(
-            LABEL(label + " ", _for=name),
-            component,
-            BR()
         )
 
     def registroFactory(self):
