@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from SIEFuncionarios import SIEFuncionarioID
 
 
 def requires_edicao(f):
@@ -17,7 +18,7 @@ def index():
     if form.process().accepted:
         session.edicao = db(db.edicao.id == form.vars.edicao).select().first()
 
-        session.funcionario = ""
+        session.funcionario = SIEFuncionarioID("12330675755").getFuncionarioIDs()
         redirect(URL('registro', 'registro'))
 
     return dict(form=form)
