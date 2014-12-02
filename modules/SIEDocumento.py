@@ -1,6 +1,7 @@
 # coding=utf-8
 from datetime import date
-from SIEProjetos import Xpto
+
+from applications.projs.modules.SIEProjetos import Xpto
 from gluon import current
 
 

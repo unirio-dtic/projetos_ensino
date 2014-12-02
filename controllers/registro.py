@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from SIEFuncionarios import SIEFuncionarioID
+from applications.projs.modules.SIEFuncionarios import SIEFuncionarioID
 
 
 def requires_edicao(f):

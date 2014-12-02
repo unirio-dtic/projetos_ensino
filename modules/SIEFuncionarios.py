@@ -1,4 +1,5 @@
-from SIEProjetos import Xpto
+# coding=utf-8
+from applications.projs.modules.SIEProjetos import Xpto
 
 
 class SIEFuncionarioID(Xpto):
