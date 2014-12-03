@@ -1,5 +1,6 @@
 # coding=utf-8
 from datetime import date
+from time import strftime
 
 from sie import SIE
 from gluon import current
@@ -7,11 +8,14 @@ from gluon import current
 
 __all__ = [
     "SIEDocumentos",
+    "SIETramitacoes",
     "SIENumeroTipoDocumento"
 ]
 
+
 class SIEDocumentos(SIE):
     ID_TIPO_DOC = 215
+
     def __init__(self):
         super(SIEDocumentos, self).__init__()
         self.path = "DOCUMENTOS"
@@ -42,8 +46,8 @@ class SIEDocumentos(SIE):
         IND_ELIMINADO, IND_AGENDAMENTO, IND_RESERVADO,
         IND_EXTRAVIADO, TEMPO_ESTIMADO => Valores fixos (Seguimos documento com recomendações da síntese)
 
-        :rtype : unirio.api.APIPOSTResponse
-        :return:
+        :rtype : dict
+        :return: Um dicionário contendo uma entrada da tabela DOCUMENTOS
         """
         documento = {
             "ID_TIPO_DOC": 215,
@@ -65,8 +69,28 @@ class SIEDocumentos(SIE):
             "TEMPO_ESTIMADO": 1,
             "SEQUENCIA": 1
         }
+        try:
+            novoDocumento = self.api.performPOSTRequest(self.path, documento)
+            try:
+                documento.update({"ID_DOCUMENTO": novoDocumento.insertId})
+                tramitacao = SIETramitacoes(documento)
+                novaTramitacao = tramitacao.criarTramitacao()
 
-        return self.api.performPOSTRequest(self.path, documento)
+                tramitacao.tramitarDocumento(
+                    novaTramitacao,
+                    funcionario,
+                    SIEFluxos().getFluxoFromDocumento(documento)
+                )
+                return documento
+
+            except Exception as e:
+                session.flash = "Não foi possível criar uma tramitação para o documento %s" % (novoDocumento.insertId)
+                raise e
+        except Exception:
+            # TODO deletaNovoDocumento
+            # TODO decrementar proximoNumeroTipoDocumento
+            if not current.session.flash:
+                current.session.flash = "Não foi possível criar um novo documento"
 
 
 class SIENumeroTipoDocumento(SIE):
@@ -118,7 +142,7 @@ class SIENumeroTipoDocumento(SIE):
             {
                 "ID_NUMERO_TIPO_DOC": ID_NUMERO_TIPO_DOC,
                 "NUM_ULTIMO_DOC": numero
-             }
+            }
         )
 
     def criarNovoNumeroTipoDocumento(self):
@@ -137,3 +161,114 @@ class SIENumeroTipoDocumento(SIE):
         }
         self.api.performPOSTRequest(self.path, params)
         return NUM_ULTIMO_DOC
+
+
+class SIETramitacoes(SIE):
+    def __init__(self, documento):
+        super(SIETramitacoes, self).__init__()
+        self.path = "TRAMITACOES"
+        self.documento = documento
+
+    def criarTramitacao(self):
+        """
+        SEQUENCIA = 1           => Primeiro passo da tramitação
+        PRIORIDADE_TAB = 5101   => Tabela estruturada utilizada para indicar o nível de prioridade
+        PRIORIDADE_ITEM = 2     => Prioridade normal
+        SITUACAO_TRAMIT = T     => Indica que o documento não foi enviado ainda para tramitação (aguardando)
+        IND_RETORNO_OBRIG = N   => Valor fixo, conforme documento da Síntese
+
+        :param documento: Dicionário de dados de uma entra da tabela DOCUMENTOS
+        """
+        tramitacao = {
+            "SEQUENCIA": 1,
+            "ID_DOCUMENTO": self.documento["ID_DOCUMENTO"],
+            "TIPO_ORIGEM": self.documento["TIPO_PROPRIETARIO"],
+            "ID_ORIGEM": self.documento["ID_PROPRIETARIO"],
+            "TIPO_DESTINO": self.documento["TIPO_PROPRIETARIO"],
+            "ID_DESTINO": self.documento["ID_PROPRIETARIO"],
+            "DT_ENVIO": date.today(),
+            "SITUACAO_TRAMIT": "T",
+            "IND_RETORNO_OBRIG": "N",
+            "PRIORIDADE_TAB": 5101,
+        }
+        tramitacao.update(
+            {"ID_TRAMITACAO": self.api.performPOSTRequest(self.path, tramitacao).insertId}
+        )
+
+        return tramitacao
+
+    def _calcularDataValidade(self, data, dias):
+        # TODO: Escrever implementação
+        """
+        Autodocumentada.
+
+        :type data: date
+        :type dias: int
+        :rtype : date
+        :param data: Data incial
+        :param dias: Quantidade de dias
+        :return: Retorna a data enviada, acrescida da quantidade de dias
+        """
+        return data + dias
+
+    def tramitarDocumento(self, tramitacao, funcionario, fluxo):
+        """
+        A regra de negócios diz que uma tramitação muda a situação atual de um documento para uma situação futura
+        determinada pelo seu fluxo. Isso faz com que seja necessário que atulizemos as tabelas `TRAMITACOES` e
+        `DOCUMENTOS`
+
+        :type funcionario: dict
+        :type documento: dict
+        :type tramitacao: dict
+        :param tramitacao: Um dicionário referente a uma entrada na tabela TRAMITACOES
+        :param documento: Um dicionário referente a uma entrada na tabela DOCUMENTOS
+        :param funcionario: Um dicionário referente a uma entrada na view V_FUNCIONARIO_IDS
+
+        :rtype : dict
+
+        """
+        try:
+            novaTramitacao = {
+                        "ID_TRAMITACAO": tramitacao["ID_TRAMITACAO"],
+                        "TIPO_DESTINO": fluxo["TIPO_DESTINO"],
+                        "ID_DESTINO": fluxo["ID_DESTINO"],
+                        "DT_ENVIO": date.today(),
+                        "DT_VALIDADE": self._calcularDataValidade(date.today(), fluxo["NUM_DIAS"]),
+                        "DESPACHO": fluxo["TEXTO_DESPACHO"],
+                        "SITUACAO_TRAMIT": "E",
+                        "ID_RETORNO_OBRIG": "F",
+                        "ID_FLUXO": fluxo["ID_FLUXO"],
+                        "ID_USUARIO_INFO": funcionario["ID_USUARIO"],
+                        "DT_DESPACHO": date.today(),
+                        "HR_DESPACHO": strftime("%H:%M:%S")
+            }
+            self.api.performPUTRequest(self.path, novaTramitacao)
+            try:
+                novoDocumento = {
+                    "SITUACAO_ATUAL": fluxo["SITUACAO_FUTURA"]
+                }
+                self.api.performPUTRequest(self.path, novoDocumento)
+            except:
+                current.session.flash = "Não foi possível atualizar o documento"
+        except Exception:
+            if not current.session.flash:
+                current.session.flash = "Não foi possível atualizar tramitação"
+
+
+class SIEFluxos(SIE):
+    #TODO escrever a documentação O que é um fluxo? O que essa classe faz?
+    def __init__(self):
+        """
+        O fluxo é a movimentação de documentos durante uma tramitação.
+
+        """
+        super(SIEFluxos, self).__init__()
+        self.path = "FLUXOS"
+
+    def getFluxoFromDocumento(self, documento):
+        params = {
+            "ID_TIPO_DOC": documento["ID_TIPO_DOC"],
+            "SITUACAO_ATUAL": documento["SITUACAO_ATUAL"],
+            "IND_ATIVO": "S"
+        }
+        return self.api.performGETRequest(self.path, params).content[0]
