@@ -1,16 +1,20 @@
 # coding=utf-8
 from datetime import date
+
+from sie import SIE
 from gluon import current
-from unirio.api import UNIRIOAPIRequest
-from SIEDocumento import SIEDocumentos
+from sie.SIEDocumento import SIEDocumentos
 
 
-class Xpto(object):
-    def __init__(self):
-        self.api = UNIRIOAPIRequest(current.kAPIKey)
+__all__ = [
+    "SIEProjetos",
+    "SIEClassificacoesPrj",
+    "SIETramitacoes",
+    "SIEParticipantesProjs"
+]
 
 
-class SIEProjetos(Xpto):
+class SIEProjetos(SIE):
     def __init__(self):
         super(SIEProjetos, self).__init__()
         self.path = "PROJETOS"
@@ -60,7 +64,7 @@ class SIEProjetos(Xpto):
         return novoProjeto.insertId
 
 
-class SIEClassificacoesPrj(Xpto):
+class SIEClassificacoesPrj(SIE):
     def __init__(self):
         super(SIEClassificacoesPrj, self).__init__()
         self.path = "CLASSIFICACOES_PRJ"
@@ -82,7 +86,7 @@ class SIEClassificacoesPrj(Xpto):
         return self.api.performGETRequest(self.path, params, fields).content
 
 
-class SIETramitacoes(Xpto):
+class SIETramitacoes(SIE):
     def __init__(self):
         super(SIETramitacoes, self).__init__()
         self.path = "TRAMITACOES"
@@ -113,7 +117,7 @@ class SIETramitacoes(Xpto):
         return self.api.performPOSTRequest(self.path, tramitacao)
 
 
-class SIEParticipantesProjs(Xpto):
+class SIEParticipantesProjs(SIE):
     def __init__(self):
         super(SIEParticipantesProjs, self).__init__()
         self.path = "PARTICIPANTES_PROJ"

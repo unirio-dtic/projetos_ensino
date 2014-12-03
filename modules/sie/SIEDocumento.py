@@ -1,11 +1,16 @@
 # coding=utf-8
 from datetime import date
 
-from applications.projs.modules.SIEProjetos import Xpto
+from sie import SIE
 from gluon import current
 
 
-class SIEDocumentos(Xpto):
+__all__ = [
+    "SIEDocumentos",
+    "SIENumeroTipoDocumento"
+]
+
+class SIEDocumentos(SIE):
     ID_TIPO_DOC = 215
     def __init__(self):
         super(SIEDocumentos, self).__init__()
@@ -64,7 +69,7 @@ class SIEDocumentos(Xpto):
         return self.api.performPOSTRequest(self.path, documento)
 
 
-class SIENumeroTipoDocumento(Xpto):
+class SIENumeroTipoDocumento(SIE):
     def __init__(self, ano, ID_TIPO_DOC):
         super(SIENumeroTipoDocumento, self).__init__()
         self.path = "NUMEROS_TIPO_DOC"

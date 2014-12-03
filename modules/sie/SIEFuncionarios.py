@@ -1,8 +1,8 @@
 # coding=utf-8
-from applications.projs.modules.SIEProjetos import Xpto
+from applications.projs.modules.sie import SIE
 
 
-class SIEFuncionarioID(Xpto):
+class SIEFuncionarioID(SIE):
     def __init__(self, CPF):
         super(SIEFuncionarioID, self).__init__()
         self.path = "V_FUNCIONARIO_IDS"

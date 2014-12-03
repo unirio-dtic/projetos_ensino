@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from applications.projs.modules.SIEFuncionarios import SIEFuncionarioID
+from applications.projs.modules.sie.SIEFuncionarios import SIEFuncionarioID
+from applications.projs.modules.sie import SIEProjetos
 
 
 def requires_edicao(f):
@@ -25,7 +26,7 @@ def index():
 
 
 def registro():
-    from SIEProjetos import SIEProjetos, SIEClassificacoesPrj
+    from applications.projs.modules.sie.SIEProjetos import SIEClassificacoesPrj
     from forms import FormProjetos
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj()

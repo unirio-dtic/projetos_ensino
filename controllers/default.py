@@ -8,11 +8,10 @@
 ## - download is for downloading files uploaded in the db (does streaming)
 ## - api is an example of Hypermedia API support and access control
 #########################################################################
-
+from sie.SIEProjetos import SIEProjetos
 
 
 def index():
-    from SIEProjetos import SIEProjetos
     projetos = SIEProjetos()
     result = projetos.getProjetos()
     return dict(result=result.content)
