@@ -4,7 +4,7 @@ from datetime import date
 from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos
-
+from sie.SIEFuncionarios import SIEFuncionarios
 
 __all__ = [
     "SIEProjetos",
@@ -92,15 +92,25 @@ class SIEParticipantesProjs(SIE):
         super(SIEParticipantesProjs, self).__init__()
         self.path = "PARTICIPANTES_PROJ"
 
-    def criarParticipante(self, ID_PROJETO):
+    def criarParticipante(self, ID_PROJETO, funcionario):
+        """
+        FUNCAO_TAB = 6003       => Papel do participante de um projeto
+        FUNCAO_ITEM = 1         => Coordenador
+        SITUACAO = A            => Ao adicionar um participante, ele estará ativo(A)
+
+        :param ID_PROJETO:
+        :param funcionario:
+        :return:
+        """
+        escolaridade = SIEFuncionarios().getEscolaridade(funcionario["ID_FUNCIONARIO"])
         participante = {
             "ID_PROJETO": ID_PROJETO,
-            "FUNCAO_TAB": "",
-            "FUNCAO_ITEM": "",
+            "FUNCAO_TAB": 6003,
+            "FUNCAO_ITEM": 1,
             "CARGA_HORARIA": 0,
-            "TITULACAO_TAB": "",
-            "TITULACAO_ITEM": "",
-            "SITUACAO": "",
+            "TITULACAO_TAB": escolaridade["ESCOLARIDADE_TAB"],
+            "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
+            "SITUACAO": "A",
             "CH_SUGERIDA": 0
         }
 

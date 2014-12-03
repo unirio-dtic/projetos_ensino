@@ -1,7 +1,7 @@
 from unirio.api import UNIRIOAPIRequest
 from gluon import current
 
-__all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos"]
+__all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos"]
 
 
 class SIE(object):
