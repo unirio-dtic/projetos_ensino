@@ -50,6 +50,7 @@ class SIEProjetos(SIE):
         novoDocumento = SIEDocumentos().criarDocumento(funcionario)
         projeto.update({
             "ID_DOCUMENTO": novoDocumento["ID_DOCUMENTO"],
+            "NUM_PROCESSO": novoDocumento["NUM_PROCESSO"],
             "EVENTO_TAB": 6028,
             "EVENTO_ITEM": 1,
             "TIPO_PUBLICO_TAB": 6002,
