@@ -51,8 +51,9 @@ class FormEdicoes(CustomFormHelper):
 
 
 class FormProjetos(CustomFormHelper):
-    def __init__(self, classificacoes):
+    def __init__(self, classificacoes, cursos):
         self.classificacoes = classificacoes
+        self.cursos = cursos
 
     def formRegistro(self):
         return FORM(
@@ -62,13 +63,19 @@ class FormProjetos(CustomFormHelper):
                 [OPTION(classificacao['DESCRICAO'], _value=classificacao['ID_CLASSIFICACAO']) for classificacao in
                  self.classificacoes]
             ),
+            self._selectComponent(
+                'Curso*:',
+                'ID_CURSO',
+                [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in
+                 self.cursos]
+            ),
             self._inputComponent("Título*:", "TITULO"),
             self._bigTextComponent("Resumo*:", "RESUMO"),
-            self._inputComponent("Observação*:", "OBSERVACAO"),
-            self._inputComponent("Palavra-chave*:", "PALAVRA_CHAVE01"),
-            self._inputComponent("Palavra-chave*:", "PALAVRA_CHAVE02"),
-            self._inputComponent("Palavra-chave*:", "PALAVRA_CHAVE03"),
-            self._inputComponent("Palavra-chave*:", "PALAVRA_CHAVE04"),
+            self._inputComponent("Observação:", "OBSERVACAO"),
+            self._inputComponent("Palavra-chave 1*:", "PALAVRA_CHAVE01"),
+            self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
+            self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03"),
+            self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04"),
             INPUT(_type='submit', _value='Salvar')
         )
 
