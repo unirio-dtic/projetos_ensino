@@ -47,3 +47,11 @@ class SIEDocentes(SIE):
         self.path = "V_DOCENTES"
 
     def getDocentes(self):
+        params = {
+            "SITUACAO_ITEM": 1
+        }
+        fields = [
+            "MATR_EXTERNA",
+            "NOME_DOCENTE"
+        ]
+        return self.api.performGETRequest(self.path, params, fields)
