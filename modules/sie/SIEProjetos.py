@@ -73,9 +73,11 @@ class SIEClassificacoesPrj(SIE):
 
     def getClassificacoesPrj(self):
         """
+        CLASSIFICACAO_ITEM = 1 => Tipos de Projetos
+        CODIGO => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
 
         :rtype : list
-        :return: Essa merda retorna blab lab la
+        :return: um dicionário com os tipos de projetos
         """
         params = {
             'CLASSIFICACAO_ITEM': 1,

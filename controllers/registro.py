@@ -31,12 +31,17 @@ def index():
 
 
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj
+    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIECursosDisciplinas
     from forms import FormProjetos
+    from operator import itemgetter
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj()
-
-    form = FormProjetos(classificacoes).formRegistro()
+    cursos = SIECursosDisciplinas()
+    # distinct
+    cursos = {v['ID_CURSO']:v for v in cursos.getCursos()}.values()
+    # order by
+    cursos = sorted(cursos, key=itemgetter('NOME_CURSO'))
+    form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
         projetos = SIEProjetos()
         novoProjeto = projetos.salvarProjeto(form.vars, session.funcionario)

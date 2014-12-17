@@ -1,7 +1,7 @@
 # coding=utf-8
 from sie import SIE
 
-__all__ = ["SIEFuncionarioID", "SIEFuncionarios"]
+__all__ = ["SIEFuncionarioID", "SIEFuncionarios", "SIEDocentes"]
 
 class SIEFuncionarioID(SIE):
     def __init__(self, CPF):
@@ -40,3 +40,10 @@ class SIEFuncionarios(SIE):
         except ValueError as e:
             session.flash = "Não foi possível encontrar o funcionário."
             raise e
+
+class SIEDocentes(SIE):
+    def __init__(self):
+        super(SIEDocentes, self).__init__()
+        self.path = "V_DOCENTES"
+
+    def getDocentes(self):
