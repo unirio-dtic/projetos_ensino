@@ -85,7 +85,7 @@ class SIEDocumentos(SIE):
                 return documento
 
             except Exception as e:
-                session.flash = "Não foi possível criar uma tramitação para o documento %s" % (novoDocumento.insertId)
+                session.flash = "Não foi possível criar uma tramitação para o documento %d" % novoDocumento.insertId
                 raise e
         except Exception:
             # TODO deletaNovoDocumento
@@ -102,6 +102,13 @@ class SIENumeroTipoDocumento(SIE):
         self.ID_TIPO_DOC = ID_TIPO_DOC
 
     def proximoNumeroTipoDocumento(self):
+        """
+        O método retorna qual será o próximo NUM_TIPO_DOC que será utilizado. Caso já exista
+        uma entrada neta tabela para o ANO_TIPO_DOC e ID_TIPO_DOC, retornará o ultimo número,
+        caso contrário, uma nova entrada será criada.
+
+        :rtype : int
+        """
         params = {
             "ID_TIPO_DOC": self.ID_TIPO_DOC,
             "ANO_TIPO_DOC": self.ano
@@ -122,6 +129,10 @@ class SIENumeroTipoDocumento(SIE):
         return numero
 
     def atualizarIndicadoresDefault(self):
+        """
+        O método atualiza todos os IND_DEFAULT para N para ID_TIPO_DOC da instãncia
+
+        """
         numerosDocumentos = self.api.performGETRequest(
             self.path,
             {"ID_TIPO_DOC": self.ID_TIPO_DOC},
@@ -135,7 +146,6 @@ class SIENumeroTipoDocumento(SIE):
                     "IND_DEFAULT": "N"
                 }
             )
-            print numero["ID_NUMERO_TIPO_DOC"]
 
     def atualizarTotalNumeroUltimoDocumento(self, ID_NUMERO_TIPO_DOC, numero):
         self.api.performPUTRequest(
@@ -166,6 +176,11 @@ class SIENumeroTipoDocumento(SIE):
 
 class SIETramitacoes(SIE):
     def __init__(self, documento):
+        """
+
+        :type documento: dict
+        :param documento: Dicionário equivalente a uma entrada da tabela DOCUMENTOS
+        """
         super(SIETramitacoes, self).__init__()
         self.path = "TRAMITACOES"
         self.documento = documento
@@ -178,7 +193,8 @@ class SIETramitacoes(SIE):
         SITUACAO_TRAMIT = T     => Indica que o documento não foi enviado ainda para tramitação (aguardando)
         IND_RETORNO_OBRIG = N   => Valor fixo, conforme documento da Síntese
 
-        :param documento: Dicionário de dados de uma entra da tabela DOCUMENTOS
+        :rtype : dict
+        :return: Um dicionário equivalente a uma entrada da tabela TRAMITACOES
         """
         tramitacao = {
             "SEQUENCIA": 1,
@@ -192,6 +208,7 @@ class SIETramitacoes(SIE):
             "IND_RETORNO_OBRIG": "N",
             "PRIORIDADE_TAB": 5101,
         }
+
         tramitacao.update(
             {"ID_TRAMITACAO": self.api.performPOSTRequest(self.path, tramitacao).insertId}
         )
