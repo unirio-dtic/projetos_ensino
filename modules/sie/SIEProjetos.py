@@ -9,7 +9,8 @@ from sie.SIEFuncionarios import SIEFuncionarios
 __all__ = [
     "SIEProjetos",
     "SIEClassificacoesPrj",
-    "SIEParticipantesProjs"
+    "SIEParticipantesProjs",
+    "SIECursosDisciplinas"
 ]
 
 
@@ -76,7 +77,7 @@ class SIEClassificacoesPrj(SIE):
         CLASSIFICACAO_ITEM = 1 => Tipos de Projetos
         CODIGO => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
 
-        :rtype : list
+        :rtype : dict
         :return: um dicionário com os tipos de projetos
         """
         params = {
@@ -118,3 +119,41 @@ class SIEParticipantesProjs(SIE):
         }
 
         return self.api.performPOSTRequest(self.path, participante)
+
+
+class SIECursosDisciplinas(SIE):
+    def __init__(self):
+        super(SIECursosDisciplinas, self).__init__()
+        self.path = "V_CURSOS_DISCIPLINAS"
+
+    def getCursos(self):
+        params = {
+            "LMIN": 0,
+            "LMAX": 99999
+        }
+        fields = [
+            "NOME_CURSO",
+            "ID_CURSO"
+        ]
+        return self.api.performGETRequest(self.path, params, fields).content
+
+    def getDisciplinasHTMLOptions(self, curso, filtroObrigatorias=False):
+        import sys;
+        reload(sys);
+        sys.setdefaultencoding("utf8")
+        params = {
+            "LMIN": 0,
+            "LMAX": 9999,
+            "ID_CURSO": curso
+        }
+        if filtroObrigatorias:
+            params["OBRIGATORIA"] = "S"
+        fields = [
+            "NOME_DISCIPLINA",
+            "ID_DISCIPLINA"
+        ]
+        disciplinas = self.api.performGETRequest(self.path, params, fields).content
+        disciplinasHTMLOptions = "<option>Selecione</option>"
+        for disciplina in disciplinas:
+            disciplinasHTMLOptions += "<option value='" + str(disciplina["ID_DISCIPLINA"]) + "'>" + str(disciplina["NOME_DISCIPLINA"]) + "</option>"
+        return disciplinasHTMLOptions
