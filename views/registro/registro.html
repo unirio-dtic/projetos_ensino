@@ -1,0 +1,7 @@
+{{response.title = "Registro de projetos"}}
+{{response.files.append(URL(r=request,c='static/js',f='registro.js'))}}
+{{extend 'layout.html'}}
+<noscript><meta http-equiv="refresh" content="0; url={{=URL('default')}}"></noscript>
+<h2>{{=response.title}}</h2>
+<br />
+{{=form}}
