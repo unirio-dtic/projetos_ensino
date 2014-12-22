@@ -1,5 +1,5 @@
 # coding=utf-8
-from datetime import date
+from datetime import date, timedelta
 from time import strftime
 
 from sie import SIE
@@ -8,8 +8,9 @@ from gluon import current
 
 __all__ = [
     "SIEDocumentos",
+    "SIENumeroTipoDocumento",
     "SIETramitacoes",
-    "SIENumeroTipoDocumento"
+    "SIEFluxos"
 ]
 
 
@@ -209,7 +210,7 @@ class SIETramitacoes(SIE):
         :param dias: Quantidade de dias
         :return: Retorna a data enviada, acrescida da quantidade de dias
         """
-        return data + dias
+        return data + timedelta(days=dias)
 
     def tramitarDocumento(self, tramitacao, funcionario, fluxo):
         """
