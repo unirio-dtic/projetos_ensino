@@ -69,6 +69,11 @@ class FormProjetos(CustomFormHelper):
                 [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in
                  self.cursos]
             ),
+            self._selectComponent(
+                'Disciplina*:',
+                'ID_DISCIPLINA',
+                [OPTION('Selecione o curso', _value='')]
+            ),
             self._inputComponent("Título*:", "TITULO"),
             self._bigTextComponent("Resumo*:", "RESUMO"),
             self._inputComponent("Observação:", "OBSERVACAO"),
