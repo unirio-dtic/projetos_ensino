@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from sie.SIEFuncionarios import SIEFuncionarioID
-from sie.SIEProjetos import SIEParticipantesProjs
+from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 
 
 def requires_edicao(f):
@@ -31,16 +31,17 @@ def index():
 
 
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIECursosDisciplinas
+    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj
     from forms import FormProjetos
     from operator import itemgetter
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj()
-    cursos = SIECursosDisciplinas()
+    cursos = SIECursosDisciplinas().getCursos()
     # distinct
-    cursos = {v['ID_CURSO']:v for v in cursos.getCursos()}.values()
+    cursos = {v['ID_CURSO']:v for v in cursos}.values()
     # order by
     cursos = sorted(cursos, key=itemgetter('NOME_CURSO'))
+    cursos.insert(0, {'ID_CURSO': '', 'NOME_CURSO': 'Selecione'})
     form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
         projetos = SIEProjetos()
@@ -56,4 +57,5 @@ def registro():
 
     return dict(form=form)
 
-
+def getDisciplinasHTMLOptions():
+    return SIECursosDisciplinas().getDisciplinasHTMLOptions(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
