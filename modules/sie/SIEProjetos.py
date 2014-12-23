@@ -130,18 +130,18 @@ class SIECursosDisciplinas(SIE):
     def getCursos(self):
         params = {
             "LMIN": 0,
-            "LMAX": 99999
+            "LMAX": 99999,
+            "ORDERBY": "NOME_CURSO"
         }
         fields = [
             "NOME_CURSO",
             "ID_CURSO"
         ]
-        return self.api.performGETRequest(self.path, params, fields).content
+        cursos = self.api.performGETRequest(self.path, params, fields).content
+        return {v['ID_CURSO']: v for v in cursos}.values()
 
-    def getDisciplinasHTMLOptions(self, curso, filtroObrigatorias=False):
-        import sys;
-        reload(sys);
-        sys.setdefaultencoding("utf8")
+
+    def getDisciplinas(self, curso, filtroObrigatorias=False):
         params = {
             "LMIN": 0,
             "LMAX": 9999,
@@ -153,8 +153,4 @@ class SIECursosDisciplinas(SIE):
             "NOME_DISCIPLINA",
             "ID_DISCIPLINA"
         ]
-        disciplinas = self.api.performGETRequest(self.path, params, fields).content
-        disciplinasHTMLOptions = "<option>Selecione</option>"
-        for disciplina in disciplinas:
-            disciplinasHTMLOptions += "<option value='" + str(disciplina["ID_DISCIPLINA"]) + "'>" + str(disciplina["NOME_DISCIPLINA"]) + "</option>"
-        return disciplinasHTMLOptions
+        return self.api.performGETRequest(self.path, params, fields).content

@@ -33,14 +33,22 @@ def index():
 def registro():
     from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj
     from forms import FormProjetos
-    from operator import itemgetter
 
-    classificacoes = SIEClassificacoesPrj().getClassificacoesPrj()
-    cursos = SIECursosDisciplinas().getCursos()
-    # distinct
-    cursos = {v['ID_CURSO']:v for v in cursos}.values()
+    classificacoes = cache.ram(
+        'classificacoes',
+        lambda: SIEClassificacoesPrj().getClassificacoesPrj(),
+        time_expire=86400   # Um dia
+    )
+    cursos = cache.ram(
+        'cursos',
+        lambda: {v['ID_CURSO']: v for v in SIECursosDisciplinas().getCursos()}.values(),
+        time_expire=0   # Um dia
+    )
+    # TODO: Vai fazer sentido algum dia ter curso repetido? A view já deveria
+    # # distinct
+    # cursos = {v['ID_CURSO']: v for v in cursos}.values()
     # order by
-    cursos = sorted(cursos, key=itemgetter('NOME_CURSO'))
+    # cursos = sorted(cursos, key=itemgetter('NOME_CURSO'))
     cursos.insert(0, {'ID_CURSO': '', 'NOME_CURSO': 'Selecione'})
     form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
@@ -58,4 +66,6 @@ def registro():
     return dict(form=form)
 
 def getDisciplinasHTMLOptions():
-    return SIECursosDisciplinas().getDisciplinasHTMLOptions(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
+    disciplinas = SIECursosDisciplinas().getDisciplinas(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
+    options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["ID_DISCIPLINA"])) for disciplina in disciplinas]
+    return str(options)
