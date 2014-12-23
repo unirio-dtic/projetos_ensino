@@ -31,29 +31,29 @@ def index():
 
 
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj
+    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos
     from forms import FormProjetos
 
     classificacoes = cache.ram(
         'classificacoes',
-        lambda: SIEClassificacoesPrj().getClassificacoesPrj(),
-        time_expire=86400   # Um dia
+        lambda: SIEClassificacoesPrj().getClassificacoesPrj(1, 1),
+        time_expire=0   # Um dia 86400
     )
     cursos = cache.ram(
         'cursos',
-        lambda: {v['ID_CURSO']: v for v in SIECursosDisciplinas().getCursos()}.values(),
+        lambda: SIECursosDisciplinas().getCursos(),
         time_expire=0   # Um dia
     )
-    # TODO: Vai fazer sentido algum dia ter curso repetido? A view já deveria
-    # # distinct
-    # cursos = {v['ID_CURSO']: v for v in cursos}.values()
-    # order by
-    # cursos = sorted(cursos, key=itemgetter('NOME_CURSO'))
     cursos.insert(0, {'ID_CURSO': '', 'NOME_CURSO': 'Selecione'})
     form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
         projetos = SIEProjetos()
         novoProjeto = projetos.salvarProjeto(form.vars, session.funcionario)
+
+        # A classificacao de um projeto de ensino permite apenas uma diciplina
+        classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
+
+        SIEClassifProjetos().criarClassifProjetos(novoProjeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])
 
         participantesProj = SIEParticipantesProjs()
         novoParticipante = participantesProj.criarParticipante(
@@ -67,5 +67,5 @@ def registro():
 
 def getDisciplinasHTMLOptions():
     disciplinas = SIECursosDisciplinas().getDisciplinas(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
-    options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["ID_DISCIPLINA"])) for disciplina in disciplinas]
+    options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"])) for disciplina in disciplinas]
     return str(options)
