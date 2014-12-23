@@ -10,7 +10,8 @@ __all__ = [
     "SIEProjetos",
     "SIEClassificacoesPrj",
     "SIEParticipantesProjs",
-    "SIECursosDisciplinas"
+    "SIECursosDisciplinas",
+    "SIEClassifProjetos"
 ]
 
 
@@ -72,17 +73,17 @@ class SIEClassificacoesPrj(SIE):
         super(SIEClassificacoesPrj, self).__init__()
         self.path = "CLASSIFICACOES_PRJ"
 
-    def getClassificacoesPrj(self):
+    def getClassificacoesPrj(self, classificacaoItem, codigo):
         """
-        CLASSIFICACAO_ITEM = 1  => Tipos de Projetos
-        CODIGO                  => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
+        CLASSIFICACAO_ITEM  => 1 - Tipos de Projetos, 41 - Disciplina vinculada
+        CODIGO PARA CLASSIFICACAO_ITEM = 1 => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
 
         :rtype : list
         :return: Uma lista de dicionários com os tipos de projetos
         """
         params = {
-            'CLASSIFICACAO_ITEM': 1,
-            'CODIGO': 1
+            'CLASSIFICACAO_ITEM': classificacaoItem,
+            'CODIGO': codigo
         }
         fields = [
             'ID_CLASSIFICACAO',
@@ -131,26 +132,45 @@ class SIECursosDisciplinas(SIE):
         params = {
             "LMIN": 0,
             "LMAX": 99999,
-            "ORDERBY": "NOME_CURSO"
+            "ORDERBY": "NOME_CURSO",
+            "DISTINCT": "NOME_CURSO"
         }
         fields = [
             "NOME_CURSO",
             "ID_CURSO"
         ]
-        cursos = self.api.performGETRequest(self.path, params, fields).content
-        return {v['ID_CURSO']: v for v in cursos}.values()
+        return self.api.performGETRequest(self.path, params, fields).content
 
 
     def getDisciplinas(self, curso, filtroObrigatorias=False):
         params = {
             "LMIN": 0,
             "LMAX": 9999,
-            "ID_CURSO": curso
+            "ID_CURSO": curso,
+            "ORDERBY": "NOME_DISCIPLINA"
         }
         if filtroObrigatorias:
             params["OBRIGATORIA"] = "S"
         fields = [
             "NOME_DISCIPLINA",
-            "ID_DISCIPLINA"
+            "COD_DISCIPLINA"
         ]
         return self.api.performGETRequest(self.path, params, fields).content
+
+
+class SIEClassifProjetos(SIE):
+    def __init__(self):
+        super(SIEClassifProjetos, self).__init__()
+        self.path = "CLASSIF_PROJETOS"
+
+    #TODO verificar pois não está inserindo ainda
+    def criarClassifProjetos(self, ID_PROJETO, ID_CLASSIFICACAO):
+        classifProj = {
+            "ID_PROJETO": ID_PROJETO,
+            "ID_CLASSIFICACAO": ID_CLASSIFICACAO
+        }
+
+        try:
+            return self.api.performPOSTRequest(self.path, classifProj)
+        except Exception:
+            current.session.flash = "Não foi possível criar uma nova classificação para o projeto."
