@@ -74,11 +74,11 @@ class SIEClassificacoesPrj(SIE):
 
     def getClassificacoesPrj(self):
         """
-        CLASSIFICACAO_ITEM = 1 => Tipos de Projetos
-        CODIGO => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
+        CLASSIFICACAO_ITEM = 1  => Tipos de Projetos
+        CODIGO                  => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
 
-        :rtype : dict
-        :return: um dicionário com os tipos de projetos
+        :rtype : list
+        :return: Uma lista de dicionários com os tipos de projetos
         """
         params = {
             'CLASSIFICACAO_ITEM': 1,
@@ -102,8 +102,9 @@ class SIEParticipantesProjs(SIE):
         FUNCAO_ITEM = 1         => Coordenador
         SITUACAO = A            => Ao adicionar um participante, ele estará ativo(A)
 
-        :param ID_PROJETO:
-        :param funcionario:
+        :rtype : unirio.api.apiresult.APIPostResponse
+        :param ID_PROJETO: Identificador único de uma entrada na tabela PROJETOS
+        :param funcionario: Dicionário de IDS de um funcionário
         :return:
         """
         escolaridade = SIEFuncionarios().getEscolaridade(funcionario["ID_FUNCIONARIO"])
