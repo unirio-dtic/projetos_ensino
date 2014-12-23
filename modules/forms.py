@@ -71,16 +71,16 @@ class FormProjetos(CustomFormHelper):
             ),
             self._selectComponent(
                 'Disciplina*:',
-                'ID_DISCIPLINA',
+                'COD_DISCIPLINA',
                 [OPTION('Selecione o curso', _value='')]
             ),
             self._inputComponent("Título*:", "TITULO"),
             self._bigTextComponent("Resumo*:", "RESUMO"),
-            self._inputComponent("Observação:", "OBSERVACAO"),
+            self._inputComponent("Observação:", "OBSERVACAO", False),
             self._inputComponent("Palavra-chave 1*:", "PALAVRA_CHAVE01"),
             self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
-            self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03"),
-            self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04"),
+            self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False),
+            self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False),
             INPUT(_type='submit', _value='Salvar')
         )
 
