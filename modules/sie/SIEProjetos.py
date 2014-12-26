@@ -200,6 +200,14 @@ class SIEClassifProjetos(SIE):
 
     #TODO verificar pois não está inserindo ainda
     def criarClassifProjetos(self, ID_PROJETO, ID_CLASSIFICACAO):
+        """
+
+        :type ID_PROJETO: int
+        :param ID_PROJETO: Identificador único de um projeto
+        :type ID_CLASSIFICACAO: int
+        :param ID_CLASSIFICACAO: Identificador único da classificação de um projeto
+        :rtype: unirio.api.apiresult.APIPOSTResponse
+        """
         classifProj = {
             "ID_PROJETO": ID_PROJETO,
             "ID_CLASSIFICACAO": ID_CLASSIFICACAO

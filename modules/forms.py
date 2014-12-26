@@ -41,8 +41,8 @@ class FormEdicoes(CustomFormHelper):
         """
         Retorna um SELECT com as edições possiveis de cadastro para a data atual
 
-        :rtype : gluon.html.SELECT
-        :return: Um SELECT com as possíeis edições
+        :rtype : list
+        :return: Um SELECT com as possíveis edições
         """
         edicoes = self.db((self.db.edicao.dt_inicial <= date.today())
                           & (self.db.edicao.dt_conclusao >= date.today())).select()
