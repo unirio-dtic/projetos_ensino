@@ -10,6 +10,12 @@ class CustomFormHelper(object):
                                label,
                                name)
 
+    def _fileComponent(self, label, name, isNotEmpty=True):
+        return self._component(
+            INPUT(_type="file", _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+            label,
+            name)
+
     def _bigTextComponent(self, label, name, isNotEmpty=True):
         return self._component(TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
                                label,
@@ -39,7 +45,7 @@ class FormEdicoes(CustomFormHelper):
         :return: Um SELECT com as possíeis edições
         """
         edicoes = self.db((self.db.edicao.dt_inicial <= date.today())
-                          &(self.db.edicao.dt_conclusao >= date.today())).select()
+                          & (self.db.edicao.dt_conclusao >= date.today())).select()
         if edicoes:
             return [OPTION(edicao.nome, _value=edicao.id) for edicao in edicoes]
 
@@ -81,6 +87,7 @@ class FormProjetos(CustomFormHelper):
             self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
             self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False),
             self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False),
+            self._fileComponent("Arquivo do projeto*:", "CONTEUDO_ARQUIVO"),
             INPUT(_type='submit', _value='Salvar')
         )
 

@@ -1,6 +1,6 @@
 # coding=utf-8
+import base64
 from datetime import date
-
 from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos
@@ -8,6 +8,7 @@ from sie.SIEFuncionarios import SIEFuncionarios
 
 __all__ = [
     "SIEProjetos",
+    "SIEArquivosProj",
     "SIEClassificacoesPrj",
     "SIEParticipantesProjs",
     "SIECursosDisciplinas",
@@ -47,6 +48,8 @@ class SIEProjetos(SIE):
 
         :type projeto: gluon.storage.Storage
         :param projeto: Um projeto a ser inserido no banco
+        :type funcionario: dict
+        :param funcionario: Dicionário de IDS de um funcionário
         :return: Um dicionário contendo a entrada uma nova entrada da tabela PROJETOS
         """
         novoDocumento = SIEDocumentos().criarDocumento(funcionario)
@@ -67,6 +70,38 @@ class SIEProjetos(SIE):
 
         return projeto
 
+
+class SIEArquivosProj(SIE):
+    def __init__(self):
+        super(SIEArquivosProj, self).__init__()
+        self.path = "ARQUIVOS_PROJ"
+
+    def salvarArquivo(self, arquivo, projeto, funcionario):
+        """
+
+
+        :type arquivo: FieldStorage
+        :param arquivo: Um arquivo correspondente a um projeto que foi enviado para um formulário
+        :type projeto: dict
+        :param projeto: Um dicionário contendo uma entrada da tabela PROJETOS
+        :type funcionario: dict
+        :param funcionario: Dicionário de IDS de um funcionário
+        :rtype : dict
+        """
+        arquivoProj = {
+            "ID_PROJETO": projeto["ID_PROJETO"],
+            "DT_INCLUSAO": date.today(),
+            "TIPO_ARQUIVO_TAB": 6005,
+            "TIPO_ARQUIVO_ITEM": 99999, # TODO Verificar qual é o item correto
+            "NOME_ARQUIVO": arquivo.filename,
+            "CONTEUDO_ARQUIVO": base64.b64encode(arquivo.file.read()),
+            "ID_AVALIACAO_PROJETO": 99999 # TODO Verificar o que é e se deve ou não ser preenchido
+        }
+
+        novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
+        arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
+
+        return arquivoProj
 
 class SIEClassificacoesPrj(SIE):
     def __init__(self):

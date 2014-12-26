@@ -216,7 +216,6 @@ class SIETramitacoes(SIE):
         return tramitacao
 
     def _calcularDataValidade(self, data, dias):
-        # TODO: Escrever implementação
         """
         Autodocumentada.
 
