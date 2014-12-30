@@ -12,7 +12,8 @@ __all__ = [
     "SIEClassificacoesPrj",
     "SIEParticipantesProjs",
     "SIECursosDisciplinas",
-    "SIEClassifProjetos"
+    "SIEClassifProjetos",
+    "SIEOrgaosProjetos"
 ]
 
 
@@ -177,11 +178,11 @@ class SIECursosDisciplinas(SIE):
         return self.api.performGETRequest(self.path, params, fields).content
 
 
-    def getDisciplinas(self, curso, filtroObrigatorias=False):
+    def getDisciplinas(self, ID_CURSO, filtroObrigatorias=False):
         params = {
             "LMIN": 0,
             "LMAX": 9999,
-            "ID_CURSO": curso,
+            "ID_CURSO": ID_CURSO,
             "ORDERBY": "NOME_DISCIPLINA"
         }
         if filtroObrigatorias:
@@ -192,13 +193,18 @@ class SIECursosDisciplinas(SIE):
         ]
         return self.api.performGETRequest(self.path, params, fields).content
 
+    def getIdUnidade(self, ID_CURSO):
+        params = {
+            "ID_CURSO": ID_CURSO
+        }
+        fields = ["ID_UNIDADE"]
+        return self.api.performGETRequest(self.path, params, fields).content[0]["ID_UNIDADE"]
 
 class SIEClassifProjetos(SIE):
     def __init__(self):
         super(SIEClassifProjetos, self).__init__()
         self.path = "CLASSIF_PROJETOS"
 
-    #TODO verificar pois não está inserindo ainda
     def criarClassifProjetos(self, ID_PROJETO, ID_CLASSIFICACAO):
         """
 
@@ -217,3 +223,24 @@ class SIEClassifProjetos(SIE):
             return self.api.performPOSTRequest(self.path, classifProj)
         except Exception:
             current.session.flash = "Não foi possível criar uma nova classificação para o projeto."
+
+
+class SIEOrgaosProjetos(SIE):
+    def __init__(self):
+        super(SIEOrgaosProjetos, self).__init__()
+        self.path = "ORGAOS_PROJETOS"
+
+    #TODO verificar pois não está inserindo ainda
+    def criarOrgaosProjetos(self, projeto, ID_UNIDADE):
+        OrgaoProj = {
+            "ID_PROJETO": int(projeto["ID_PROJETO"]),
+            "ID_UNIDADE": int(ID_UNIDADE),
+            "FUNCAO_ORG_TAB": 6006,
+            "FUNCAO_ORG_ITEM": 6,
+            "DT_INICIAL": projeto["DT_INICIAL"],
+            "SITUACAO": "A"
+        }
+        try:
+            return self.api.performPOSTRequest(self.path, OrgaoProj)
+        except Exception:
+            current.session.flash = "Não foi possível associar um órgão ao projeto."
