@@ -32,7 +32,7 @@ def index():
 
 
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEArquivosProj
+    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEArquivosProj, SIEOrgaosProjetos
     from forms import FormProjetos
 
     classificacoes = cache.ram(
@@ -56,6 +56,8 @@ def registro():
 
         SIEClassifProjetos().criarClassifProjetos(novoProjeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])
 
+        SIEOrgaosProjetos().criarOrgaosProjetos(novoProjeto, form.vars.ID_UNIDADE)
+
         participantesProj = SIEParticipantesProjs()
         novoParticipante = participantesProj.criarParticipante(
             novoProjeto["ID_PROJETO"],
@@ -72,3 +74,6 @@ def getDisciplinasHTMLOptions():
     options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"])) for disciplina in
                disciplinas]
     return str(options)
+
+def getIdUnidade():
+    return SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO)
