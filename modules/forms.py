@@ -22,7 +22,7 @@ class CustomFormHelper(object):
                                name)
 
     def _selectComponent(self, label, name, options, isNotEmpty=True):
-        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY()), label, name)
+        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None), label, name)
 
     def _component(self, component, label, name):
         return SPAN(
@@ -69,6 +69,7 @@ class FormProjetos(CustomFormHelper):
                 [OPTION(classificacao['DESCRICAO'], _value=classificacao['ID_CLASSIFICACAO']) for classificacao in
                  self.classificacoes]
             ),
+            INPUT(_type='hidden', _id='ID_UNIDADE', _name='ID_UNIDADE'),
             self._selectComponent(
                 'Curso*:',
                 'ID_CURSO',
