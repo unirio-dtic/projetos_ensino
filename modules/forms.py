@@ -59,7 +59,8 @@ class FormEdicoes(CustomFormHelper):
 class FormProjetos(CustomFormHelper):
     def __init__(self, classificacoes, cursos):
         self.classificacoes = classificacoes
-        self.cursos = cursos
+        self.cursos = list(cursos)
+        self.cursos.insert(0, {'ID_CURSO': '', 'NOME_CURSO': 'Selecione'})
 
     def formRegistro(self):
         return FORM(
