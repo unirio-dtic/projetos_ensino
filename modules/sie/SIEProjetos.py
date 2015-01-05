@@ -1,6 +1,7 @@
 # coding=utf-8
 import base64
 from datetime import date
+import shutil
 
 from sie import SIE
 from gluon import current
@@ -79,9 +80,21 @@ class SIEArquivosProj(SIE):
         super(SIEArquivosProj, self).__init__()
         self.path = "ARQUIVOS_PROJ"
 
+    def __conteudoDoArquivo(self, arquivo):
+        """
+        O campo CONTEUDO_ARQUIVO é BLOB, tendo em vista que a API espera uma string base64, o método é responsável por
+        encodar o conteúdo e fornecer uma string válida
+
+        :rtype : str
+        :param arquivo: Um arquivo a ser convertido
+        :return: Uma string correspondente ao conteúdo de um arquivo binário, na forma de base64
+        """
+        return base64.b64encode(arquivo.file.read())
+
     def salvarArquivo(self, arquivo, projeto, funcionario):
         """
 
+        TIPO_ARQUIVO_ITEM = 1       => Projeto
 
         :type arquivo: FieldStorage
         :param arquivo: Um arquivo correspondente a um projeto que foi enviado para um formulário
@@ -95,16 +108,41 @@ class SIEArquivosProj(SIE):
             "ID_PROJETO": projeto["ID_PROJETO"],
             "DT_INCLUSAO": date.today(),
             "TIPO_ARQUIVO_TAB": 6005,
-            "TIPO_ARQUIVO_ITEM": 99999, # TODO Verificar qual é o item correto
+            "TIPO_ARQUIVO_ITEM": 1,
             "NOME_ARQUIVO": arquivo.filename,
-            "CONTEUDO_ARQUIVO": base64.b64encode(arquivo.file.read()),
-            "ID_AVALIACAO_PROJETO": 99999 # TODO Verificar o que é e se deve ou não ser preenchido
+            "CONTEUDO_ARQUIVO": self.__conteudoDoArquivo(arquivo)
         }
 
         novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
         arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
 
         return arquivoProj
+
+    def salvarCopiaLocal(self, arquivo, projeto, funcionario):
+        """
+
+        :type arquivo: FieldStorage
+        :param arquivo: Um arquivo correspondente a um projeto que foi enviado para um formulário
+        :type projeto: dict
+        :param projeto: Um dicionário contendo uma entrada da tabela PROJETOS
+        :type funcionario: dict
+        :param funcionario: Dicionário de IDS de um funcionário
+        """
+        path = current.request.folder
+        filePath = os.path.join(path, arquivo.filename)
+
+        with open(filePath, 'wb') as f:
+            try:
+                shutil.copyfileobj(arquivo, f)
+            finally:
+                current.db.projetos.insert(
+                    anexo=arquivo.file.read(),
+                    anexo_nome=arquivo.filename,
+                    anexo_tipo=arquivo.type,
+                    id_projeto=projeto["ID_PROJETO"],
+                    id_funcionario=funcionario["ID_FUNCIONARIO"]
+                )
+
 
 class SIEClassificacoesPrj(SIE):
     def __init__(self):
@@ -234,7 +272,7 @@ class SIEOrgaosProjetos(SIE):
 
     #TODO verificar pois não está inserindo ainda
     def criarOrgaosProjetos(self, projeto, ID_UNIDADE):
-        OrgaoProj = {
+        orgaoProj = {
             "ID_PROJETO": projeto["ID_PROJETO"],
             "ID_UNIDADE": ID_UNIDADE,
             "FUNCAO_ORG_TAB": 6006,
@@ -243,6 +281,6 @@ class SIEOrgaosProjetos(SIE):
             "SITUACAO": "A"
         }
         try:
-            return self.api.performPOSTRequest(self.path, OrgaoProj)
+            return self.api.performPOSTRequest(self.path, orgaoProj)
         except Exception:
             current.session.flash = "Não foi possível associar um órgão ao projeto."

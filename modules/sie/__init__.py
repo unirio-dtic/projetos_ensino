@@ -6,4 +6,4 @@ __all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos"]
 
 class SIE(object):
     def __init__(self):
-        self.api = UNIRIOAPIRequest(current.kAPIKey)
+        self.api = UNIRIOAPIRequest(current.kAPIKey, 1)
