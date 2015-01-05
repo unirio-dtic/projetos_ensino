@@ -68,6 +68,7 @@ class SIEProjetos(SIE):
             "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
             "DT_REGISTRO": date.today()
         })
+
         novoProjeto = self.api.performPOSTRequest(self.path, projeto)
         projeto.update({"ID_PROJETO": novoProjeto.insertId})
 
@@ -187,11 +188,13 @@ class SIEParticipantesProjs(SIE):
             "ID_PROJETO": ID_PROJETO,
             "FUNCAO_TAB": 6003,
             "FUNCAO_ITEM": 1,
-            "CARGA_HORARIA": 0,
+            "CARGA_HORARIA": 0,     # TODO Perguntar qual é a carga horária correta
             "TITULACAO_TAB": escolaridade["ESCOLARIDADE_TAB"],
             "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
             "SITUACAO": "A",
-            "CH_SUGERIDA": 0
+            "CH_SUGERIDA": 0,       #TODO Perguntar qual é a carga horária correta
+            "ID_PESSOA": funcionario["ID_PESSOA"],
+            "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"],
         }
 
         return self.api.performPOSTRequest(self.path, participante)
