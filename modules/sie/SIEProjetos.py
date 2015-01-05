@@ -1,7 +1,6 @@
 # coding=utf-8
 import base64
 from datetime import date
-import shutil
 
 from sie import SIE
 from gluon import current
@@ -116,32 +115,31 @@ class SIEArquivosProj(SIE):
         novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
         arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
 
+        self.salvarCopiaLocal(arquivo, arquivoProj, funcionario)
+
         return arquivoProj
 
-    def salvarCopiaLocal(self, arquivo, projeto, funcionario):
+    def salvarCopiaLocal(self, arquivo, arquivoProj, funcionario):
         """
 
         :type arquivo: FieldStorage
         :param arquivo: Um arquivo correspondente a um projeto que foi enviado para um formulário
-        :type projeto: dict
-        :param projeto: Um dicionário contendo uma entrada da tabela PROJETOS
+        :type arquivo_proj: dict
+        :param arquivo_proj: Um dicionário contendo uma entrada da tabela ARQUIVO_PROJS
         :type funcionario: dict
         :param funcionario: Dicionário de IDS de um funcionário
         """
-        path = current.request.folder
-        filePath = os.path.join(path, arquivo.filename)
-
-        with open(filePath, 'wb') as f:
-            try:
-                shutil.copyfileobj(arquivo, f)
-            finally:
-                current.db.projetos.insert(
-                    anexo=arquivo.file.read(),
-                    anexo_nome=arquivo.filename,
-                    anexo_tipo=arquivo.type,
-                    id_projeto=projeto["ID_PROJETO"],
-                    id_funcionario=funcionario["ID_FUNCIONARIO"]
-                )
+        try:
+            current.db.projetos.insert(
+                anexo_tipo=arquivo.type,
+                id_arquivo_proj=arquivoProj["ID_ARQUIVO_PROJ"],
+                id_funcionario=funcionario["ID_FUNCIONARIO"]
+            )
+        except:
+            current.db.rollback()
+            raise Exception("Não foi possível salver o arquivo %s do projeto localmente" % arquivo.filename)
+        finally:
+            current.db.commit()
 
 
 class SIEClassificacoesPrj(SIE):
