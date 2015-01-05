@@ -1,10 +1,12 @@
 # coding=utf-8
 import base64
 from datetime import date
+
 from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos
 from sie.SIEFuncionarios import SIEFuncionarios
+
 
 __all__ = [
     "SIEProjetos",
@@ -233,8 +235,8 @@ class SIEOrgaosProjetos(SIE):
     #TODO verificar pois não está inserindo ainda
     def criarOrgaosProjetos(self, projeto, ID_UNIDADE):
         OrgaoProj = {
-            "ID_PROJETO": int(projeto["ID_PROJETO"]),
-            "ID_UNIDADE": int(ID_UNIDADE),
+            "ID_PROJETO": projeto["ID_PROJETO"],
+            "ID_UNIDADE": ID_UNIDADE,
             "FUNCAO_ORG_TAB": 6006,
             "FUNCAO_ORG_ITEM": 6,
             "DT_INICIAL": projeto["DT_INICIAL"],
