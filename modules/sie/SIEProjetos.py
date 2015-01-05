@@ -41,13 +41,12 @@ class SIEProjetos(SIE):
         return meuResultado
 
 
-    #TODO Corrigir TIPO_PUBLICO_ITEM após verificar com Alcides
     def salvarProjeto(self, projeto, funcionario):
         """
         EVENTO_TAB              => Tipos de Eventos
         EVENTO_ITEM = 1         => Não se aplica
         TIPO_PUBLICO_TAB        => Público alvo
-        TIPO_PUBLICO_ITEM = 1   => Geral
+        TIPO_PUBLICO_ITEM = 8   => 3o grau
 
         :type projeto: gluon.storage.Storage
         :param projeto: Um projeto a ser inserido no banco
@@ -62,7 +61,7 @@ class SIEProjetos(SIE):
             "EVENTO_TAB": 6028,
             "EVENTO_ITEM": 1,
             "TIPO_PUBLICO_TAB": 6002,
-            "TIPO_PUBLICO_ITEM": 1,
+            "TIPO_PUBLICO_ITEM": 8,
             "ACESSO_PARTICIP": "S",
             "PAGA_BOLSA": "S",
             "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
@@ -271,8 +270,15 @@ class SIEOrgaosProjetos(SIE):
         super(SIEOrgaosProjetos, self).__init__()
         self.path = "ORGAOS_PROJETOS"
 
-    #TODO verificar pois não está inserindo ainda
     def criarOrgaosProjetos(self, projeto, ID_UNIDADE):
+        """
+        FUNCAO_ORG_TAB => 6006 - Função dos órgãos nos projetos
+        FUNCAO_ITEM_TAB => 6 - Curso beneficiado
+
+        :param projeto:
+        :param ID_UNIDADE:
+        :return:
+        """
         orgaoProj = {
             "ID_PROJETO": projeto["ID_PROJETO"],
             "ID_UNIDADE": ID_UNIDADE,

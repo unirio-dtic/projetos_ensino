@@ -80,7 +80,8 @@ class SIEDocumentos(SIE):
                 tramitacao.tramitarDocumento(
                     novaTramitacao,
                     funcionario,
-                    SIEFluxos().getFluxoFromDocumento(documento)
+                    SIEFluxos().getFluxoFromDocumento(documento),
+                    documento
                 )
                 return documento
 
@@ -92,6 +93,13 @@ class SIEDocumentos(SIE):
             # TODO decrementar proximoNumeroTipoDocumento
             if not current.session.flash:
                 current.session.flash = "Não foi possível criar um novo documento"
+
+    def atualizarSituacaoDocumento(self, documento, fluxo):
+        novoDocumento = {
+            "ID_DOCUMENTO": documento["ID_DOCUMENTO"],
+            "SITUACAO_ATUAL": fluxo["SITUACAO_FUTURA"]
+        }
+        self.api.performPUTRequest(self.path, novoDocumento)
 
 
 class SIENumeroTipoDocumento(SIE):
@@ -228,7 +236,7 @@ class SIETramitacoes(SIE):
         """
         return data + timedelta(days=dias)
 
-    def tramitarDocumento(self, tramitacao, funcionario, fluxo):
+    def tramitarDocumento(self, tramitacao, funcionario, fluxo, documento):
         """
         A regra de negócios diz que uma tramitação muda a situação atual de um documento para uma situação futura
         determinada pelo seu fluxo. Isso faz com que seja necessário que atulizemos as tabelas `TRAMITACOES` e
@@ -237,9 +245,11 @@ class SIETramitacoes(SIE):
         :type funcionario: dict
         :type documento: dict
         :type tramitacao: dict
+        :type fluxo: dict
         :param tramitacao: Um dicionário referente a uma entrada na tabela TRAMITACOES
         :param documento: Um dicionário referente a uma entrada na tabela DOCUMENTOS
         :param funcionario: Um dicionário referente a uma entrada na view V_FUNCIONARIO_IDS
+        :param fluxo: Um dicionário referente a uma entrada na tabela FLUXOS
 
         :rtype : dict
 
@@ -261,11 +271,8 @@ class SIETramitacoes(SIE):
             }
             self.api.performPUTRequest(self.path, novaTramitacao)
             try:
-                novoDocumento = {
-                    "SITUACAO_ATUAL": fluxo["SITUACAO_FUTURA"]
-                }
-                self.api.performPUTRequest(self.path, novoDocumento)
-            except:
+                SIEDocumentos().atualizarSituacaoDocumento(documento, fluxo)
+            except Exception:
                 current.session.flash = "Não foi possível atualizar o documento"
         except Exception:
             if not current.session.flash:
