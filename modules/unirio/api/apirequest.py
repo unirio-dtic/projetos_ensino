@@ -3,6 +3,7 @@ import urllib
 
 import requests
 
+from gluon import current
 from apiresult import APIResultObject, APIPOSTResponse, APIPUTResponse
 
 
@@ -101,28 +102,48 @@ class UNIRIOAPIRequest(object):
         })
         return payload
 
-    def performGETRequest(self, path, params=None, fields=None):
+    def performGETRequest(self, path, params=None, fields=None, cached=0):
         """
-        Método para realizar uma requisição GET. O método utiliza a API Key
-        fornecida ao instanciar 'UNIRIOAPIRequest' e uma chave inválida resulta
-        em um erro HTTP
+        Método para realizar uma requisição GET. O método utiliza a API Key fornecida ao instanciar 'UNIRIOAPIRequest'
+        e uma chave inválida resulta em um erro HTTP
 
+        :type path: str
         :param path: string with an API ENDPOINT
+        :type params: dict
         :param params: dictionary with URL parameters
+        :type fields: list
         :param fields: list with de desired return fields. Empty list or None will return all Fields
+        :type cached: int
+        :param cached int for cached expiration time. 0 means no cached is applied
         :rtype : APIResultObject
         :raises Exception may raise an exception if not able to instantiate APIResultObject
         """
+        def _get():
+            url = self._URLWithPath(path) + "?" + self.URLQueryData(params, fields)
+            print url
+            try:
+                json = urllib.urlopen(url).read()
+                resultObject = APIResultObject(json, self)
+                self.lastQuery = url
+                return resultObject
+            except ValueError as e:
+                if cached:
+                    return None
+                else:
+                    raise e
 
-        url = self._URLWithPath(path) + "?" + self.URLQueryData(params, fields)
-        print url
-        try:
-            json = urllib.urlopen(url).read()
-            resultObject = APIResultObject(json, self)
-            self.lastQuery = url
-            return resultObject
-        except Exception as e:
-            raise e
+        if cached:
+            uniqueHash = path + str(hash(frozenset(params.items())))
+            projeto = current.cache.ram(
+                uniqueHash,
+                lambda: _get(),
+                time_expire=cached
+            )
+            print uniqueHash
+            return projeto
+        else:
+            return _get()
+
 
     def performPOSTRequest(self, path, params):
         """
@@ -133,7 +154,6 @@ class UNIRIOAPIRequest(object):
         payload = self.POSTPayload(params)
 
         response = requests.post(url, payload, verify=False)
-
         return APIPOSTResponse(response, self)
 
     def performDELETERequest(self, path, id):

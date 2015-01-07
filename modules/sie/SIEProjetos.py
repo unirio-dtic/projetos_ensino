@@ -24,12 +24,24 @@ class SIEProjetos(SIE):
         super(SIEProjetos, self).__init__()
         self.path = "PROJETOS"
 
-
-    def getProjetos(self):
+    def getProjeto(self, ID_PROJETO):
         params = {
             'LMIN': 0,
-            'LMAX': 20
+            'LMAX': 1,
+            'ID_PROJETO': ID_PROJETO
         }
+
+        try:
+            return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content[0]
+        except (ValueError, AttributeError):
+            return None
+
+
+    def getProjetos(self, params={}):
+        params.update({
+            'LMIN': 0,
+            'LMAX': 20
+        })
         fields = [
             'ID_PROJETO',
             'TITULO',
@@ -84,6 +96,7 @@ class SIEArquivosProj(SIE):
         O campo CONTEUDO_ARQUIVO é BLOB, tendo em vista que a API espera uma string base64, o método é responsável por
         encodar o conteúdo e fornecer uma string válida
 
+        :type arquivo: file
         :rtype : str
         :param arquivo: Um arquivo a ser convertido
         :return: Uma string correspondente ao conteúdo de um arquivo binário, na forma de base64
@@ -163,7 +176,7 @@ class SIEClassificacoesPrj(SIE):
             'ID_CLASSIFICACAO',
             'DESCRICAO'
         ]
-        return self.api.performGETRequest(self.path, params, fields).content
+        return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
 
 
 class SIEParticipantesProjs(SIE):
@@ -187,16 +200,25 @@ class SIEParticipantesProjs(SIE):
             "ID_PROJETO": ID_PROJETO,
             "FUNCAO_TAB": 6003,
             "FUNCAO_ITEM": 1,
-            "CARGA_HORARIA": 0,     # TODO Perguntar qual é a carga horária correta
+            "CARGA_HORARIA": 0,  # TODO Perguntar qual é a carga horária correta
             "TITULACAO_TAB": escolaridade["ESCOLARIDADE_TAB"],
             "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
             "SITUACAO": "A",
-            "CH_SUGERIDA": 0,       #TODO Perguntar qual é a carga horária correta
+            "CH_SUGERIDA": 0,  # TODO Perguntar qual é a carga horária correta
             "ID_PESSOA": funcionario["ID_PESSOA"],
             "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"],
         }
 
         return self.api.performPOSTRequest(self.path, participante)
+
+    def getParticipacoes(self, funcionario):
+        params = {
+            "ID_PESSOA": funcionario["ID_PESSOA"],
+            "LMIN": 0,
+            "LMAX": 9999
+        }
+        fields = ["ID_PROJETO", "FUNCAO_ITEM"]
+        return self.api.performGETRequest(self.path, params, fields, self.cacheTime)
 
 
 class SIECursosDisciplinas(SIE):
@@ -239,6 +261,7 @@ class SIECursosDisciplinas(SIE):
         }
         fields = ["ID_UNIDADE"]
         return self.api.performGETRequest(self.path, params, fields).content[0]["ID_UNIDADE"]
+
 
 class SIEClassifProjetos(SIE):
     def __init__(self):

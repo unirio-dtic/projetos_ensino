@@ -7,3 +7,4 @@ __all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos"]
 class SIE(object):
     def __init__(self):
         self.api = UNIRIOAPIRequest(current.kAPIKey, 1)
+        self.cacheTime = 86400  # Um dia

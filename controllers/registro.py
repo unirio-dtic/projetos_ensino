@@ -3,13 +3,6 @@ from sie.SIEFuncionarios import SIEFuncionarioID
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 
 
-def requires_edicao(f):
-    if not session.edicao:
-        session.flash = 'Você precisa selecionar uma edição'
-        redirect(URL('registro', 'index'))
-    return f
-
-
 def index():
     from forms import FormEdicoes
 
@@ -32,14 +25,12 @@ def index():
 
 
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
+    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, \
+        SIEArquivosProj
     from forms import FormProjetos
 
-    classificacoes = cache.ram(
-        'classificacoes',
-        lambda: SIEClassificacoesPrj().getClassificacoesPrj(1, 1),
-        time_expire=86400  # Um dia 86400
-    )
+    classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
+
     cursos = cache.ram(
         'cursos',
         lambda: SIECursosDisciplinas().getCursos(),
@@ -76,6 +67,7 @@ def getDisciplinasHTMLOptions():
     options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"])) for disciplina in
                disciplinas]
     return str(options)
+
 
 def getIdUnidade():
     return SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO)
