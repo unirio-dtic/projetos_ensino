@@ -2,6 +2,8 @@
 import base64
 from datetime import date
 
+from unirio.api.apiresult import APIException
+
 from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos
@@ -59,6 +61,8 @@ class SIEProjetos(SIE):
         EVENTO_ITEM = 1         => Não se aplica
         TIPO_PUBLICO_TAB        => Público alvo
         TIPO_PUBLICO_ITEM = 8   => 3o grau
+        AVALIACAO_TAB           => Avaliação dos projetos da Instituição
+        AVALIACAO_ITEM = 2      => Pendente de avaliacao
 
         :type projeto: gluon.storage.Storage
         :param projeto: Um projeto a ser inserido no banco
@@ -77,13 +81,40 @@ class SIEProjetos(SIE):
             "ACESSO_PARTICIP": "S",
             "PAGA_BOLSA": "S",
             "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
-            "DT_REGISTRO": date.today()
+            "DT_REGISTRO": date.today(),
+            "AVALIACAO_TAB": 6010,
+            "AVALIACAO_ITEM": 2
         })
 
         novoProjeto = self.api.performPOSTRequest(self.path, projeto)
         projeto.update({"ID_PROJETO": novoProjeto.insertId})
 
         return projeto
+
+    def avaliarProjeto(self, projeto, avaliacao):
+        """
+        Método utilizado para avaliar um projeto
+
+        avaliacao = 9           => indeferido
+        avaliacao = 2           => deferido
+        AVALIACAO_ITEM = 3      => Avaliado
+
+        :type projeto: dict
+        :type avaliacao: int
+        :param projeto: Um dicionário contendo a entrada uma entrada da tabela PROJETOS
+        :param avaliacao: Um inteiro correspondente a uma avaliação
+        """
+        try:
+            self.api.performPUTRequest(
+                self.path,
+                {
+                    "ID_PROJETO": projeto["ID_PROJETO"],
+                    "AVALIACAO_ITEM": 3,
+                    "SITUACAO_ITEM": avaliacao
+                }
+            )
+        except APIException:
+            raise Exception("Não foi possível atualizar o estado da avaliação de um projeto.")
 
 
 class SIEArquivosProj(SIE):
@@ -211,6 +242,27 @@ class SIEParticipantesProjs(SIE):
 
         return self.api.performPOSTRequest(self.path, participante)
 
+    def descricaoDeFuncaoDeParticipante(self, participante):
+        """
+        Dado um parcipante, o método retorna a descrição textual de sua função no projeto
+
+        :type participante: dict
+        :rtype : str
+        :param participante: Um dicionário correspondente a uma entrada da tabela PARTICIPANTES_PROJ que contenha pelo
+        menos a chave FUNCAO_ITEM
+        """
+        params = {
+            "LMIN": 0,
+            "LMAX": 1,
+            "COD_TABELA": 6003,
+            "ITEM_TABELA": participante["FUNCAO_ITEM"]
+        }
+        try:
+            r = self.api.performGETRequest("TAB_ESTRUTURADA", params, ["DESCRICAO"], self.cacheTime)
+            return r.first()["DESCRICAO"]
+        except AttributeError:
+            return "Não foi possível recuperar"
+
     def getParticipacoes(self, funcionario):
         params = {
             "ID_PESSOA": funcionario["ID_PESSOA"],
@@ -260,7 +312,7 @@ class SIECursosDisciplinas(SIE):
             "ID_CURSO": ID_CURSO
         }
         fields = ["ID_UNIDADE"]
-        return self.api.performGETRequest(self.path, params, fields).content[0]["ID_UNIDADE"]
+        return self.api.performGETRequest(self.path, params, fields).first()["ID_UNIDADE"]
 
 
 class SIEClassifProjetos(SIE):
