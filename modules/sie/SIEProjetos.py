@@ -200,11 +200,11 @@ class SIEParticipantesProjs(SIE):
             "ID_PROJETO": ID_PROJETO,
             "FUNCAO_TAB": 6003,
             "FUNCAO_ITEM": 1,
-            "CARGA_HORARIA": 0,  # TODO Perguntar qual é a carga horária correta
+            "CARGA_HORARIA": 20,
             "TITULACAO_TAB": escolaridade["ESCOLARIDADE_TAB"],
             "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
             "SITUACAO": "A",
-            "CH_SUGERIDA": 0,  # TODO Perguntar qual é a carga horária correta
+            "CH_SUGERIDA": 20,
             "ID_PESSOA": funcionario["ID_PESSOA"],
             "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"],
         }
