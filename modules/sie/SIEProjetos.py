@@ -38,21 +38,15 @@ class SIEProjetos(SIE):
         except (ValueError, AttributeError):
             return None
 
-
-    def getProjetos(self, params={}):
+    def projetosDeEnsino(self, edicao, params={}):
         params.update({
-            'LMIN': 0,
-            'LMAX': 20
+            "ID_CLASSIFICACAO": 40161,
+            "DT_INICIAL": edicao.dt_inicial_projeto,
+            "LMIN": 0,
+            "LMAX": 9999
         })
-        fields = [
-            'ID_PROJETO',
-            'TITULO',
-            'TIPO_PUBLICO_TAB',
-            'TIPO_PUBLICO_ITEM',
-            'DT_ALTERACAO'
-        ]
-        meuResultado = self.api.performGETRequest(self.path, params, fields)
-        return meuResultado
+
+        return self.api.performGETRequest(self.path, params).content
 
 
     def salvarProjeto(self, projeto, funcionario):

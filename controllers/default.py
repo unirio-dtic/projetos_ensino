@@ -8,14 +8,33 @@
 ## - download is for downloading files uploaded in the db (does streaming)
 ## - api is an example of Hypermedia API support and access control
 #########################################################################
-from sie.SIEProjetos import SIEProjetos
+from sie.SIEFuncionarios import SIEFuncionarioID
 
 
 def index():
-    projetos = SIEProjetos()
-    result = projetos.getProjetos()
-    return dict(result=result.content)
+    return dict()
 
+
+# @auth.requires_login()
+def edicoes():
+    from forms import FormEdicoes
+
+    session.edicao = None
+
+    form = FormEdicoes().form()
+
+    if form.process().accepted:
+        session.edicao = db(db.edicao.id == form.vars.edicao).select().first()
+        try:
+            session.funcionario = SIEFuncionarioID("12330675755").getFuncionarioIDs()
+        except ValueError:
+            session.flash = "Seus dados não foram encontrados. É possível que você não esteja " \
+                            "autorizado a acessar este recurso."
+            redirect(URL("default", "index"))
+
+        redirect(URL('registro', 'registro'))
+
+    return dict(form=form)
 
 def user():
     """

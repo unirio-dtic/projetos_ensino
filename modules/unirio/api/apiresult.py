@@ -2,10 +2,15 @@
 from gluon.contrib import simplejson
 
 __all__ = [
+    "APIException",
     "APIResultObject",
     "APIPOSTResponse",
     "APIPUTResponse"
 ]
+
+
+class APIException(Exception):
+    pass
 
 
 class APIResultObject(object):
@@ -33,6 +38,16 @@ class APIResultObject(object):
 
         """
         pass
+
+    def first(self):
+        """
+        Método de conveniência para retornar o primeiro dicionário de content ou None, caso o conteúdo seja vazio
+
+        :rtype : dict
+        """
+        if not self.content:
+            return None
+        return self.content[0]
 
 
 class APIPOSTResponse(object):
@@ -70,7 +85,7 @@ class APIPUTResponse(object):
         """
         self.response = response
         if not response.status_code == 200:
-            raise Exception("Erro %d - %s" % (self.response.status_code, self.response.content))
+            raise APIException("Erro %d - %s" % (self.response.status_code, self.response.content))
 
         self.request = request
         self.affectedRows = self.response.headers['Affected']
