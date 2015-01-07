@@ -35,7 +35,9 @@ db.define_table(
     Field('anexo_nome', 'string'),
     Field('anexo_tipo', 'string'),
     Field('id_arquivo_proj', 'integer'),
-    Field('id_funcionario', 'integer')
+    Field('id_funcionario', 'integer'),
+    Field('id_projeto', 'integer'),
+    Field('edicao', db.edicao)
 )
 
 ## configure email
