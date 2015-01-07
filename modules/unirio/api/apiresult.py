@@ -41,7 +41,7 @@ class APIPOSTResponse(object):
         """
 
         :type response: Response
-        :type response: UNIRIOAPIRequest
+        :type request: unirio.api.apirequest.UNIRIOAPIRequest
         :param response:
         :param request:
         :raise Exception: Uma exception é disparada caso, por algum motivo, o conteúdo não seja criado
@@ -52,6 +52,7 @@ class APIPOSTResponse(object):
 
         self.request = request
         self.insertId = self.response.headers['id']
+        print "Inseriou em %s com a ID %s" % (self.response.headers['Location'], self.insertId)
 
     def newContentURI(self):
         return self.response.headers['Location'] + "&API_KEY=" + self.request.api_key
