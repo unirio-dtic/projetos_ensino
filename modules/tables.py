@@ -11,7 +11,7 @@ __all__ = [
 
 class TableAcompanhamento(object):
     def __init__(self, participacoes, projetos):
-        self.headers = ("Data de registro", "Título", "Função", "Avaliação")
+        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação")
         self.participacoes = participacoes
         self.projetos = projetos
 
@@ -22,27 +22,28 @@ class TableAcompanhamento(object):
 
     def avaliacao(self, projeto):
         try:
-            return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
+            return SIETabEstruturada().descricaoDeItem(projeto["AVALIACAO_ITEM"], projeto["AVALIACAO_TAB"])
         except AttributeError:
-            return "Situação não cadastrada"
+            return "Avaliação não cadastrada"
 
     def printTable(self):
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            [TR(p['DT_REGISTRO'], p['TITULO'], self.funcao(p), self.avaliacao(p)) for p in self.projetos if p]
+            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p), self.avaliacao(p)) for p in
+                   self.projetos if p])
         )
 
 
 class TableAvaliacao(object):
     def __init__(self, projetos):
-        self.headers = ("Data de registro", "Título", "Arquivos", "Situação", "Avaliar")
+        self.headers = ("Data de registro", "Num. Processo", "Título", "Arquivos", "Situação", "Avaliação", "Avaliar")
         self.projetos = projetos
 
     def situacao(self, projeto):
         try:
             return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
         except AttributeError:
-            return "Situação não cadastrada"
+            return "Aguardando..."
 
     def avaliacao(self, projeto):
         try:
@@ -50,14 +51,27 @@ class TableAvaliacao(object):
         except AttributeError:
             return "Avaliação não cadastrada"
 
-    def arquivos(self):
+    def arquivos(self, projeto):
         try:
             pass
         except:
             pass
 
+    def avaliar(self, projeto):
+        aprovar = {"ID_PROJETO": projeto["ID_PROJETO"], "action": "aprovar"}
+        reprovar = {"ID_PROJETO": projeto["ID_PROJETO"], "action": "reprovar"}
+
+        return (
+            A("Aprovar", _id=projeto["ID_PROJETO"], callback=URL('adm', 'avaliacaoAjax', vars=aprovar),
+              target="callback-placeholder"),
+            " | ",
+            A("Reprovar", _id=projeto["ID_PROJETO"], callback=URL('adm', 'avaliacaoAjax', vars=reprovar),
+              target="callback-placeholder"),
+        )
+
     def printTable(self):
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            [TR(p['DT_REGISTRO'], p['TITULO'], self.arquivos(p), self.situacao(p), self.avaliacao(p)) for p in self.projetos if p]
+            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.arquivos(p), self.situacao(p),
+                      self.avaliacao(p), self.avaliar(p)) for p in self.projetos if p])
         )

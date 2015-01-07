@@ -27,7 +27,10 @@ response.menu = [
 ]
 
 response.menu += [
-    (T('Registro'), False, URL('registro', 'index'), []),
+    (T('Registro'), False, False, [
+        ("Registro", False, URL('registro', 'index')),
+        ("Acompanhamento", False, URL('consulta', 'index'))
+    ]),
     (T('Avaliação'), False, URL('avaliacao', 'index'), [])
 ]
 

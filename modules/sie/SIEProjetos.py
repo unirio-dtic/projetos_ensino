@@ -3,7 +3,6 @@ import base64
 from datetime import date
 
 from unirio.api.apiresult import APIException
-
 from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos
@@ -85,7 +84,7 @@ class SIEProjetos(SIE):
 
         return projeto
 
-    def avaliarProjeto(self, projeto, avaliacao):
+    def avaliarProjeto(self, ID_PROJETO, avaliacao):
         """
         Método utilizado para avaliar um projeto
 
@@ -102,13 +101,13 @@ class SIEProjetos(SIE):
             self.api.performPUTRequest(
                 self.path,
                 {
-                    "ID_PROJETO": projeto["ID_PROJETO"],
+                    "ID_PROJETO": ID_PROJETO,
                     "AVALIACAO_ITEM": 3,
                     "SITUACAO_ITEM": avaliacao
                 }
             )
         except APIException:
-            raise Exception("Não foi possível atualizar o estado da avaliação de um projeto.")
+            raise APIException("Não foi possível atualizar o estado da avaliação de um projeto.")
 
 
 class SIEArquivosProj(SIE):
@@ -283,7 +282,7 @@ class SIECursosDisciplinas(SIE):
             "NOME_CURSO",
             "ID_CURSO"
         ]
-        return self.api.performGETRequest(self.path, params, fields).content
+        return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
 
 
     def getDisciplinas(self, ID_CURSO, filtroObrigatorias=False):

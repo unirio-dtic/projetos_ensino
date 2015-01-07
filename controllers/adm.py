@@ -1,4 +1,5 @@
 # coding=utf-8
+from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos
 from gluon.tools import Crud
 from tables import TableAvaliacao
@@ -30,3 +31,14 @@ def avaliacao():
         projetos=projetos,
         table=table.printTable()
     )
+
+
+def avaliacaoAjax():
+    try:
+        if request.vars.action == "aprovar":
+            SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
+        else:
+            SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
+        return dict(m="Avaliado com sucesso")
+    except APIException as e:
+        return dict(m=e.message)
