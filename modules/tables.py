@@ -1,4 +1,5 @@
 # coding=utf-8
+from gluon import current
 from sie.SIETabEstruturada import SIETabEstruturada
 from sie.SIEProjetos import SIEParticipantesProjs
 from gluon.html import *
@@ -11,7 +12,7 @@ __all__ = [
 
 class TableAcompanhamento(object):
     def __init__(self, participacoes, projetos):
-        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação")
+        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação", "Arquivos")
         self.participacoes = participacoes
         self.projetos = projetos
 
@@ -26,10 +27,14 @@ class TableAcompanhamento(object):
         except AttributeError:
             return "Avaliação não cadastrada"
 
+    def arquivos(self, projeto):
+        arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
+        return [A(arquivo["anexo_nome"]) for arquivo in arquivos]
+
     def printTable(self):
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p), self.avaliacao(p)) for p in
+            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p), self.avaliacao(p), self.arquivos(p)) for p in
                    self.projetos if p])
         )
 

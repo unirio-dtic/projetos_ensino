@@ -25,7 +25,7 @@ def index():
 
 
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos
+    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
     from forms import FormProjetos
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
@@ -38,7 +38,7 @@ def registro():
         del projeto["CONTEUDO_ARQUIVO"]
         novoProjeto = SIEProjetos().salvarProjeto(projeto, session.funcionario)
 
-        # SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, novoProjeto, session.funcionario)
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, novoProjeto, session.funcionario)
         # A classificacao de um projeto de ensino permite apenas uma diciplina
         classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
 

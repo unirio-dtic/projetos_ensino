@@ -41,6 +41,8 @@ db.define_table(
     Field('arquivo', 'blob', uploadfield=True),
 )
 
+db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('download', args=value))
+
 ## configure email
 mail = auth.settings.mailer
 mail.settings.server = 'logging' if request.is_local else 'smtp.gmail.com:587'
