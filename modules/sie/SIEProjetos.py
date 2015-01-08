@@ -120,7 +120,7 @@ class SIEArquivosProj(SIE):
         O campo CONTEUDO_ARQUIVO é BLOB, tendo em vista que a API espera uma string base64, o método é responsável por
         encodar o conteúdo e fornecer uma string válida
 
-        :type arquivo: file
+        :type arquivo: FieldStorage
         :rtype : str
         :param arquivo: Um arquivo a ser convertido
         :return: Uma string correspondente ao conteúdo de um arquivo binário, na forma de base64
@@ -148,9 +148,9 @@ class SIEArquivosProj(SIE):
             "NOME_ARQUIVO": arquivo.filename,
             "CONTEUDO_ARQUIVO": self.__conteudoDoArquivo(arquivo)
         }
-
-        novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
-        arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
+        # TODO remover comentários quando BLOB estiver sendo salvo no DB2
+        # novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
+        # arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
 
         self.salvarCopiaLocal(arquivo, arquivoProj, funcionario)
 
@@ -166,11 +166,15 @@ class SIEArquivosProj(SIE):
         :type funcionario: dict
         :param funcionario: Dicionário de IDS de um funcionário
         """
+        # TODO id_arquivo_proj não está com o comportamente desejado, mas é necessário até que BLOBS sejam inseridos corretamente. Remover o mesmo após resolver problema
         try:
             current.db.projetos.insert(
                 anexo_tipo=arquivo.type,
-                id_arquivo_proj=arquivoProj["ID_ARQUIVO_PROJ"],
-                id_funcionario=funcionario["ID_FUNCIONARIO"]
+                anexo_nome=arquivo.filename,
+                id_arquivo_proj=arquivoProj["ID_ARQUIVO_PROJ"] if arquivoProj["ID_ARQUIVO_PROJ"] else None,
+                id_funcionario=funcionario["ID_FUNCIONARIO"],
+                id_projeto=arquivoProj["ID_PROJETO"],
+                edicao=current.session.edicao.id
             )
         except:
             current.db.rollback()
