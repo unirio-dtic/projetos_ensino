@@ -38,7 +38,9 @@ db.define_table(
     Field('id_funcionario', 'integer', notnull=True),
     Field('id_projeto', 'integer', notnull=True),
     Field('edicao', db.edicao, notnull=True),
-    Field('arquivo', 'blob', uploadfield=True),
+    Field('arquivo', 'upload', uploadfield='arquivo_file'),
+    Field('arquivo_file', 'blob'),
+    Field('tipo_arquivo_item', 'integer')
 )
 
 db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('download', args=value))

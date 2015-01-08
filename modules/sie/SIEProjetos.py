@@ -127,7 +127,7 @@ class SIEArquivosProj(SIE):
         """
         return base64.b64encode(arquivo.file.read())
 
-    def salvarArquivo(self, arquivo, projeto, funcionario):
+    def salvarArquivo(self, arquivo, projeto, funcionario, TIPO_ARQUIVO_ITEM):
         """
 
         TIPO_ARQUIVO_ITEM = 1       => Projeto
@@ -144,7 +144,7 @@ class SIEArquivosProj(SIE):
             "ID_PROJETO": projeto["ID_PROJETO"],
             "DT_INCLUSAO": date.today(),
             "TIPO_ARQUIVO_TAB": 6005,
-            "TIPO_ARQUIVO_ITEM": 1,
+            "TIPO_ARQUIVO_ITEM": TIPO_ARQUIVO_ITEM,
             "NOME_ARQUIVO": arquivo.filename,
             "CONTEUDO_ARQUIVO": self.__conteudoDoArquivo(arquivo)
         }
@@ -171,14 +171,18 @@ class SIEArquivosProj(SIE):
             current.db.projetos.insert(
                 anexo_tipo=arquivo.type,
                 anexo_nome=arquivo.filename,
-                id_arquivo_proj=arquivoProj["ID_ARQUIVO_PROJ"] if arquivoProj["ID_ARQUIVO_PROJ"] else None,
+                id_arquivo_proj=None,
                 id_funcionario=funcionario["ID_FUNCIONARIO"],
                 id_projeto=arquivoProj["ID_PROJETO"],
-                edicao=current.session.edicao.id
+                edicao=current.session.edicao.id,
+                arquivo=current.db.projetos.arquivo.store(arquivo.file, arquivo.filename),
+                arquivo_file=arquivo.file.read(),
+                tipo_arquivo_item=arquivoProj["TIPO_ARQUIVO_ITEM"]
             )
-        except:
+        except Exception as e:
             current.db.rollback()
-            raise Exception("Não foi possível salver o arquivo %s do projeto localmente" % arquivo.filename)
+            raise e
+            # raise Exception("Não foi possível salvar o arquivo %s do projeto localmente" % arquivo.filename)
         finally:
             current.db.commit()
 

@@ -38,8 +38,11 @@ def registro():
         del projeto["CONTEUDO_ARQUIVO"]
         novoProjeto = SIEProjetos().salvarProjeto(projeto, session.funcionario)
 
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, novoProjeto, session.funcionario)
-        # A classificacao de um projeto de ensino permite apenas uma diciplina
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO1, novoProjeto, session.funcionario, 1)
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
+
         classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
 
         SIEClassifProjetos().criarClassifProjetos(novoProjeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])

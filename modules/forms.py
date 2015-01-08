@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+
 from gluon import SQLFORM, Field, IS_NOT_EMPTY, current
 from gluon.html import *
 
@@ -89,7 +90,10 @@ class FormProjetos(CustomFormHelper):
             self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
             self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False),
             self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False),
-            self._fileComponent("Arquivo do projeto*:", "CONTEUDO_ARQUIVO"),
+            self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
+            self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
+            self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14"),
+            self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17"),
             INPUT(_type='submit', _value='Salvar')
         )
 

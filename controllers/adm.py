@@ -22,7 +22,6 @@ def avaliacao():
         redirect(URL("default", "edicao"))
 
     ID_CLASSIFICACAO_ENSINO = 40161
-
     projetos = SIEProjetos().projetosDeEnsino(session.edicao, {"ID_CLASSIFICACAO": ID_CLASSIFICACAO_ENSINO})
 
     table = TableAvaliacao(projetos)
@@ -42,3 +41,12 @@ def avaliacaoAjax():
         return dict(m="Avaliado com sucesso")
     except APIException as e:
         return dict(m=e.message)
+
+
+@cache.action()
+def download():
+    """
+    allows downloading of uploaded files
+    http://..../[app]/default/download/[filename]
+    """
+    return response.download(request, db)

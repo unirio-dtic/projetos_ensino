@@ -10,16 +10,13 @@ __all__ = [
 ]
 
 
-class TableAcompanhamento(object):
-    def __init__(self, participacoes, projetos):
-        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação", "Arquivos")
-        self.participacoes = participacoes
+class TableProjetos(object):
+    def __init__(self, projetos):
         self.projetos = projetos
 
-    def funcao(self, projeto):
-        for i, dic in enumerate(self.participacoes):
-            if dic["ID_PROJETO"] == projeto["ID_PROJETO"]:
-                return SIEParticipantesProjs().descricaoDeFuncaoDeParticipante(self.participacoes[i])
+    def arquivos(self, projeto):
+        arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
+        return [A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos]
 
     def avaliacao(self, projeto):
         try:
@@ -27,9 +24,21 @@ class TableAcompanhamento(object):
         except AttributeError:
             return "Avaliação não cadastrada"
 
-    def arquivos(self, projeto):
-        arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
-        return [A(arquivo["anexo_nome"]) for arquivo in arquivos]
+
+class TableAcompanhamento(TableProjetos):
+    def __init__(self, participacoes, projetos):
+        super(TableAcompanhamento, self).__init__(projetos)
+        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação", "Arquivos")
+        self.participacoes = participacoes
+
+    def funcao(self, projeto):
+        for i, dic in enumerate(self.participacoes):
+            if dic["ID_PROJETO"] == projeto["ID_PROJETO"]:
+                return SIEParticipantesProjs().descricaoDeFuncaoDeParticipante(self.participacoes[i])
+
+    def disciplina(self, projeto):
+        pass
+        # return SIEClassificacoesPrj().
 
     def printTable(self):
         return TABLE(
@@ -39,28 +48,16 @@ class TableAcompanhamento(object):
         )
 
 
-class TableAvaliacao(object):
+class TableAvaliacao(TableProjetos):
     def __init__(self, projetos):
+        super(TableAvaliacao, self).__init__(projetos)
         self.headers = ("Data de registro", "Num. Processo", "Título", "Arquivos", "Situação", "Avaliação", "Avaliar")
-        self.projetos = projetos
 
     def situacao(self, projeto):
         try:
             return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
         except AttributeError:
             return "Aguardando..."
-
-    def avaliacao(self, projeto):
-        try:
-            return SIETabEstruturada().descricaoDeItem(projeto["AVALIACAO_ITEM"], projeto["AVALIACAO_TAB"])
-        except AttributeError:
-            return "Avaliação não cadastrada"
-
-    def arquivos(self, projeto):
-        try:
-            pass
-        except:
-            pass
 
     def avaliar(self, projeto):
         aprovar = {"ID_PROJETO": projeto["ID_PROJETO"], "action": "aprovar"}
