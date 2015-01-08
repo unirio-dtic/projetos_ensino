@@ -32,12 +32,13 @@ db.define_table(
 
 db.define_table(
     'projetos',
-    Field('anexo_nome', 'string'),
-    Field('anexo_tipo', 'string'),
+    Field('anexo_nome', 'string', notnull=True),
+    Field('anexo_tipo', 'string', notnull=True),
     Field('id_arquivo_proj', 'integer'),
-    Field('id_funcionario', 'integer'),
-    Field('id_projeto', 'integer'),
-    Field('edicao', db.edicao)
+    Field('id_funcionario', 'integer', notnull=True),
+    Field('id_projeto', 'integer', notnull=True),
+    Field('edicao', db.edicao, notnull=True),
+    Field('arquivo', 'blob', uploadfield=True),
 )
 
 ## configure email
