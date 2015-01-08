@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from cgi import FieldStorage
+
 from sie.SIEFuncionarios import SIEFuncionarioID
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 
@@ -34,14 +36,17 @@ def registro():
 
     form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
-        projeto = form.vars.copy()
-        del projeto["CONTEUDO_ARQUIVO"]
+        projeto = {k: v for k, v in form.vars.iteritems() if not isinstance(v, FieldStorage)}
         novoProjeto = SIEProjetos().salvarProjeto(projeto, session.funcionario)
 
+
+        #TODO "embelezar" essa parte
         SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO1, novoProjeto, session.funcionario, 1)
         SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
+        if form.vars.CONTEUDO_ARQUIVO14:
+            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO14, novoProjeto, session.funcionario, 14)
+        if form.vars.CONTEUDO_ARQUIVO17:
+            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO17, novoProjeto, session.funcionario, 17)
 
         classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
 

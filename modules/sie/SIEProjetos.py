@@ -168,17 +168,19 @@ class SIEArquivosProj(SIE):
         """
         # TODO id_arquivo_proj não está com o comportamente desejado, mas é necessário até que BLOBS sejam inseridos corretamente. Remover o mesmo após resolver problema
         try:
-            current.db.projetos.insert(
-                anexo_tipo=arquivo.type,
-                anexo_nome=arquivo.filename,
-                id_arquivo_proj=None,
-                id_funcionario=funcionario["ID_FUNCIONARIO"],
-                id_projeto=arquivoProj["ID_PROJETO"],
-                edicao=current.session.edicao.id,
-                arquivo=current.db.projetos.arquivo.store(arquivo.file, arquivo.filename),
-                arquivo_file=arquivo.file.read(),
-                tipo_arquivo_item=arquivoProj["TIPO_ARQUIVO_ITEM"]
-            )
+            with open(arquivo.fp.name, 'rb') as stream:
+                current.db.projetos.insert(
+                    anexo_tipo=arquivo.type,
+                    anexo_nome=arquivo.filename,
+                    id_arquivo_proj=None,
+                    id_funcionario=funcionario["ID_FUNCIONARIO"],
+                    id_projeto=arquivoProj["ID_PROJETO"],
+                    edicao=current.session.edicao.id,
+                    arquivo=current.db.projetos.arquivo.store(stream, arquivo.filename),      # upload
+                    arquivo_file=arquivo.file.read(),                                               # blob
+                    tipo_arquivo_item=arquivoProj["TIPO_ARQUIVO_ITEM"]
+                )
+                print "Gravou localmente %s" % arquivo.filename
         except Exception as e:
             current.db.rollback()
             raise e
@@ -306,7 +308,7 @@ class SIECursosDisciplinas(SIE):
             "NOME_DISCIPLINA",
             "COD_DISCIPLINA"
         ]
-        return self.api.performGETRequest(self.path, params, fields).content
+        return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
 
     def getIdUnidade(self, ID_CURSO):
         params = {

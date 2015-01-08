@@ -16,6 +16,8 @@ class TableProjetos(object):
 
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
+        if len(arquivos) > 3:
+            n = 1
         return [A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos]
 
     def avaliacao(self, projeto):

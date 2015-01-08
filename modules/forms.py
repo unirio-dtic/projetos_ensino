@@ -92,8 +92,8 @@ class FormProjetos(CustomFormHelper):
             self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False),
             self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
             self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
-            self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14"),
-            self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17"),
+            self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14", False),
+            self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17", False),
             INPUT(_type='submit', _value='Salvar')
         )
 
