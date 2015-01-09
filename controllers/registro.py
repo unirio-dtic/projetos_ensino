@@ -5,6 +5,7 @@ from sie.SIEFuncionarios import SIEFuncionarioID
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 
 
+@auth.requires_login()
 def index():
     from forms import FormEdicoes
 
@@ -26,9 +27,13 @@ def index():
     return dict(form=form)
 
 
+@auth.requires_login()
 def registro():
     from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
     from forms import FormProjetos
+
+    if not current.session.edicao:
+        redirect(URL("default", "edicoes"))
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
 
@@ -39,6 +44,10 @@ def registro():
         projeto = {k: v for k, v in form.vars.iteritems() if not isinstance(v, FieldStorage)}
         novoProjeto = SIEProjetos().salvarProjeto(projeto, session.funcionario)
 
+        db.bolsas.insert(
+            id_projeto=novoProjeto["ID_PROJETO"],
+            quantidade_bolsas=novoProjeto["quantidade_bolsas"]
+        )
 
         #TODO "embelezar" essa parte
         SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO1, novoProjeto, session.funcionario, 1)

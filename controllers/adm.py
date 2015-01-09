@@ -4,6 +4,7 @@ from sie.SIEProjetos import SIEProjetos
 from gluon.tools import Crud
 from tables import TableAvaliacao
 
+
 def cadastro_edicoes():
     edicoes = Crud(db).select(db.edicao)
     form = SQLFORM(db.edicao)
@@ -17,9 +18,10 @@ def cadastro_edicoes():
     )
 
 
+# @edicao.requires_edicao()
 def avaliacao():
-    if not session.edicao:
-        redirect(URL("default", "edicao"))
+    if not current.session.edicao:
+        redirect(URL("default", "edicoes"))
 
     ID_CLASSIFICACAO_ENSINO = 40161
     projetos = SIEProjetos().projetosDeEnsino(session.edicao, {"ID_CLASSIFICACAO": ID_CLASSIFICACAO_ENSINO})

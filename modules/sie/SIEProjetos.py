@@ -47,6 +47,26 @@ class SIEProjetos(SIE):
 
         return self.api.performGETRequest(self.path, params).content
 
+    @staticmethod
+    def isAvaliado(projeto):
+        """
+        0 => Situação do projeto da Instituição
+        1 => Concluído/Publicado
+        2 => Em andamento
+        4 => Suspenso
+        5 => Cancelado
+        6 => Renovado
+        7 => Cancelado - Res. Interna
+        8 => Em tramite para registro
+        9 => Indeferido
+
+        :type projeto: dict
+        :param projeto: Dicionário correspondente a uma entrada na tabela PROJETOS
+        :rtype bool
+        """
+        #TODO discituir se usar uma lista estática é uma solução aceitável ou se deveria ser realizada uma consulta na TAB_ESTRUTURADA
+        if projeto["SITUACAO_ITEM"] in range(1, 9):
+            return True
 
     def salvarProjeto(self, projeto, funcionario):
         """
@@ -57,7 +77,7 @@ class SIEProjetos(SIE):
         AVALIACAO_TAB           => Avaliação dos projetos da Instituição
         AVALIACAO_ITEM = 2      => Pendente de avaliacao
 
-        :type projeto: gluon.storage.Storage
+        :type projeto: dict
         :param projeto: Um projeto a ser inserido no banco
         :type funcionario: dict
         :param funcionario: Dicionário de IDS de um funcionário
@@ -88,9 +108,10 @@ class SIEProjetos(SIE):
         """
         Método utilizado para avaliar um projeto
 
-        avaliacao = 9           => indeferido
-        avaliacao = 2           => deferido
+        avaliacao = 9           => indeferido (Indeferido)
+        avaliacao = 2           => deferido (Em andamento)
         AVALIACAO_ITEM = 3      => Avaliado
+        AVALIACAO_ITEM = 4      => Avaliado fora do prazo
 
         :type projeto: dict
         :type avaliacao: int
@@ -199,6 +220,10 @@ class SIEClassificacoesPrj(SIE):
         CLASSIFICACAO_ITEM  => 1 - Tipos de Projetos, 41 - Disciplina vinculada
         CODIGO PARA CLASSIFICACAO_ITEM = 1 => 1 - Ensino, 2 - Pesquisa, 3 - Extensão, 4 - Desenvolvimento institucional
 
+        :type classificacaoItem: int
+        :type codigo: int
+        :param classificacaoItem:
+        :param codigo: COD_DISCIPLINA de uma disciplina do SIE
         :rtype : list
         :return: Uma lista de dicionários com os tipos de projetos
         """
