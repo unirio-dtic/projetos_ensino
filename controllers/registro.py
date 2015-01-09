@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from cgi import FieldStorage
+from operator import itemgetter
 
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 
@@ -13,8 +14,7 @@ def registro():
         redirect(URL("default", "edicoes"))
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
-
-    cursos = SIECursosDisciplinas().getCursos()
+    cursos = sorted({d['ID_CURSO']: d for d in SIECursosDisciplinas().getCursos()}.values(), key=itemgetter('NOME_CURSO'))
 
     form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
