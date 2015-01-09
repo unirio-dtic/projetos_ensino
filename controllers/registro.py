@@ -45,6 +45,8 @@ def registro():
             novoProjeto["ID_PROJETO"],
             session.funcionario
         )
+
+        redirect(URL('consulta', 'index'))
     else:
         pass
 

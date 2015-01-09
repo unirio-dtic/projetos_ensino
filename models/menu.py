@@ -23,17 +23,16 @@ response.google_analytics_id = None
 #########################################################################
 
 response.menu = [
-    (T('Home'), False, URL('default', 'index'), [])
+    (T('Edições'), False, URL('default', 'edicoes'), [])
 ]
+
 
 response.menu += [
     (T('Registro'), False, False, [
         ("Registro", False, URL('registro', 'index')),
         ("Acompanhamento", False, URL('consulta', 'index'))
-    ]),
-    (T('Avaliação'), False, URL('avaliacao', 'index'), [])
+    ])
 ]
-
 admin_menu = [
     (T('Administração'), False, False, [
         (T('Cadastro de Edições'), False, URL("adm", "cadastro_edicoes"), []),

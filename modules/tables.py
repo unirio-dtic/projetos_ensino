@@ -41,7 +41,7 @@ class TableProjetos(object):
 class TableAcompanhamento(TableProjetos):
     def __init__(self, participacoes, projetos):
         super(TableAcompanhamento, self).__init__(projetos)
-        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação", "Arquivos")
+        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação", "Qtd. Bolsas", "Arquivos")
         self.participacoes = participacoes
 
     def funcao(self, projeto):
@@ -56,7 +56,7 @@ class TableAcompanhamento(TableProjetos):
     def printTable(self):
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p), self.avaliacao(p), self.arquivos(p)) for p in
+            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p)) for p in
                    self.projetos if p])
         )
 
