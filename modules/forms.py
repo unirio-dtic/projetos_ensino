@@ -65,35 +65,42 @@ class FormProjetos(CustomFormHelper):
 
     def formRegistro(self):
         return FORM(
-            self._selectComponent(
-                'Classificação principal*:',
-                'ID_CLASSIFICACAO',
-                [OPTION(classificacao['DESCRICAO'], _value=classificacao['ID_CLASSIFICACAO']) for classificacao in
-                 self.classificacoes]
+            FIELDSET(
+                self._selectComponent(
+                    'Classificação principal*:',
+                    'ID_CLASSIFICACAO',
+                    [OPTION(classificacao['DESCRICAO'], _value=classificacao['ID_CLASSIFICACAO']) for classificacao in
+                     self.classificacoes]
+                ),
+                INPUT(_type='hidden', _id='ID_UNIDADE', _name='ID_UNIDADE'),
+                self._selectComponent(
+                    'Curso*:',
+                    'ID_CURSO',
+                    [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in
+                     self.cursos]
+                ),
+                self._selectComponent(
+                    'Disciplina*:',
+                    'COD_DISCIPLINA',
+                    [OPTION('Selecione o curso', _value='')]
+                ),
+                self._inputComponent("Título*:", "TITULO"),
+                self._bigTextComponent("Resumo*:", "RESUMO"),
+                self._inputComponent("Observação:", "OBSERVACAO", False),
+                self._inputComponent("Palavra-chave 1*:", "PALAVRA_CHAVE01"),
+                self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
+                self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False),
+                self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False)
             ),
-            INPUT(_type='hidden', _id='ID_UNIDADE', _name='ID_UNIDADE'),
-            self._selectComponent(
-                'Curso*:',
-                'ID_CURSO',
-                [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in
-                 self.cursos]
+            FIELDSET(
+                self._selectComponent('Quantidade de bolsas*:', 'quantidade_bolsas', range(1, 3))
             ),
-            self._selectComponent(
-                'Disciplina*:',
-                'COD_DISCIPLINA',
-                [OPTION('Selecione o curso', _value='')]
+            FIELDSET(
+                self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
+                self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
+                self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14", False),
+                self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17", False)
             ),
-            self._inputComponent("Título*:", "TITULO"),
-            self._bigTextComponent("Resumo*:", "RESUMO"),
-            self._inputComponent("Observação:", "OBSERVACAO", False),
-            self._inputComponent("Palavra-chave 1*:", "PALAVRA_CHAVE01"),
-            self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
-            self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False),
-            self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False),
-            self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
-            self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
-            self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14", False),
-            self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17", False),
             INPUT(_type='submit', _value='Salvar')
         )
 
