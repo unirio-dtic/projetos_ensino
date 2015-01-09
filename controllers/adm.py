@@ -5,6 +5,7 @@ from gluon.tools import Crud
 from tables import TableAvaliacao
 
 
+@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def cadastro_edicoes():
     edicoes = Crud(db).select(db.edicao)
     form = SQLFORM(db.edicao)
@@ -19,6 +20,7 @@ def cadastro_edicoes():
 
 
 # @edicao.requires_edicao()
+@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacao():
     if not current.session.edicao:
         redirect(URL("default", "edicoes"))
@@ -34,6 +36,7 @@ def avaliacao():
     )
 
 
+@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacaoAjax():
     try:
         if request.vars.action == "aprovar":

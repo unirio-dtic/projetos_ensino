@@ -3,7 +3,7 @@ from sie.SIEFuncionarios import SIEFuncionarioID
 
 
 def index():
-    return dict()
+    redirect(URL("registro", "index"))
 
 
 @auth.requires_login()

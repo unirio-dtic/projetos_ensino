@@ -1,30 +1,7 @@
 # -*- coding: utf-8 -*-
 from cgi import FieldStorage
 
-from sie.SIEFuncionarios import SIEFuncionarioID
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
-
-
-@auth.requires_login()
-def index():
-    from forms import FormEdicoes
-
-    session.edicao = None
-
-    form = FormEdicoes().form()
-
-    if form.process().accepted:
-        session.edicao = db(db.edicao.id == form.vars.edicao).select().first()
-        try:
-            session.funcionario = SIEFuncionarioID("12330675755").getFuncionarioIDs()
-        except ValueError:
-            session.flash = "Seus dados não foram encontrados. É possível que você não esteja " \
-                            "autorizado a acessar este recurso."
-            redirect(URL("default", "index"))
-
-        redirect(URL('registro', 'registro'))
-
-    return dict(form=form)
 
 
 @auth.requires_login()
