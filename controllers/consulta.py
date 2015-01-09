@@ -8,6 +8,7 @@ def index():
         redirect(URL("registro", "index"))
 
     participacoes = SIEParticipantesProjs().getParticipacoes(session.funcionario)
+
     projetos = [SIEProjetos().getProjeto(projeto["ID_PROJETO"]) for projeto in participacoes.content]
 
     tabela = TableAcompanhamento(participacoes.content, projetos)

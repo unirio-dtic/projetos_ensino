@@ -17,8 +17,9 @@ auth.settings.actions_disabled = [
 ]
 db.auth_user.username.label = 'CPF'
 
-from gluon.contrib.login_methods.ldap_auth import ldap_auth
-auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
+if not request.is_local:
+    from gluon.contrib.login_methods.ldap_auth import ldap_auth
+    auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
 
 db.define_table(
     'edicao',
@@ -49,6 +50,20 @@ db.define_table(
     Field('quantidade_bolsas', 'integer')
 )
 
+db.define_table(
+    'avaliacao_perguntas',
+    Field("edicao", db.edicao),
+    Field("pergunta", "string")
+)
+
+db.define_table(
+    'avaliacao',
+    Field('id_projeto', 'integer'),
+    Field('pergunta', db.avaliacao_perguntas),
+    Field('avaliador', db.auth_user),
+    Field('datahora', 'datetime'),
+    Field('avaliacao', 'boolean')
+)
 
 db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('download', args=value))
 

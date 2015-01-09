@@ -1,4 +1,7 @@
 # coding=utf-8
+from datetime import datetime
+
+from forms import FormPerguntas
 from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos
 from gluon.tools import Crud
@@ -47,6 +50,25 @@ def avaliacaoAjax():
     except APIException as e:
         return dict(m=e.message)
 
+
+@auth.requires_login()
+def avaliacaoPerguntas():
+    perguntas = db(db.avaliacao_perguntas.edicao==session.edicao.id).select()
+    form = FormPerguntas(perguntas).formAvaliacao()
+
+    if form.process().accepted:
+        for i in form.vars:
+            db.avaliacao.insert(
+                id_projeto=999,
+                pergunta=i,
+                avaliador=session.auth.user.id,
+                datahora=datetime.now(),
+                avaliacao=True if form.vars[i] else False
+            )
+    else:
+        pass
+
+    return dict(perguntas=form)
 
 @cache.action()
 def download():
