@@ -11,6 +11,11 @@ class CustomFormHelper(object):
                                label,
                                name)
 
+    def _checkboxComponenet(self, label, name, isNotEmpty=True):
+        return self._invertedCompent(INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, _type="checkbox"),
+                               label,
+                               name)
+
     def _fileComponent(self, label, name, isNotEmpty=True):
         return self._component(
             INPUT(_type="file", _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
@@ -24,6 +29,14 @@ class CustomFormHelper(object):
 
     def _selectComponent(self, label, name, options, isNotEmpty=True):
         return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None), label, name)
+
+
+    def _invertedCompent(self, component, label, name):
+        return SPAN(
+            component,
+            LABEL(" " + label, _for=name),
+            BR()
+        )
 
     def _component(self, component, label, name):
         return SPAN(
@@ -114,3 +127,20 @@ class FormProjetos(CustomFormHelper):
             Field("PALAVRA_CHAVE03", label="Palavra-chave"),
             Field("PALAVRA_CHAVE04", label="Palavra-chave"),
         )
+
+
+class FormPerguntas(CustomFormHelper):
+    def __init__(self, perguntas):
+        """
+
+
+        :type perguntas: list
+        :param perguntas:
+        """
+        self.perguntas = perguntas
+
+    def formAvaliacao(self):
+        perguntas = [self._checkboxComponenet(p.pergunta, p.id, False) for p in self.perguntas]
+        perguntas.append(INPUT(_type="submit", _value="Salvar"))
+
+        return FORM(perguntas)
