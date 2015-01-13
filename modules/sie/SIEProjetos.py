@@ -311,7 +311,7 @@ class SIECursosDisciplinas(SIE):
             "LMIN": 0,
             "LMAX": 99999,
             "ORDERBY": "NOME_CURSO",
-            "DISTINCT": "NOME_CURSO"
+            "DISTINCT": "T"
         }
         fields = [
             "NOME_CURSO",
