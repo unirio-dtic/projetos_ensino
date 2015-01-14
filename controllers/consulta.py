@@ -5,7 +5,7 @@ from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 
 def index():
     if not session.funcionario:
-        redirect(URL("registro", "index"))
+        redirect(URL("default", "index"))
 
     # TODO lógica correta mas no ainda está feio...
     participacoes = SIEParticipantesProjs().getParticipacoes(session.funcionario)
