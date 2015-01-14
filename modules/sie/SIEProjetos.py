@@ -189,7 +189,7 @@ class SIEArquivosProj(SIE):
         """
         # TODO id_arquivo_proj não está com o comportamente desejado, mas é necessário até que BLOBS sejam inseridos corretamente. Remover o mesmo após resolver problema
         try:
-            with eval('arquivo.file') as stream:
+            with open(arquivo.fp.name, 'rb') as stream:
                 current.db.projetos.insert(
                     anexo_tipo=arquivo.type,
                     anexo_nome=arquivo.filename,
