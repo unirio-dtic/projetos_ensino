@@ -59,7 +59,8 @@ class FormEdicoes(CustomFormHelper):
         :return: Um SELECT com as possíveis edições
         """
         edicoes = self.db((self.db.edicao.dt_inicial <= date.today())
-                          & (self.db.edicao.dt_conclusao >= date.today())).select()
+                          & (self.db.edicao.dt_conclusao >= date.today())).select(cache=(current.cache.ram, 86400),
+                                                                                  cacheable=True)
         if edicoes:
             return [OPTION(edicao.nome, _value=edicao.id) for edicao in edicoes]
 
@@ -141,6 +142,7 @@ class FormPerguntas(CustomFormHelper):
 
     def formAvaliacao(self):
         perguntas = [self._checkboxComponenet(p.pergunta, p.id, False) for p in self.perguntas]
+        perguntas.append(self._bigTextComponent("Observações:", "observacao", False))
         perguntas.append(INPUT(_type="submit", _value="Salvar"))
 
         return FORM(perguntas)

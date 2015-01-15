@@ -1,0 +1,5 @@
+{{extend 'layout.html'}}
+<h1>{{=len(teste)}}</h1>
+{{for foto in teste:}}
+    {{=IMG(_src=foto)}}
+{{pass}}

@@ -35,7 +35,10 @@ class TableProjetos(object):
             return "Avaliação não cadastrada"
 
     def bolsa(self, projeto):
-        return str(self.bolsas[projeto["ID_PROJETO"]])
+        try:
+            return str(self.bolsas[projeto["ID_PROJETO"]])
+        except KeyError:
+            return "Indefinido"
 
 
 class TableAcompanhamento(TableProjetos):

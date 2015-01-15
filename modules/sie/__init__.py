@@ -1,4 +1,3 @@
-from unirio.api import UNIRIOAPIRequest
 from gluon import current
 
 __all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos", "SIETabEstruturada"]
@@ -6,5 +5,5 @@ __all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos", "SIETa
 
 class SIE(object):
     def __init__(self):
-        self.api = UNIRIOAPIRequest(current.kAPIKey, 1)
+        self.api = current.api
         self.cacheTime = 86400  # Um dia

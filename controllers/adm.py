@@ -31,6 +31,7 @@ def avaliacao():
     ID_CLASSIFICACAO_ENSINO = 40161
     projetos = SIEProjetos().projetosDeEnsino(session.edicao, {"ID_CLASSIFICACAO": ID_CLASSIFICACAO_ENSINO})
 
+    ids = [p['ID_PROJETO'] for p in projetos]
     table = TableAvaliacao(projetos)
 
     return dict(
@@ -45,7 +46,8 @@ def avaliacaoAjax():
         if request.vars.action == "aprovar":
             SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
         else:
-            SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
+            # SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
+            redirect(URL(f="avaliacaoPerguntas"))
         return dict(m="Avaliado com sucesso")
     except APIException as e:
         return dict(m=e.message)
@@ -53,7 +55,7 @@ def avaliacaoAjax():
 
 @auth.requires_login()
 def avaliacaoPerguntas():
-    perguntas = db(db.avaliacao_perguntas.edicao==session.edicao.id).select()
+    perguntas = db(db.avaliacao_perguntas.edicao == session.edicao.id).select()
     form = FormPerguntas(perguntas).formAvaliacao()
 
     if form.process().accepted:
@@ -65,8 +67,7 @@ def avaliacaoPerguntas():
                 datahora=datetime.now(),
                 avaliacao=True if form.vars[i] else False
             )
-    else:
-        pass
+
 
     return dict(perguntas=form)
 
