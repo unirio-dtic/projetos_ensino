@@ -206,6 +206,9 @@ class SIEArquivosProj(SIE):
             current.db.rollback()
             raise e
             # raise Exception("Não foi possível salvar o arquivo %s do projeto localmente" % arquivo.filename)
+        except IOError as e:
+            if e.errno == 63:
+                current.session.flash += "Impossivel salvar o arquivo %s. Nome muito grande" % arquivo.filename
         finally:
             current.db.commit()
 

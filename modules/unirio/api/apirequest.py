@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import urllib
+from datetime import datetime
 
 import requests
 
@@ -13,13 +14,12 @@ class UNIRIOAPIRequest(object):
     """
     UNIRIOAPIRequest is the main class for
     """
-    method = "GET"
     lastQuery = ""
     _versions = {0: "Production", 1: "Development", 2: "Local"}
     baseAPIURL = {0: "https://sistemas.unirio.br/api", 1: "https://teste.sistemas.unirio.br/api", 2: "http://localhost:8000/api"}
     timeout = 5  # 5 seconds
 
-    def __init__(self, api_key, server=0):
+    def __init__(self, api_key, server=0, debugMode=False):
         """
 
         :param api_key: The 'API Key' that will the used to perform the requests
@@ -27,6 +27,8 @@ class UNIRIOAPIRequest(object):
         """
         self.api_key = api_key
         self.server = server
+        self.requests = []
+        self.debugMode = debugMode
 
     def _URLQueryParametersWithDictionary(self, params=None):
         """
@@ -70,6 +72,15 @@ class UNIRIOAPIRequest(object):
         APIURL = self.baseAPIURL[self.server]
         requestURL = APIURL + "/" + path
         return requestURL
+
+    def __addRequest(self, method, path, params):
+        if self.debugMode:
+            self.requests.append({
+                "method": method,
+                "path": path,
+                "params": params,
+                "timestamp": datetime.now()
+            })
 
     def URLQueryData(self, params=None, fields=None):
         """
@@ -154,6 +165,7 @@ class UNIRIOAPIRequest(object):
         payload = self.POSTPayload(params)
 
         response = requests.post(url, payload, verify=False)
+        self.__addRequest("POST", path, payload)
         return APIPOSTResponse(response, self)
 
     def performDELETERequest(self, path, id):

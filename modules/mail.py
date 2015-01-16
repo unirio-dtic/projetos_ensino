@@ -3,7 +3,7 @@ from gluon import current
 
 
 class MailAvaliacao(object):
-    def __init__(self, avaliacao):
+    def __init__(self, ID_PROJETO):
         """
         A classe ``MailAvaliacao``trata estritamente de envio de emails relacionados aos estágios de uma avaliação.
         Utilizada a classe nativa de email de gluon.tools.
@@ -11,9 +11,9 @@ class MailAvaliacao(object):
         :type avaliacao: Avaliacao
         :param avaliacao: Uma avaliação referente ao email
         """
-        self.avaliacao = avaliacao
-        self.reply_to = "naoresponser.projetos@unirio.br"
-        self.subject = "[DTIC/PROGEP] Avaliação Funcional e Institucional de " + self.avaliacao.servidorAvaliado["NOME_SERVIDOR"].encode('utf-8')
+        self.avaliacao = ID_PROJETO
+        self.reply_to = current.mail.settings.sender
+        self.subject = "[DTIC/PROGRAD] Avaliação de projeto de Ensino"
         self.footer = "**** E-MAIL AUTOMÁTICO - NÃO RESPONDA ****"
 
     #TODO Verificar se não é possivel pegar algum erro caso o email não seja enviado
