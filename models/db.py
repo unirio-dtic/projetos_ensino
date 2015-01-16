@@ -61,20 +61,25 @@ db.define_table(
 
 db.define_table(
     'avaliacao',
-    Field('id_projeto', 'integer'),
-    Field('pergunta', db.avaliacao_perguntas),
     Field('avaliador', db.auth_user),
-    Field('datahora', 'datetime'),
-    Field('avaliacao', 'boolean')
+    Field('id_projeto', 'integer'),
+    Field('datahora', 'datetime')
+)
+
+db.define_table(
+    'avaliacao_respostas',
+    Field('pergunta', db.avaliacao_perguntas),
+    Field('avaliacao', db.avaliacao),
+    Field('resposta', 'boolean')
 )
 
 db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('download', args=value))
 
 ## configure email
 mail = auth.settings.mailer
-mail.settings.server = 'logging' if request.is_local else 'smtp.gmail.com:587'
-mail.settings.sender = 'you@gmail.com'
-mail.settings.login = 'username:password'
+mail.settings.server = 'smtp.gmail.com:587'
+mail.settings.sender = 'naoresponder.projetos@unirio.br'
+mail.settings.login = 'naoresponder.projetos@unirio.br:KDT=Sd7P'
 
 ## configure auth policy
 auth.settings.login_next = URL('default', 'mensagem')

@@ -37,8 +37,8 @@ admin_menu = [
     (T('Administração'), False, False, [
         (T('Cadastro de Edições'), False, URL("adm", "cadastro_edicoes"), []),
         (T('Avaliação de Projetos'), False, URL("adm", "avaliacao"), []),
-        (T('Lista de Deferidos'), False, URL("adm", "avaliacao"), []),
-        (T('Lista de Indeferidos'), False, URL("adm", "avaliacao"), [])
+        (T('Lista de Deferidos'), False, URL("adm", "deferidos"), []),
+        (T('Lista de Indeferidos'), False, URL("adm", "indeferidos"), [])
     ])
 
 ]
