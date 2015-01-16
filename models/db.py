@@ -44,7 +44,7 @@ db.define_table(
     # gravacao na pasta uploads so
     Field('arquivo', 'upload'),
     Field('tipo_arquivo_item', 'integer'),
-
+    Field('dt_envio', 'datetime')
 )
 
 db.define_table(
