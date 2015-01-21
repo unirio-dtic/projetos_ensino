@@ -37,6 +37,18 @@ class SIEProjetos(SIE):
         except (ValueError, AttributeError):
             return None
 
+    def getCoordenador(self, ID_PROJETO):
+        params = {
+            'LMIN': 0,
+            'LMAX': 1,
+            'ID_PROJETO': ID_PROJETO
+        }
+
+        try:
+            return self.api.performGETRequest("PARTICIPANTES_PROJ", params, cached=self.cacheTime).content[0]
+        except (ValueError, AttributeError):
+            return None
+
     def projetosDeEnsino(self, edicao, params={}):
         params.update({
             "ID_CLASSIFICACAO": 40161,
@@ -190,7 +202,7 @@ class SIEArquivosProj(SIE):
         # TODO id_arquivo_proj não está com o comportamente desejado, mas é necessário até que BLOBS sejam inseridos corretamente. Remover o mesmo após resolver problema
         try:
             with open(arquivo.fp.name, 'rb') as stream:
-                current.db.projetos.insert(
+                i = current.db.projetos.insert(
                     anexo_tipo=arquivo.type,
                     anexo_nome=arquivo.filename,
                     id_arquivo_proj=None,
@@ -201,7 +213,7 @@ class SIEArquivosProj(SIE):
                     tipo_arquivo_item=arquivoProj["TIPO_ARQUIVO_ITEM"],
                     dt_envio=datetime.now()
                 )
-                print "Gravou localmente %s" % arquivo.filename
+                print "Gravou localmente [%s] com ID [%d]" % (arquivo.filename, i)
         except Exception as e:
             current.db.rollback()
             raise e
@@ -301,7 +313,7 @@ class SIEParticipantesProjs(SIE):
             "LMAX": 9999
         }
         fields = ["ID_PROJETO", "FUNCAO_ITEM"]
-        return self.api.performGETRequest(self.path, params, fields, self.cacheTime)
+        return self.api.performGETRequest(self.path, params, fields)
 
 
 class SIECursosDisciplinas(SIE):
