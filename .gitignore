@@ -6,3 +6,4 @@ databases
 *.pyc
 modules/unirio/api/certs
 controllers/sandbox.py
+views/sandbox/*
