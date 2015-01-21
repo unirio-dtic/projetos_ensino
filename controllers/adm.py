@@ -3,7 +3,6 @@ from datetime import datetime
 
 from avaliacao import Avaliacao
 from mail import MailAvaliacao
-
 from forms import FormPerguntas
 from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos
@@ -45,11 +44,15 @@ def avaliacao():
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacaoAjax():
-    email = MailAvaliacao()
     try:
         if request.vars.action == "aprovar":
             SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
             Avaliacao().salvarAvaliacao(request.vars.ID_PROJETO)
+            try:
+                email = MailAvaliacao(request.vars.ID_PROJETO)
+                email.sendConfirmationEmail()
+            except Exception:
+                session.flash = "Não foi possível enviar email de confirmação."
         else:
             #
             redirect(URL(f="avaliacaoPerguntas"))
