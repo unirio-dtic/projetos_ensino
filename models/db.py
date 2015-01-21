@@ -63,14 +63,16 @@ db.define_table(
     'avaliacao',
     Field('avaliador', db.auth_user),
     Field('id_projeto', 'integer'),
-    Field('datahora', 'datetime')
+    Field('dt_envio', 'datetime'),
+    Field('is_deferido', 'boolean'),
+    Field('observacao', 'text')
 )
 
 db.define_table(
     'avaliacao_respostas',
     Field('pergunta', db.avaliacao_perguntas),
     Field('avaliacao', db.avaliacao),
-    Field('resposta', 'boolean')
+    Field('resposta', 'boolean'),
 )
 
 db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('download', args=value))

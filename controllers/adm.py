@@ -43,19 +43,15 @@ def avaliacao():
 
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
-def avaliacaoAjax():
+def aprovarAjax():
     try:
-        if request.vars.action == "aprovar":
-            SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
-            Avaliacao().salvarAvaliacao(request.vars.ID_PROJETO)
-            try:
-                email = MailAvaliacao(request.vars.ID_PROJETO)
-                email.sendConfirmationEmail()
-            except Exception:
-                session.flash = "Não foi possível enviar email de confirmação."
-        else:
-            #
-            redirect(URL(f="avaliacaoPerguntas"))
+        SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
+        Avaliacao().salvarAvaliacao(request.vars.ID_PROJETO)
+        try:
+            email = MailAvaliacao(request.vars.ID_PROJETO)
+            email.sendConfirmationEmail()
+        except Exception:
+            session.flash = "Não foi possível enviar email de confirmação."
         return dict(m="Avaliado com sucesso")
     except APIException as e:
         return dict(m=e.message)
@@ -63,21 +59,45 @@ def avaliacaoAjax():
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
+    # TODO deveria ser um decorator
+    if Avaliacao().isAvaliado(request.vars.ID_PROJETO):
+        session.flash = "Este projeto já foi avaliado."
+        redirect(URL('adm', 'avaliacao'))
+
+    projeto = SIEProjetos().getProjeto(request.vars.ID_PROJETO)
     perguntas = db(db.avaliacao_perguntas.edicao == session.edicao.id).select()
     form = FormPerguntas(perguntas).formAvaliacao()
 
     if form.process().accepted:
-        for i in form.vars:
-            db.avaliacao.insert(
-                id_projeto=999,
-                pergunta=i,
-                avaliador=session.auth.user.id,
-                datahora=datetime.now(),
-                avaliacao=True if form.vars[i] else False
-            )
-        SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
+        avaliacao = db.avaliacao.insert(
+            id_projeto=request.vars.ID_PROJETO,
+            avaliador=session.auth.user.id,
+            dt_envio=datetime.now(),
+            is_deferido=False,
+            observacao=form.vars.observacao
+        )
 
-    return dict(perguntas=form)
+        respostas = form.vars.copy()
+        del respostas['observacao']
+        if avaliacao:
+            for i in respostas:
+                db.avaliacao_respostas.insert(
+                    pergunta=i,
+                    avaliacao=avaliacao,
+                    resposta=True if respostas[i] else False
+                )
+
+            SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
+
+            email = MailAvaliacao(request.vars.ID_PROJETO)
+            email.sendConfirmationEmail()
+
+            session.flash = "Projeto #%d avaliado com sucesso" % projeto['ID_PROJETO']
+            redirect(URL("adm", "avaliacao"))
+        else:
+            response.flash = "Não foi possível salvar a avaliação. Tente novamente."
+
+    return dict(projeto=projeto, form=form)
 
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))

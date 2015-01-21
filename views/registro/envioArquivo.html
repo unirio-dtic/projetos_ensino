@@ -1,0 +1,15 @@
+{{extend "layout.html"}}
+<h2>{{=response.title}}</h2>
+
+<div class="demo-wrapper html5-progress-bar">
+    <div class="progress-bar-wrapper">
+        <progress id="progressbar" value="{{=str(progress)}}" max="100"></progress>
+        <span class="progress-value">{{=str(progress)}}% Concluído</span>
+    </div>
+</div>
+<br />
+
+<div class="alert alert-warning" role="alert">
+    <b>Atenção:</b> Os campos com <b>*</b> são de envio obrigatório
+</div>
+{{=form}}

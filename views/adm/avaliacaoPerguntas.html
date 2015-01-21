@@ -1,5 +1,7 @@
-{{if perguntas:}}
-{{=perguntas}}
+{{extend "layout.html"}}
+        <h2>Avaliação de "{{=projeto["TITULO"]}}"</h2>
+{{if form:}}
+{{=form}}
 {{else:}}
 Avaliação enviada
 {{pass}}

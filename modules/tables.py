@@ -28,6 +28,12 @@ class TableProjetos(object):
             n = 1
         return UL([A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos])
 
+    def situacao(self, projeto):
+        try:
+            return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
+        except AttributeError:
+            return "Aguardando..."
+
     def avaliacao(self, projeto):
         try:
             return SIETabEstruturada().descricaoDeItem(projeto["AVALIACAO_ITEM"], projeto["AVALIACAO_TAB"])
@@ -40,11 +46,30 @@ class TableProjetos(object):
         except KeyError:
             return "Indefinido"
 
+    def observacao(self, projeto):
+        avaliacao = current.db((current.db.avaliacao.id_projeto == projeto['ID_PROJETO'])
+                               & (current.db.avaliacao.observacao != None)).select().first()
+        if avaliacao:
+            if avaliacao.observacao:
+                return avaliacao.observacao
+        return "Nenhuma observação."
+
 
 class TableAcompanhamento(TableProjetos):
     def __init__(self, participacoes, projetos):
         super(TableAcompanhamento, self).__init__(projetos)
-        self.headers = ("Data de registro", "Num. Processo", "Título", "Função", "Avaliação", "Qtd. Bolsas", "Arquivos")
+        self.headers = (
+            "#",
+            "Data de registro",
+            "Num. Processo",
+            "Título",
+            "Função",
+            "Situação",
+            "Avaliação",
+            "Qtd. Bolsas",
+            "Arquivos",
+            "Observação"
+        )
         self.participacoes = participacoes
 
     def funcao(self, projeto):
@@ -60,45 +85,43 @@ class TableAcompanhamento(TableProjetos):
         # return SIEClassificacoesPrj().
 
     def printTable(self):
+        def row(p):
+            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
+                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p))
+
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            TBODY([TR(p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p)) for p in
-                   self.projetos if p])
+            TBODY([row(p) for p in self.projetos if p])
         )
 
 
 class TableAvaliacao(TableProjetos):
     def __init__(self, projetos):
         super(TableAvaliacao, self).__init__(projetos)
-        self.headers = ("Num. Processo", "Data de registro", "Título", "Arquivos", "Situação", "Avaliação", "Qtd. Bolsas", "Avaliar")
-
-    def situacao(self, projeto):
-        try:
-            return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
-        except AttributeError:
-            return "Aguardando..."
+        self.headers = (
+            "#", "Num. Processo", "Data de registro", "Título", "Arquivos", "Situação", "Avaliação", "Qtd. Bolsas",
+            "Avaliar")
 
     def avaliar(self, projeto):
-        aprovar = {"ID_PROJETO": projeto["ID_PROJETO"], "action": "aprovar"}
-        reprovar = {"ID_PROJETO": projeto["ID_PROJETO"], "action": "reprovar"}
-
         if not SIEProjetos.isAvaliado(projeto):
             uniqueDOMid = "avaliar%d" % projeto["ID_PROJETO"]
 
             return SPAN(
-                A("Aprovar", _id=projeto["ID_PROJETO"], callback=URL('adm', 'avaliacaoAjax', vars=aprovar),
+                A("Aprovar", _id=projeto["ID_PROJETO"], callback=URL('adm', 'aprovarAjax', vars={"ID_PROJETO": projeto["ID_PROJETO"]}),
                   target=uniqueDOMid),
                 " | ",
-                A("Reprovar", _id=projeto["ID_PROJETO"], callback=URL('adm', 'avaliacaoAjax', vars=reprovar),
-                  target=uniqueDOMid),
+                A("Reprovar", _id=projeto["ID_PROJETO"], _href=URL('adm', 'avaliacaoPerguntas', vars={"ID_PROJETO": projeto["ID_PROJETO"]})),
                 _id=uniqueDOMid
             )
         else:
             return "Avaliado"
 
     def printTable(self):
+        def row(p):
+            return TR(p['ID_PROJETO'], p['NUM_PROCESSO'], p['DT_REGISTRO'], p['TITULO'], self.arquivos(p),
+                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p))
+
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            TBODY([TR(p['NUM_PROCESSO'], p['DT_REGISTRO'], p['TITULO'], self.arquivos(p), self.situacao(p),
-                      self.avaliacao(p), self.bolsa(p), self.avaliar(p)) for p in self.projetos if p])
+            TBODY([row(p) for p in self.projetos if p])
         )

@@ -2,13 +2,12 @@
 from cgi import FieldStorage
 
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
+from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
+from forms import FormProjetos, FormArquivos
 
 
 @auth.requires_login()
 def registro():
-    from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
-    from forms import FormProjetos
-
     if not current.session.edicao:
         redirect(URL("default", "edicoes"))
 
@@ -25,14 +24,6 @@ def registro():
             quantidade_bolsas=novoProjeto["quantidade_bolsas"]
         )
 
-        #TODO "embelezar" essa parte
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO1, novoProjeto, session.funcionario, 1)
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO5, novoProjeto, session.funcionario, 5)
-        if isinstance(form.vars['CONTEUDO_ARQUIVO14'], FieldStorage):
-            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO14, novoProjeto, session.funcionario, 14)
-        if isinstance(form.vars['CONTEUDO_ARQUIVO17'], FieldStorage):
-            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO17, novoProjeto, session.funcionario, 17)
-
         classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
 
         SIEClassifProjetos().criarClassifProjetos(novoProjeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])
@@ -44,12 +35,79 @@ def registro():
             novoProjeto["ID_PROJETO"],
             session.funcionario
         )
+        session.projeto = novoProjeto
 
-        redirect(URL('consulta', 'index'))
-    else:
-        pass
+        redirect(URL('registro', 'arquivo_projeto'))
 
     return dict(form=form)
+
+
+def arquivo_projeto():
+    response.title = 'Registro - Envio de arquivos 1/4'
+    response.view = 'registro/envioArquivo.html'
+    progress = 20
+    form = FormArquivos().formArquivoProjeto()
+
+    # TODO deveria ser um decorator
+    if not session.projeto:
+        redirect(URL("registro", "registro"))
+
+    if form.process().accepted:
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 1)
+        redirect(URL("registro", "ata_departamento"))
+    return dict(locals())
+
+
+def ata_departamento():
+    response.title = 'Registro - Envio de arquivos 2/4'
+    response.view = 'registro/envioArquivo.html'
+    progress = 40
+    form = FormArquivos().formArquivoAta()
+
+    # TODO deveria ser um decorator
+    if not session.projeto:
+        redirect(URL("registro", "registro"))
+
+    if form.process().accepted:
+        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 5)
+        redirect(URL("registro", "relatorio_docente"))
+    return dict(locals())
+
+
+def relatorio_docente():
+    response.title = 'Registro - Envio de arquivos 3/4'
+    response.view = 'registro/envioArquivo.html'
+    progress = 60
+    form = FormArquivos().formArquivoRelatioDocente()
+
+    # TODO deveria ser um decorator
+    if not session.projeto:
+        redirect(URL("registro", "registro"))
+
+    if form.process().accepted:
+        if isinstance(form.vars['CONTEUDO_ARQUIVO'], FieldStorage):
+            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 14)
+        redirect(URL("registro", "relatorio_bolsista"))
+    return dict(locals())
+
+
+def relatorio_bolsista():
+    response.title = 'Registro - Envio de arquivos 4/4'
+    response.view = 'registro/envioArquivo.html'
+    progress = 80
+    form = FormArquivos().formArquivoRelatorioBolsista()
+
+    # TODO deveria ser um decorator'
+    if not session.projeto:
+        redirect(URL("registro", "registro"))
+
+    if form.process().accepted:
+        if isinstance(form.vars['CONTEUDO_ARQUIVO'], FieldStorage):
+            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 17)
+        session.flash = "Envio finalizado com sucesso"
+        session.projeto = None
+        redirect(URL("consulta", "index"))
+    return dict(locals())
 
 
 def getDisciplinasHTMLOptions():
