@@ -77,7 +77,7 @@ class SIEProjetos(SIE):
         :rtype bool
         """
         #TODO discituir se usar uma lista estática é uma solução aceitável ou se deveria ser realizada uma consulta na TAB_ESTRUTURADA
-        if projeto["SITUACAO_ITEM"] in range(1, 9):
+        if projeto["SITUACAO_ITEM"] in range(1, 10):
             return True
 
     def salvarProjeto(self, projeto, funcionario):
