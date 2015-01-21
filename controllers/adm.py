@@ -1,6 +1,9 @@
 # coding=utf-8
 from datetime import datetime
 
+from avaliacao import Avaliacao
+from mail import MailAvaliacao
+
 from forms import FormPerguntas
 from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos
@@ -42,18 +45,20 @@ def avaliacao():
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacaoAjax():
+    email = MailAvaliacao()
     try:
         if request.vars.action == "aprovar":
             SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
+            Avaliacao().salvarAvaliacao(request.vars.ID_PROJETO)
         else:
-            # SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
+            #
             redirect(URL(f="avaliacaoPerguntas"))
         return dict(m="Avaliado com sucesso")
     except APIException as e:
         return dict(m=e.message)
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
     perguntas = db(db.avaliacao_perguntas.edicao == session.edicao.id).select()
     form = FormPerguntas(perguntas).formAvaliacao()
@@ -67,9 +72,48 @@ def avaliacaoPerguntas():
                 datahora=datetime.now(),
                 avaliacao=True if form.vars[i] else False
             )
-
+        SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
 
     return dict(perguntas=form)
+
+
+@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+def deferidos():
+    try:
+        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+            "DESCRICAO": "Ensino",
+            "ORDERBY": "DT_REGISTRO",
+            "SORT": "DESC",
+            "SITUACAO": "Em andamento",
+            "LMIN": 0,
+            "LMAX": 5000
+        }, cached=360)
+        avaliador = Avaliacao()
+
+        for p in projetos.content:
+            p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
+
+        return dict(projetos=projetos.content)
+    except ValueError:
+        return dict(projetos="Nenhum projeto deferido.")
+
+
+@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+def indeferidos():
+    try:
+        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+            "DESCRICAO": "Ensino",
+            "ORDERBY": "DT_REGISTRO",
+            "SITUACAO": "Indeferido",
+            "SORT": "DESC",
+            "LMIN": 0,
+            "LMAX": 5000
+        })
+        table = TABLE(projetos.content)
+        return dict(projetos=table)
+    except ValueError:
+        return dict(projetos="Nenhum projeto indeferido.")
+
 
 @cache.action()
 def download():

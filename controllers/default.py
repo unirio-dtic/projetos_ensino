@@ -11,6 +11,7 @@ def edicoes():
     from forms import FormEdicoes
 
     session.edicao = None
+    session.funcionario = None
 
     form = FormEdicoes().form()
 

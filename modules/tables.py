@@ -50,7 +50,10 @@ class TableAcompanhamento(TableProjetos):
     def funcao(self, projeto):
         for i, dic in enumerate(self.participacoes):
             if dic["ID_PROJETO"] == projeto["ID_PROJETO"]:
-                return SIEParticipantesProjs().descricaoDeFuncaoDeParticipante(self.participacoes[i])
+                try:
+                    return SIEParticipantesProjs().descricaoDeFuncaoDeParticipante(self.participacoes[i])
+                except TypeError:
+                    return 'Indefinido'
 
     def disciplina(self, projeto):
         pass

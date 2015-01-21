@@ -1,6 +1,6 @@
 # coding=utf-8
 import base64
-from datetime import date
+from datetime import date, datetime
 
 from unirio.api.apiresult import APIException
 from sie import SIE
@@ -198,13 +198,17 @@ class SIEArquivosProj(SIE):
                     id_projeto=arquivoProj["ID_PROJETO"],
                     edicao=current.session.edicao.id,
                     arquivo=current.db.projetos.arquivo.store(stream, arquivo.filename),      # upload
-                    tipo_arquivo_item=arquivoProj["TIPO_ARQUIVO_ITEM"]
+                    tipo_arquivo_item=arquivoProj["TIPO_ARQUIVO_ITEM"],
+                    dt_envio=datetime.now()
                 )
                 print "Gravou localmente %s" % arquivo.filename
         except Exception as e:
             current.db.rollback()
             raise e
             # raise Exception("Não foi possível salvar o arquivo %s do projeto localmente" % arquivo.filename)
+        except IOError as e:
+            if e.errno == 63:
+                current.session.flash += "Impossivel salvar o arquivo %s. Nome muito grande" % arquivo.filename
         finally:
             current.db.commit()
 
