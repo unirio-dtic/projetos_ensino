@@ -79,7 +79,9 @@ db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('
 mail = auth.settings.mailer
 mail.settings.server = 'smtp.gmail.com:587'
 mail.settings.sender = 'naoresponder.projetos@unirio.br'
-mail.settings.login = 'naoresponder.projetos@unirio.br:KDT=Sd7P'
+mail.settings.login = 'naoresponder.projetos@unirio.br:8mx-SvY-fQh-SV9'
+
+current.mail = mail
 
 ## configure auth policy
 auth.settings.login_next = URL('default', 'mensagem')
