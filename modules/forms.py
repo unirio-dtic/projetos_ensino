@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 
-from gluon import SQLFORM, Field, IS_NOT_EMPTY, current
+from gluon import IS_NOT_EMPTY, current, IS_UPLOAD_FILENAME
 from gluon.html import *
 
 
@@ -12,13 +12,15 @@ class CustomFormHelper(object):
                                name)
 
     def _checkboxComponenet(self, label, name, isNotEmpty=True):
-        return self._invertedCompent(INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, _type="checkbox"),
-                               label,
-                               name)
+        return self._invertedCompent(
+            INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, _type="checkbox"),
+            label,
+            name)
 
     def _fileComponent(self, label, name, isNotEmpty=True):
         return self._component(
-            INPUT(_type="file", _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+            INPUT(_type="file", _name=name, _id=name, requires=IS_UPLOAD_FILENAME(extension='pdf',
+                                                                                  error_message="O arquivo precisa ser um PDF.") if isNotEmpty else None),
             label,
             name)
 
@@ -28,7 +30,8 @@ class CustomFormHelper(object):
                                name)
 
     def _selectComponent(self, label, name, options, isNotEmpty=True):
-        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None), label, name)
+        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+                               label, name)
 
 
     def _invertedCompent(self, component, label, name):
@@ -109,24 +112,39 @@ class FormProjetos(CustomFormHelper):
             FIELDSET(
                 self._selectComponent('Quantidade de bolsas*:', 'quantidade_bolsas', range(1, 3))
             ),
-            FIELDSET(
-                self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
-                self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
-                self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14", False),
-                self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17", False)
-            ),
-            INPUT(_type='submit', _value='Salvar')
+            # FIELDSET(
+            # self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
+            #     self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
+            #     self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14", False),
+            #     self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17", False)
+            # ),
+            INPUT(_type='submit', _value='Salvar e Prosseguir')
         )
 
-    def registroFactory(self):
-        return SQLFORM.factory(
-            Field("TITULO", label="Título*", requires=IS_NOT_EMPTY()),
-            Field("RESUMO", "text", label="Resumo*"),
-            Field("OBSERVACAO", label="Observação"),
-            Field("PALAVRA_CHAVE01", label="Palavra-chave"),
-            Field("PALAVRA_CHAVE02", label="Palavra-chave"),
-            Field("PALAVRA_CHAVE03", label="Palavra-chave"),
-            Field("PALAVRA_CHAVE04", label="Palavra-chave"),
+
+class FormArquivos(CustomFormHelper):
+    def formArquivoProjeto(self):
+        return FORM(
+            self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO"),
+            INPUT(_type='submit', _value='Salvar e Prosseguir')
+        )
+
+    def formArquivoAta(self):
+        return FORM(
+            self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO"),
+            INPUT(_type='submit', _value='Salvar e Prosseguir')
+        )
+
+    def formArquivoRelatioDocente(self):
+        return FORM(
+            self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO", False),
+            INPUT(_type='submit', _value='Salvar e Prosseguir')
+        )
+
+    def formArquivoRelatorioBolsista(self):
+        return FORM(
+            self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO", False),
+            INPUT(_type='submit', _value='Salvar e Prosseguir')
         )
 
 
@@ -143,6 +161,6 @@ class FormPerguntas(CustomFormHelper):
     def formAvaliacao(self):
         perguntas = [self._checkboxComponenet(p.pergunta, p.id, False) for p in self.perguntas]
         perguntas.append(self._bigTextComponent("Observações:", "observacao", False))
-        perguntas.append(INPUT(_type="submit", _value="Salvar"))
+        perguntas.append(INPUT(_type="submit", _value="Indeferir"))
 
         return FORM(perguntas)

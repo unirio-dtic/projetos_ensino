@@ -1,4 +1,5 @@
 # coding=utf-8
+from sie.SIEProjetos import SIEProjetos
 from gluon import current
 
 
@@ -11,7 +12,9 @@ class MailAvaliacao(object):
         :type avaliacao: Avaliacao
         :param avaliacao: Uma avaliação referente ao email
         """
-        self.avaliacao = ID_PROJETO
+        projeto = SIEProjetos().getCoordenador(ID_PROJETO)
+        coordenador = current.api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": projeto["ID_PESSOA"]}).content[0]
+        self.to = coordenador["DESCR_MAIL"]
         self.reply_to = current.mail.settings.sender
         self.subject = "[DTIC/PROGRAD] Avaliação de projeto de Ensino"
         self.footer = "**** E-MAIL AUTOMÁTICO - NÃO RESPONDA ****"
@@ -31,9 +34,9 @@ class MailAvaliacao(object):
         :return: Dicionário de parâmetros de email
         """
         return {
-            "to": [self.avaliacao.servidorAvaliado['EMAIL_SERVIDOR']],
+            "to": self.to,
             "subject": self.subject,
             "reply_to": self.reply_to,
             "message": "Prezado professor, seu projeto foi avaliado. O resultado da avaliação ja está disponível em: " +
-            " "
+            "http://sistemas.unirio.br/projetos_ensino/consulta"
         }

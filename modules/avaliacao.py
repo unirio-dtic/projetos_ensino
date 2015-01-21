@@ -31,3 +31,10 @@ class Avaliacao(object):
             datahora=datetime.now()
         )
 
+    def isAvaliado(self, ID_PROJETO):
+        if self.db(self.db.avaliacao.id_projeto == ID_PROJETO).select().first():
+            return True
+
+    def indeferir(self):
+        pass
+
