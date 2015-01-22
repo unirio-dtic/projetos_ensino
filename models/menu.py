@@ -22,13 +22,16 @@ response.google_analytics_id = None
 ## this is the main application menu add/remove items as required
 #########################################################################
 
-response.menu = [
+menu = [
     ('Edições', False, URL('default', 'edicoes'), []),
     ('Registro', False, False, [
         ("Registro", False, URL('registro', 'registro')),
         ("Acompanhamento", False, URL('consulta', 'index'))
     ])
 ]
+
+if auth.is_logged_in():
+    response.menu = menu
 
 admin_menu = [
     ('Administração', False, False, [
