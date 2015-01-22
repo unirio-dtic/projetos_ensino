@@ -6,8 +6,8 @@ from gluon.html import *
 
 
 class CustomFormHelper(object):
-    def _inputComponent(self, label, name, isNotEmpty=True):
-        return self._component(INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+    def _inputComponent(self, label, name, isNotEmpty=True, **kwargs):
+        return self._component(INPUT(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, **kwargs),
                                label,
                                name)
 
@@ -24,8 +24,8 @@ class CustomFormHelper(object):
             label,
             name)
 
-    def _bigTextComponent(self, label, name, isNotEmpty=True):
-        return self._component(TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+    def _bigTextComponent(self, label, name, isNotEmpty=True, **kwargs):
+        return self._component(TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, **kwargs),
                                label,
                                name)
 
@@ -102,12 +102,12 @@ class FormProjetos(CustomFormHelper):
                     [OPTION('Selecione o curso', _value='')]
                 ),
                 self._inputComponent("Título*:", "TITULO"),
-                self._bigTextComponent("Resumo*:", "RESUMO"),
+                self._bigTextComponent("Resumo*:", "RESUMO", _maxlength=10000),
                 self._inputComponent("Observação:", "OBSERVACAO", False),
-                self._inputComponent("Palavra-chave 1*:", "PALAVRA_CHAVE01"),
-                self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02"),
-                self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False),
-                self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False)
+                self._inputComponent("Palavra-chave 1*:", "PALAVRA_CHAVE01", _maxlength=20),
+                self._inputComponent("Palavra-chave 2*:", "PALAVRA_CHAVE02", _maxlength=20),
+                self._inputComponent("Palavra-chave 3:", "PALAVRA_CHAVE03", False, _maxlength=20),
+                self._inputComponent("Palavra-chave 4:", "PALAVRA_CHAVE04", False, _maxlength=20)
             ),
             FIELDSET(
                 self._selectComponent('Quantidade de bolsas*:', 'quantidade_bolsas', range(1, 3))
