@@ -10,7 +10,7 @@ from gluon.tools import Crud
 from tables import TableAvaliacao, TableDeferimento
 
 
-@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def cadastro_edicoes():
     edicoes = Crud(db).select(db.edicao)
     form = SQLFORM(db.edicao)
@@ -30,7 +30,7 @@ def cadastro_perguntas():
 
 
 # @edicao.requires_edicao()
-@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def avaliacao():
     if not current.session.edicao:
         redirect(URL("default", "edicoes"))
@@ -47,7 +47,7 @@ def avaliacao():
     )
 
 
-@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def aprovarAjax():
     try:
         SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
@@ -62,7 +62,7 @@ def aprovarAjax():
         return dict(m=e.message)
 
 
-@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
     # TODO deveria ser um decorator
     if Avaliacao().isAvaliado(request.vars.ID_PROJETO):
@@ -105,7 +105,7 @@ def avaliacaoPerguntas():
     return dict(projeto=projeto, form=form)
 
 
-@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def deferidos():
     try:
         projetos = api.performGETRequest("V_PROJETOS_DADOS", {
@@ -128,7 +128,7 @@ def deferidos():
         return dict(projetos="Nenhum projeto deferido até o momento.")
 
 
-@auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def indeferidos():
     try:
         projetos = api.performGETRequest("V_PROJETOS_DADOS", {
