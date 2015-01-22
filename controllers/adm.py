@@ -7,7 +7,7 @@ from forms import FormPerguntas
 from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos
 from gluon.tools import Crud
-from tables import TableAvaliacao
+from tables import TableAvaliacao, TableDeferimento
 
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
@@ -116,9 +116,11 @@ def deferidos():
         for p in projetos.content:
             p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
 
-        return dict(projetos=projetos.content)
+        table = TableDeferimento(projetos.content)
+
+        return dict(projetos=table.printTable())
     except ValueError:
-        return dict(projetos="Nenhum projeto deferido.")
+        return dict(projetos="Nenhum projeto deferido até o momento.")
 
 
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
@@ -132,8 +134,14 @@ def indeferidos():
             "LMIN": 0,
             "LMAX": 5000
         })
-        table = TABLE(projetos.content)
-        return dict(projetos=table)
+        avaliador = Avaliacao()
+
+        for p in projetos.content:
+            p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
+
+        table = TableDeferimento(projetos.content)
+
+        return dict(projetos=table.printTable())
     except ValueError:
         return dict(projetos="Nenhum projeto indeferido.")
 
