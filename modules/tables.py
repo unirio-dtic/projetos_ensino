@@ -87,7 +87,33 @@ class TableAcompanhamento(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
-                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p))
+                      self.situacao(p), p['AVALIACAO'], self.bolsa(p), self.arquivos(p), self.observacao(p))
+
+        return TABLE(
+            THEAD(TR([TH(h) for h in self.headers])),
+            TBODY([row(p) for p in self.projetos if p])
+        )
+
+
+class TableDeferimento(TableProjetos):
+    def __init__(self, projetos):
+        super(TableDeferimento, self).__init__(projetos)
+        self.headers = (
+            "#",
+            "Data de registro",
+            "Num. Processo",
+            "Título",
+            "Situação",
+            "Avaliação",
+            "Qtd. Bolsas",
+            "Arquivos",
+            "Observação"
+        )
+
+    def printTable(self):
+        def row(p):
+            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'],
+                      p['SITUACAO'], p['AVALIACAO'], self.bolsa(p), self.arquivos(p), self.observacao(p))
 
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
