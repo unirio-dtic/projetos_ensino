@@ -11,17 +11,17 @@ class Avaliacao(object):
         self.cacheTime = 86400
 
     def getAvaliador(self, ID_PROJETO):
-        CPF = self.db((self.db.avaliacao.id_projeto == ID_PROJETO) & (
+        user = self.db((self.db.avaliacao.id_projeto == ID_PROJETO) & (
             self.db.avaliacao.avaliador == self.db.auth_user.id)).select(self.db.auth_user.username,
                                                                          cache=(current.cache.ram, self.cacheTime)
         ).first()
 
-        if CPF:
+        if user:
             try:
-                avaliador = self.api.performGETRequest("V_FUNCIONARIOS_IDS", {"CPF": CPF, "LMIN": 0, "LMAX": 1})
+                avaliador = self.api.performGETRequest("V_FUNCIONARIO_IDS", {"CPF": user.username, "LMIN": 0, "LMAX": 1}, cached=self.cacheTime)
                 return avaliador.content[0]["NOME_PESSOA"]
-            except ValueError:
-                pass
+            except AttributeError:
+                return "Funcionário não encontrado"
         return "Indisponível"
 
     def salvarAvaliacao(self, ID_PROJETO):

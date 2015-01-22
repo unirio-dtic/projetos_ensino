@@ -24,6 +24,11 @@ def cadastro_edicoes():
     )
 
 
+def cadastro_perguntas():
+    form = SQLFORM(db.avaliacao_perguntas)
+    return dict(locals())
+
+
 # @edicao.requires_edicao()
 @auth.requires(auth.has_membership('PROAD') or auth.has_membership('DTIC'))
 def avaliacao():
