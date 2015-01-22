@@ -12,26 +12,29 @@ from tables import TableAvaliacao, TableDeferimento
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def cadastro_edicoes():
-    edicoes = Crud(db).select(db.edicao)
-    form = SQLFORM(db.edicao)
-
-    if form.process().accepted:
-        response.flash = 'form accepted'
-
-    return dict(
-        edicoes=edicoes if edicoes else "Nenhuma edição cadastrada",
-        form=form
+    db.edicao.id.readable = False
+    grid = SQLFORM.grid(
+        query=db.edicao,
+        orderby=db.edicao.nome,
+        deletable=False,
+        csv=False
     )
+    return dict(grid=grid)
 
 
 def cadastro_perguntas():
+    db.avaliacao_perguntas.id.readable = False
     db.avaliacao_perguntas.edicao.requires = IS_IN_DB(db, 'edicao.id', '%(nome)s', zero='Selecione')
-    query = db.avaliacao_perguntas.edicao==db.edicao.id
-    fields = (db.edicao.nome, db.avaliacao_perguntas.pergunta)
-    grid = SQLFORM.grid(query, fields, field_id=db.avaliacao_perguntas.id)
-    return dict(
-        grid=grid
+    db.avaliacao_perguntas.pergunta.requires = IS_NOT_EMPTY()
+    grid = SQLFORM.grid(
+        query=db.avaliacao_perguntas.edicao==db.edicao.id,
+        fields=(db.edicao.nome, db.avaliacao_perguntas.pergunta),
+        field_id=db.avaliacao_perguntas.id,
+        orderby=db.edicao.nome,
+        deletable=False,
+        csv=False
     )
+    return dict(grid=grid)
 
 
 # @edicao.requires_edicao()
