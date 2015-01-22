@@ -23,22 +23,24 @@ response.google_analytics_id = None
 #########################################################################
 
 response.menu = [
-    (T('Edições'), False, URL('default', 'edicoes'), [])
-]
-
-
-response.menu += [
-    (T('Registro'), False, False, [
+    ('Edições', False, URL('default', 'edicoes'), []),
+    ('Registro', False, False, [
         ("Registro", False, URL('registro', 'registro')),
         ("Acompanhamento", False, URL('consulta', 'index'))
     ])
 ]
+
 admin_menu = [
-    (T('Administração'), False, False, [
-        (T('Cadastro de Edições'), False, URL("adm", "cadastro_edicoes"), []),
-        (T('Avaliação de Projetos'), False, URL("adm", "avaliacao"), []),
-        (T('Lista de Deferidos'), False, URL("adm", "deferidos"), []),
-        (T('Lista de Indeferidos'), False, URL("adm", "indeferidos"), [])
+    ('Administração', False, False, [
+        ('Edições', False, False, [
+            ('Cadastro de Edições', False, URL("adm", "cadastro_edicoes"), []),
+            ('Cadastro de Perguntas', False, URL("adm", "cadastro_perguntas"), [])
+        ]),
+        ('Avaliação de Projetos', False, URL("adm", "avaliacao"), []),
+        ('Relatórios', False, False, [
+            ('Lista de Deferidos', False, URL("adm", "deferidos"), []),
+            ('Lista de Indeferidos', False, URL("adm", "indeferidos"), [])
+        ]),
     ])
 
 ]
