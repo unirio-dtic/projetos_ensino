@@ -6,7 +6,8 @@ from gluon.html import *
 
 __all__ = [
     "TableAcompanhamento",
-    "TableAvaliacao"
+    "TableAvaliacao",
+    "TableDeferimento"
 ]
 
 
@@ -87,7 +88,7 @@ class TableAcompanhamento(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
-                      self.situacao(p), p['AVALIACAO'], self.bolsa(p), self.arquivos(p), self.observacao(p))
+                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p))
 
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
