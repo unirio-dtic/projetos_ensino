@@ -126,7 +126,7 @@ class TableAvaliacao(TableProjetos):
     def __init__(self, projetos):
         super(TableAvaliacao, self).__init__(projetos)
         self.headers = (
-            "#", "Num. Processo", "Data de registro", "Título", "Arquivos", "Situação", "Avaliação", "Qtd. Bolsas",
+            "#", "Id.", "Num. Processo", "Data de registro", "Título", "Arquivos", "Situação", "Avaliação", "Qtd. Bolsas",
             "Avaliar")
 
     def avaliar(self, projeto):
@@ -145,7 +145,7 @@ class TableAvaliacao(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(p['ID_PROJETO'], p['NUM_PROCESSO'], p['DT_REGISTRO'], p['TITULO'], self.arquivos(p),
+            return TR(str(self.projetos.index(p)+1), p['ID_PROJETO'], p['NUM_PROCESSO'], p['DT_REGISTRO'], p['TITULO'], self.arquivos(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p))
 
         return TABLE(
