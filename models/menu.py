@@ -44,6 +44,7 @@ admin_menu = [
             ('Lista de Deferidos', False, URL("adm", "deferidos"), []),
             ('Lista de Indeferidos', False, URL("adm", "indeferidos"), [])
         ]),
+        ('Avaliadores', False, URL('adm', 'avaliadores'), [])
     ])
 
 ]
