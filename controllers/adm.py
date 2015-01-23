@@ -6,7 +6,6 @@ from mail import MailAvaliacao
 from forms import FormPerguntas
 from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos
-from gluon.tools import Crud
 from tables import TableAvaliacao, TableDeferimento
 
 
@@ -53,6 +52,18 @@ def avaliacao():
         projetos=projetos,
         table=table.printTable()
     )
+
+
+@auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
+def avaliadores():
+    grid = SQLFORM.grid(
+        query=db.auth_membership,
+        editable=False,
+        deletable=auth.has_membership('DTIC'),
+        details=False,
+        csv=False
+    )
+    return dict(grid=grid)
 
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
