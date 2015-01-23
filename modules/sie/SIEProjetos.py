@@ -45,7 +45,21 @@ class SIEProjetos(SIE):
         }
 
         try:
-            return self.api.performGETRequest("PARTICIPANTES_PROJ", params, cached=self.cacheTime).content[0]
+            c = self.api.performGETRequest("PARTICIPANTES_PROJ", params, cached=self.cacheTime).content[0]
+            return self.api.performGETRequest("PESSOAS", {"ID_PESSOA": c['ID_PESSOA']}, ["NOME_PESSOA"],
+                                                cached=self.cacheTime).content[0]['NOME_PESSOA']
+        except (ValueError, AttributeError):
+            return None
+
+    def getDisciplina(self, ID_PROJETO):
+        params = {
+            'LMIN': 0,
+            'LMAX': 1,
+            'ID_PROJETO': ID_PROJETO
+        }
+
+        try:
+            return self.api.performGETRequest("V_PROJETOS_DADOS", params, cached=self.cacheTime).content[0]['NOME_DISCIPLINA']
         except (ValueError, AttributeError):
             return None
 

@@ -29,6 +29,13 @@ class TableProjetos(object):
             n = 1
         return UL([A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos])
 
+    def coordenador(self, projeto):
+        return SIEProjetos().getCoordenador(projeto['ID_PROJETO'])
+
+
+    def disciplina(self, projeto):
+        return SIEProjetos().getDisciplina(projeto['ID_PROJETO'])
+
     def situacao(self, projeto):
         try:
             return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
@@ -81,9 +88,6 @@ class TableAcompanhamento(TableProjetos):
                 except TypeError:
                     return 'Indefinido'
 
-    def disciplina(self, projeto):
-        pass
-        # return SIEClassificacoesPrj().
 
     def printTable(self):
         def row(p):
@@ -124,10 +128,17 @@ class TableDeferimento(TableProjetos):
 
 class TableAvaliacao(TableProjetos):
     def __init__(self, projetos):
-        super(TableAvaliacao, self).__init__(projetos)
         self.headers = (
-            "#", "Id.", "Num. Processo", "Data de registro", "Título", "Arquivos", "Situação", "Avaliação", "Qtd. Bolsas",
-            "Avaliar")
+            "#",
+            "Coordenador",
+            "Disciplina",
+            "Arquivos",
+            "Situação",
+            "Avaliação",
+            "Qtd. Bolsas",
+            "Avaliar"
+        )
+        super(TableAvaliacao, self).__init__(projetos)
 
     def avaliar(self, projeto):
         if not SIEProjetos.isAvaliado(projeto):
@@ -145,7 +156,7 @@ class TableAvaliacao(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(str(self.projetos.index(p)+1), p['ID_PROJETO'], p['NUM_PROCESSO'], p['DT_REGISTRO'], p['TITULO'], self.arquivos(p),
+            return TR(str(self.projetos.index(p)+1), self.coordenador(p), self.disciplina(p), self.arquivos(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p))
 
         return TABLE(
