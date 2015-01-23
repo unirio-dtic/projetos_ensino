@@ -143,7 +143,7 @@ def deferidos():
         table = TableDeferimento(projetos.content)
 
         return dict(projetos=table.printTable())
-    except ValueError:
+    except AttributeError:
         return dict(projetos="Nenhum projeto deferido até o momento.")
 
 
@@ -166,7 +166,7 @@ def indeferidos():
         table = TableDeferimento(projetos.content)
 
         return dict(projetos=table.printTable())
-    except ValueError:
+    except AttributeError:
         return dict(projetos="Nenhum projeto indeferido.")
 
 
