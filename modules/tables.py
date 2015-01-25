@@ -61,8 +61,16 @@ class TableProjetos(object):
         avaliacao = current.db((current.db.avaliacao.id_projeto == projeto['ID_PROJETO'])
                                & (current.db.avaliacao.observacao != None)).select().first()
         if avaliacao:
-            if avaliacao.observacao:
-                return avaliacao.observacao
+            motivos = current.db(
+                (current.db.avaliacao_respostas.pergunta == current.db.avaliacao_perguntas.id)
+                & (current.db.avaliacao_respostas.resposta == True)
+                & (current.db.avaliacao_respostas.avaliacao == avaliacao.id)).select(current.db.avaliacao_perguntas.pergunta)
+            if motivos:
+                return SPAN(
+                    DIV(avaliacao.observacao, _class="alert alert-warning") if avaliacao.observacao else "",
+                    SPAN(B("Quesitos não atendidos:")),
+                    UL([LI(m.pergunta, _class='list-group-item') for m in motivos], _class='list-group')
+                )
         return "Nenhuma observação."
 
 
@@ -95,7 +103,7 @@ class TableAcompanhamento(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
-                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p))
+                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p), _id=p['ID_PROJETO'])
 
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
