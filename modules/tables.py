@@ -30,7 +30,10 @@ class TableProjetos(object):
         return UL([A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos])
 
     def coordenador(self, projeto):
-        return SIEProjetos().getCoordenador(projeto['ID_PROJETO'])
+        try:
+            return SIEProjetos().getCoordenador(projeto['ID_PROJETO'])['NOME_PESSOA']
+        except (TypeError, AttributeError):
+            return "Indefinido"
 
 
     def disciplina(self, projeto):

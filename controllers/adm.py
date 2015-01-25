@@ -72,8 +72,12 @@ def aprovarAjax():
         SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
         Avaliacao().salvarAvaliacao(request.vars.ID_PROJETO)
         try:
-            projeto = SIEProjetos().getCoordenador(request.vars.ID_PROJETO)
-            coordenador = current.api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": projeto["ID_PESSOA"]}).content[0]
+            coordenador = current.api.performGETRequest(
+                "V_SERVIDORES_EMAIL",
+                {
+                    "ID_PESSOA": SIEProjetos().getCoordenador(request.vars.ID_PROJETO)["ID_PESSOA"]
+                }
+            ).content[0]
             email = MailAvaliacao(coordenador)
             email.sendConfirmationEmail()
         except Exception:
@@ -116,8 +120,12 @@ def avaliacaoPerguntas():
             SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
 
             try:
-                projeto = SIEProjetos().getCoordenador(request.vars.ID_PROJETO)
-                coordenador = current.api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": projeto["ID_PESSOA"]}).content[0]
+                coordenador = current.api.performGETRequest(
+                "V_SERVIDORES_EMAIL",
+                {
+                    "ID_PESSOA": SIEProjetos().getCoordenador(request.vars.ID_PROJETO)["ID_PESSOA"]
+                }
+                ).content[0]
                 email = MailAvaliacao(coordenador)
                 email.sendConfirmationEmail()
             except Exception:
