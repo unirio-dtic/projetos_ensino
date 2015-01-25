@@ -1,10 +1,9 @@
 # coding=utf-8
-from sie.SIEProjetos import SIEProjetos
 from gluon import current
 
 
 class MailAvaliacao(object):
-    def __init__(self, ID_PROJETO):
+    def __init__(self, coordenador):
         """
         A classe ``MailAvaliacao``trata estritamente de envio de emails relacionados aos estágios de uma avaliação.
         Utilizada a classe nativa de email de gluon.tools.
@@ -12,8 +11,7 @@ class MailAvaliacao(object):
         :type avaliacao: Avaliacao
         :param avaliacao: Uma avaliação referente ao email
         """
-        projeto = SIEProjetos().getCoordenador(ID_PROJETO)
-        coordenador = current.api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": projeto["ID_PESSOA"]}).content[0]
+
         self.to = coordenador["DESCR_MAIL"]
         self.reply_to = current.mail.settings.sender
         self.subject = "[DTIC/PROGRAD] Avaliação de projeto de Ensino"

@@ -53,8 +53,12 @@ def arquivo_projeto():
         redirect(URL("registro", "registro"))
 
     if form.process().accepted:
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 1)
-        redirect(URL("registro", "ata_departamento"))
+        try:
+            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 1)
+            redirect(URL("registro", "ata_departamento"))
+        except IOError as e:
+            if e.errno == 36:
+                response.flash = "Não foi possível salvar o arquivo. Nome muito longo."
     return dict(locals())
 
 
@@ -69,8 +73,12 @@ def ata_departamento():
         redirect(URL("registro", "registro"))
 
     if form.process().accepted:
-        SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 5)
-        redirect(URL("registro", "relatorio_docente"))
+        try:
+            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 5)
+            redirect(URL("registro", "relatorio_docente"))
+        except IOError as e:
+            if e.errno == 36:
+                response.flash = "Não foi possível salvar o arquivo. Nome muito longo."
     return dict(locals())
 
 
@@ -85,9 +93,13 @@ def relatorio_docente():
         redirect(URL("registro", "registro"))
 
     if form.process().accepted:
-        if isinstance(form.vars['CONTEUDO_ARQUIVO'], FieldStorage):
-            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 14)
-        redirect(URL("registro", "relatorio_bolsista"))
+        try:
+            if isinstance(form.vars['CONTEUDO_ARQUIVO'], FieldStorage):
+                SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 14)
+            redirect(URL("registro", "relatorio_bolsista"))
+        except IOError as e:
+            if e.errno == 36:
+                response.flash = "Não foi possível salvar o arquivo. Nome muito longo."
     return dict(locals())
 
 
@@ -102,11 +114,16 @@ def relatorio_bolsista():
         redirect(URL("registro", "registro"))
 
     if form.process().accepted:
-        if isinstance(form.vars['CONTEUDO_ARQUIVO'], FieldStorage):
-            SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 17)
-        session.flash = "Envio finalizado com sucesso"
-        session.projeto = None
-        redirect(URL("consulta", "index"))
+        try:
+            if isinstance(form.vars['CONTEUDO_ARQUIVO'], FieldStorage):
+                SIEArquivosProj().salvarArquivo(form.vars.CONTEUDO_ARQUIVO, session.projeto, session.funcionario, 17)
+            session.flash = "Envio finalizado com sucesso"
+            session.projeto = None
+            redirect(URL("consulta", "index"))
+        except IOError as e:
+            if e.errno == 36:
+                response.flash = "Não foi possível salvar o arquivo. Nome muito longo."
+
     return dict(locals())
 
 
