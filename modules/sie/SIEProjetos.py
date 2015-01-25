@@ -46,8 +46,8 @@ class SIEProjetos(SIE):
 
         try:
             c = self.api.performGETRequest("PARTICIPANTES_PROJ", params, cached=self.cacheTime).content[0]
-            return self.api.performGETRequest("PESSOAS", {"ID_PESSOA": c['ID_PESSOA']}, ["NOME_PESSOA"],
-                                                cached=self.cacheTime).content[0]['NOME_PESSOA']
+            return self.api.performGETRequest("PESSOAS", {"ID_PESSOA": c['ID_PESSOA']},
+                                                cached=self.cacheTime).content[0]
         except (ValueError, AttributeError):
             return None
 
