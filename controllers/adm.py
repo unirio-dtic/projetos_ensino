@@ -72,7 +72,9 @@ def aprovarAjax():
         SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 2)
         Avaliacao().salvarAvaliacao(request.vars.ID_PROJETO)
         try:
-            email = MailAvaliacao(request.vars.ID_PROJETO)
+            projeto = SIEProjetos().getCoordenador(request.vars.ID_PROJETO)
+            coordenador = current.api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": projeto["ID_PESSOA"]}).content[0]
+            email = MailAvaliacao(coordenador)
             email.sendConfirmationEmail()
         except Exception:
             session.flash = "Não foi possível enviar email de confirmação."
@@ -113,8 +115,13 @@ def avaliacaoPerguntas():
 
             SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
 
-            email = MailAvaliacao(request.vars.ID_PROJETO)
-            email.sendConfirmationEmail()
+            try:
+                projeto = SIEProjetos().getCoordenador(request.vars.ID_PROJETO)
+                coordenador = current.api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": projeto["ID_PESSOA"]}).content[0]
+                email = MailAvaliacao(coordenador)
+                email.sendConfirmationEmail()
+            except Exception:
+                session.flash = "Não foi possível enviar email de confirmação."
 
             session.flash = "Projeto #%d avaliado com sucesso" % projeto['ID_PROJETO']
             redirect(URL("adm", "avaliacao"))

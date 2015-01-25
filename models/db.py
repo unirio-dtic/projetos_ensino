@@ -91,3 +91,11 @@ auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = False
 auth.settings.reset_password_requires_verification = True
 auth.settings.create_user_groups = None
+auth.settings.actions_disabled = [
+    'register',
+    'retrieve_username',
+    'remember_me',
+    'profile',
+    'change_password',
+    'request_reset_password'
+]
