@@ -20,7 +20,7 @@ def index():
         alert = "Você receberá alertas de avaliação de projeto no email: %s" % str(email)
         alert_class = "alert-info"
     except ValueError:
-        alert = "Seu email não pode ser recuperado. Entre em contato com o setor de cadastro da PROGREPE para normalizar sua situação."
+        alert = "Seu email não pode ser recuperado. Entre em contato com o setor de cadastro da PROGREPE (Ramais: 7321 ou 7307) para normalizar sua situação."
         alert_class = "alert-danger"
 
     return dict(
