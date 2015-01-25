@@ -26,9 +26,10 @@ class Avaliacao(object):
 
     def salvarAvaliacao(self, ID_PROJETO):
         return self.db.avaliacao.insert(
-            avaliador=current.session.auth.user.id,
             id_projeto=ID_PROJETO,
-            datahora=datetime.now()
+            avaliador=current.session.auth.user.id,
+            dt_envio=datetime.now(),
+            is_deferido=True
         )
 
     def isAvaliado(self, ID_PROJETO):
