@@ -12,9 +12,9 @@ def index():
     projetosLocais = db(db.projetos.id_funcionario == session.funcionario['ID_FUNCIONARIO']).select(db.projetos.id_projeto)
     ids = [p.id_projeto for p in projetosLocais]
 
-    projetos = [SIEProjetos().getProjeto(projeto["ID_PROJETO"]) for projeto in participacoes.content if projeto['ID_PROJETO'] in ids]
+    projetos = [SIEProjetos().getProjeto(projeto["ID_PROJETO"]) for projeto in participacoes if projeto['ID_PROJETO'] in ids]
 
-    tabela = TableAcompanhamento(participacoes.content, projetos)
+    tabela = TableAcompanhamento(participacoes, projetos)
     try:
         email = api.performGETRequest("V_SERVIDORES_EMAIL", {"ID_PESSOA": session.funcionario['ID_PESSOA']}).content[0]['DESCR_MAIL']
         alert = "Você receberá alertas de avaliação de projeto no email: %s" % str(email)
