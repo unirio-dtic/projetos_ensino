@@ -327,7 +327,11 @@ class SIEParticipantesProjs(SIE):
             "LMAX": 9999
         }
         fields = ["ID_PROJETO", "FUNCAO_ITEM"]
-        return self.api.performGETRequest(self.path, params, fields)
+
+        try:
+            return self.api.performGETRequest(self.path, params, fields).content
+        except ValueError:
+            return []
 
 
 class SIECursosDisciplinas(SIE):
