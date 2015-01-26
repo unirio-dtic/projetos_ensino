@@ -1,7 +1,8 @@
 # coding=utf-8
 from gluon import current
-from sie.SIETabEstruturada import SIETabEstruturada
 from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
+from sie.SIEServidores import SIEServidores
+from sie.SIETabEstruturada import SIETabEstruturada
 from gluon.html import *
 
 __all__ = [
@@ -51,6 +52,16 @@ class TableProjetos(object):
         except AttributeError:
             return "Avaliação não cadastrada"
 
+    def avaliador(self, projeto):
+        user = current.db((current.db.avaliacao.avaliador == current.db.auth_user.id) & (
+            current.db.avaliacao.id_projeto == projeto['ID_PROJETO'])).select(current.db.auth_user.username,
+                                                                              cache=(current.cache.ram, 86400)).first()
+        try:
+            servidor = SIEServidores().getServidorByCPF(user.username)
+            return "Avaliado por %s" % servidor['NOME_FUNCIONARIO']
+        except (TypeError, ValueError, AttributeError):
+            return "Servidor não encontrado"
+
     def bolsa(self, projeto):
         try:
             return str(self.bolsas[projeto["ID_PROJETO"]])
@@ -64,7 +75,8 @@ class TableProjetos(object):
             motivos = current.db(
                 (current.db.avaliacao_respostas.pergunta == current.db.avaliacao_perguntas.id)
                 & (current.db.avaliacao_respostas.resposta == True)
-                & (current.db.avaliacao_respostas.avaliacao == avaliacao.id)).select(current.db.avaliacao_perguntas.pergunta)
+                & (current.db.avaliacao_respostas.avaliacao == avaliacao.id)).select(
+                current.db.avaliacao_perguntas.pergunta)
             if motivos:
                 return SPAN(
                     DIV(avaliacao.observacao, _class="alert alert-warning") if avaliacao.observacao else "",
@@ -103,7 +115,8 @@ class TableAcompanhamento(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
-                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p), _id=p['ID_PROJETO'])
+                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p),
+                      _id=p['ID_PROJETO'])
 
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
@@ -156,18 +169,20 @@ class TableAvaliacao(TableProjetos):
             uniqueDOMid = "avaliar%d" % projeto["ID_PROJETO"]
 
             return SPAN(
-                A("Aprovar", _id=projeto["ID_PROJETO"], callback=URL('adm', 'aprovarAjax', vars={"ID_PROJETO": projeto["ID_PROJETO"]}),
+                A("Aprovar", _id=projeto["ID_PROJETO"],
+                  callback=URL('adm', 'aprovarAjax', vars={"ID_PROJETO": projeto["ID_PROJETO"]}),
                   target=uniqueDOMid),
                 " | ",
-                A("Reprovar", _id=projeto["ID_PROJETO"], _href=URL('adm', 'avaliacaoPerguntas', vars={"ID_PROJETO": projeto["ID_PROJETO"]})),
+                A("Reprovar", _id=projeto["ID_PROJETO"],
+                  _href=URL('adm', 'avaliacaoPerguntas', vars={"ID_PROJETO": projeto["ID_PROJETO"]})),
                 _id=uniqueDOMid
             )
         else:
-            return "Avaliado"
+            return self.avaliador(projeto)
 
     def printTable(self):
         def row(p):
-            return TR(str(self.projetos.index(p)+1), self.coordenador(p), self.disciplina(p), self.arquivos(p),
+            return TR(str(self.projetos.index(p) + 1), self.coordenador(p), self.disciplina(p), self.arquivos(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p))
 
         return TABLE(

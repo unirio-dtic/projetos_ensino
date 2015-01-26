@@ -1,6 +1,6 @@
 from gluon import current
 
-__all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos", "SIETabEstruturada"]
+__all__ = ["SIEDocumento", "SIEFuncionarios", "SIEProjetos", "SIEFluxos", "SIETabEstruturada", "SIEServidores"]
 
 
 class SIE(object):
