@@ -5,7 +5,7 @@ from datetime import datetime
 import requests
 
 from gluon import current
-from apiresult import APIResultObject, APIPOSTResponse, APIPUTResponse
+from apiresult import APIResultObject, APIPOSTResponse, APIPUTResponse, APIDELETEResponse
 
 
 __all__ = ["UNIRIOAPIRequest"]
@@ -19,16 +19,19 @@ class UNIRIOAPIRequest(object):
     baseAPIURL = {0: "https://sistemas.unirio.br/api", 1: "https://teste.sistemas.unirio.br/api", 2: "http://localhost:8000/api"}
     timeout = 5  # 5 seconds
 
-    def __init__(self, api_key, server=0, debugMode=False):
+    def __init__(self, api_key, server=0, debug=False, cache=current.cache.ram):
         """
 
+
+        :type cache: gluon.cache.CacheInRam
         :param api_key: The 'API Key' that will the used to perform the requests
         :param server: The server that will used. Production or Development
         """
         self.api_key = api_key
         self.server = server
         self.requests = []
-        self.debugMode = debugMode
+        self.debug = debug
+        self.cache = cache
 
     def _URLQueryParametersWithDictionary(self, params=None):
         """
@@ -74,7 +77,7 @@ class UNIRIOAPIRequest(object):
         return requestURL
 
     def __addRequest(self, method, path, params):
-        if self.debugMode:
+        if self.debug:
             self.requests.append({
                 "method": method,
                 "path": path,
@@ -98,7 +101,7 @@ class UNIRIOAPIRequest(object):
 
         return data
 
-    def POSTPayload(self, params=None):
+    def payload(self, params=None):
         """
         O payload de um POST/PUT obrigatoriamente devem ser do tipo dict.
 
@@ -112,6 +115,16 @@ class UNIRIOAPIRequest(object):
             "API_KEY": self.api_key
         })
         return payload
+
+    def __cacheHash(self, path, params):
+        """
+        Método utilizado para gerar um hash único para ser utilizado como chave de um cache
+
+        :param path: String correspondente a um endpoint
+        :param params: Dicionário de parâmetros
+        :return: String a ser utilizada como chave de um cache
+        """
+        return path + str(hash(frozenset(params.items())))
 
     def performGETRequest(self, path, params=None, fields=None, cached=0):
         """
@@ -144,8 +157,8 @@ class UNIRIOAPIRequest(object):
                     raise e
 
         if cached:
-            uniqueHash = path + str(hash(frozenset(params.items())))
-            projeto = current.cache.ram(
+            uniqueHash = self.__cacheHash(path, params)
+            projeto = self.cache(
                 uniqueHash,
                 lambda: _get(),
                 time_expire=cached
@@ -162,21 +175,32 @@ class UNIRIOAPIRequest(object):
         :rtype : APIPOSTResponse
         """
         url = self._URLWithPath(path)
-        payload = self.POSTPayload(params)
+        payload = self.payload(params)
 
         response = requests.post(url, payload, verify=False)
         self.__addRequest("POST", path, payload)
         return APIPOSTResponse(response, self)
 
-    def performDELETERequest(self, path, id):
-        url = self._URLWithPath(path)
-        response = requests.delete(url, verify=False)
+    def performDELETERequest(self, path, params):
+        """
+        :type path: str
+        :param path: string with an API ENDPOINT
 
-        return APIPUTResponse(response, self)
+        :param id:
+        :rtype : unirio.api.apiresult.APIDELETEResponse
+        """
+        url = self._URLWithPath(path)
+        payload = self.URLQueryData(params)
+        contentURI = "%s?%s" % (url, payload)
+
+        req = requests.delete(contentURI, verify=False)
+        r = APIDELETEResponse(req, self)
+
+        return r
 
     def performPUTRequest(self, path, params):
         url = self._URLWithPath(path)
-        payload = self.POSTPayload(params)
+        payload = self.payload(params)
         response = requests.put(url, payload, verify=False)
 
         return APIPUTResponse(response, self)

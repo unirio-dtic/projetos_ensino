@@ -5,7 +5,8 @@ __all__ = [
     "APIException",
     "APIResultObject",
     "APIPOSTResponse",
-    "APIPUTResponse"
+    "APIPUTResponse",
+    "APIDELETEResponse"
 ]
 
 
@@ -20,6 +21,16 @@ class APIResultObject(object):
     content = []
 
     def __init__(self, json, APIRequest):
+        """
+
+        :type self.content: list
+        :type self.lmin: int
+        :type self.lmax: int
+        :type self.count: int
+        :param json:
+        :param APIRequest:
+        :raise ValueError:
+        """
         try:
             r = simplejson.loads(json)
             self.content = r["content"]
@@ -78,7 +89,6 @@ class APIPUTResponse(object):
         """
 
         :type response: Response
-        :type response: UNIRIOAPIRequest
         :param response:
         :param request:
         :raise Exception: Uma exception é disparada caso, por algum motivo, o conteúdo não seja criado
@@ -89,3 +99,8 @@ class APIPUTResponse(object):
 
         self.request = request
         self.affectedRows = self.response.headers['Affected']
+
+
+class APIDELETEResponse(APIPUTResponse):
+    def __init__(self, response, request):
+        super(APIDELETEResponse, self).__init__(response, request)
