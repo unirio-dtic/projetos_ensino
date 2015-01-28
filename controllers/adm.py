@@ -163,9 +163,8 @@ def deferidos():
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
-                            print len(projetos.content)
                 except Exception as e:
-                    pass
+                    response.flash = e.message
 
             '''
             Essa verificação é necessária pela forma como o HTML trabalha com checkboxes. Se apenas um item for
@@ -204,10 +203,35 @@ def indeferidos():
             p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
 
         table = TableDeferimento(projetos.content)
+        form = table.printTable()
 
-        return dict(projetos=table.printTable())
+        if form.process().accepted:
+            def __removerProjeto(ID_PROJETO):
+                try:
+                    SIEProjetos().removerProjeto(ID_PROJETO)
+                    for p in projetos.content:
+                        if p['ID_PROJETO'] == int(ID_PROJETO):
+                            projetos.content.remove(p)
+                except Exception as e:
+                    response.flash = e.message
+
+            '''
+            Essa verificação é necessária pela forma como o HTML trabalha com checkboxes. Se apenas um item for
+            selecionado, a variável será uma string, caso vários items sejam selecionados, a variável será uma lista.
+            Não faz o mínimo sentido a forma como isso foi implementado, visto que uma um item poderia ser resprentado
+            como uma lista de apenas um elemento.
+
+            Ref: http://comments.gmane.org/gmane.comp.python.web2py/13251
+            '''
+            if isinstance(form.vars.toDelete, list):
+                for ID_PROJETO in form.vars.toDelete:
+                    __removerProjeto(ID_PROJETO)
+            else:
+                __removerProjeto(form.vars.toDelete)
+
+        return dict(tableForm=form)
     except AttributeError:
-        return dict(projetos="Nenhum projeto indeferido.")
+        return dict(tableForm="Nenhum projeto indeferido.")
 
 
 @cache.action()

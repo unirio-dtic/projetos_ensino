@@ -145,14 +145,16 @@ class TableDeferimento(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'],
-                      p['SITUACAO'], p['AVALIACAO'], self.bolsa(p), self.arquivos(p), self.observacao(p), self.removeBtn(p))
+                      p['SITUACAO'], p['AVALIACAO'], self.bolsa(p), self.arquivos(p), self.observacao(p),
+                      self.removeBtn(p), _id=p['ID_PROJETO'])
 
         return FORM(
             TABLE(
                 THEAD(TR([TH(h) for h in self.headers])),
                 TBODY([row(p) for p in self.projetos if p])
             ),
-            INPUT(_type='submit', _value='Remover projetos')
+            INPUT(_type='submit', _value='Remover projetos'),
+            _onsubmit='removerSelecionadosDaTabela()'
         )
 
 
