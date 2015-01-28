@@ -101,6 +101,32 @@ class SIEDocumentos(SIE):
         }
         self.api.performPUTRequest(self.path, novoDocumento)
 
+    def getDocumento(self, ID_DOCUMENTO):
+        """
+
+        :type ID_DOCUMENTO: int
+        :param ID_DOCUMENTO: Identificador único de uma entrada na tabela DOCUMENTOS
+        :rtype : dict
+        :return: Uma dicionário correspondente a uma entrada da tabela DOCUMENTOS
+        """
+        params = {
+            "ID_DOCUMENTO": ID_DOCUMENTO,
+            "LMIN": 0,
+            "LMAX": 1
+        }
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content[0]
+
+    def removerDocumento(self, documento):
+        """
+        Dada uma entrada na tabela de DOCUMENTOS, a função remove suas tramitações e o documento em si
+
+        :type documento: dict
+        :param documento: Um dicionário contendo uma entrada da tabela DOCUMENTOS
+        """
+        SIETramitacoes(documento).removerTramitacoes()
+        if self.api.performDELETERequest(self.path, documento['ID_DOCUMENTO']).affectedRows > 0:
+            del documento
+
 
 class SIENumeroTipoDocumento(SIE):
     def __init__(self, ano, ID_TIPO_DOC):
@@ -277,6 +303,20 @@ class SIETramitacoes(SIE):
         except Exception:
             if not current.session.flash:
                 current.session.flash = "Não foi possível atualizar tramitação"
+
+    def removerTramitacoes(self):
+        """
+        Dado um documento, a função busca e remove suas tramitações.
+
+        :param ID_DOCUMENTO: Identificador único de uma entrada na tabela DOCUMENTOS
+        """
+        try:
+            tramitacoes = self.api.performGETRequest(self.path, {"ID_DOCUMENTO": self.documento['ID_DOCUMENTO']}, ['ID_TRAMITACAO'])
+            for tramitacao in tramitacoes.content:
+                self.api.performDELETERequest(self.path, tramitacao['ID_TRAMITACAO'])
+        except ValueError:
+            # Nada a deletar...
+            pass
 
 
 class SIEFluxos(SIE):

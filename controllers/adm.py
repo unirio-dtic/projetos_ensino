@@ -156,10 +156,26 @@ def deferidos():
             p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
 
         table = TableDeferimento(projetos.content)
+        form = table.printTable()
 
-        return dict(projetos=table.printTable())
+        if form.process().accepted:
+            def __removerProjeto(ID_PROJETO):
+                try:
+                    SIEProjetos().removerProjeto(ID_PROJETO)
+                    for p in projetos.content:
+                        if p['ID_PROJETO'] == int(ID_PROJETO):
+                            projetos.content.remove(p)
+                            print len(projetos.content)
+                except Exception as e:
+                    pass
+
+            for ID_PROJETO in form.vars.toDelete:
+                __removerProjeto(ID_PROJETO)
+
+
+        return dict(tableForm=form)
     except AttributeError:
-        return dict(projetos="Nenhum projeto deferido até o momento.")
+        return dict(tableForm="Nenhum projeto deferido até o momento.")
 
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))

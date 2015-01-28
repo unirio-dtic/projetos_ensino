@@ -38,10 +38,19 @@ class SIEProjetos(SIE):
             return None
 
     def getCoordenador(self, ID_PROJETO):
+        """
+        Dado um ID_PROJETO, a função retorna o seu coordenador, na forma de um dicionário representativo de uma entrada
+        na tabela PESSOAS.
+
+        :param ID_PROJETO: Identificador único de um projeto na tabela PROJETOS
+        :return: Uma entrada na tabela PESSOAS
+        :rtype : dict
+        """
         params = {
             'LMIN': 0,
             'LMAX': 1,
-            'ID_PROJETO': ID_PROJETO
+            'ID_PROJETO': ID_PROJETO,
+            'FUNCAO_ITEM': 1
         }
 
         try:
@@ -52,6 +61,14 @@ class SIEProjetos(SIE):
             return None
 
     def getDisciplina(self, ID_PROJETO):
+        """
+        Dado um identificador único na tabela de PROJETOS, a função retornará uma string correspondente ao nome da
+        disciplina, de acordo com a classificaçao do projeto
+
+        :rtype : str
+        :param ID_PROJETO: Identificador único de uma entrada na tabela PROJETOS
+        :return: Nome de uma disciplina
+        """
         params = {
             'LMIN': 0,
             'LMAX': 1,
@@ -64,6 +81,15 @@ class SIEProjetos(SIE):
             return None
 
     def projetosDeEnsino(self, edicao, params={}):
+        """
+
+        :type edicao: gluon.storage.Storage
+        :param edicao: Uma entrada da tabela `edicao`
+        :type params: dict
+        :param params: Um dicionário de parâmetros a serem usados na busca
+        :rtype : list
+        :return: Uma lista de projetos de ensino
+        """
         params.update({
             "ID_CLASSIFICACAO": 40161,
             "DT_INICIAL": edicao.dt_inicial_projeto,
@@ -155,6 +181,26 @@ class SIEProjetos(SIE):
             )
         except APIException:
             raise APIException("Não foi possível atualizar o estado da avaliação de um projeto.")
+
+    def removerProjeto(self, ID_PROJETO):
+        """
+        Dada uma entrada na tabela PROJETOS, a função busca e remove essa entrada após buscar e remover o DOCUMENTO
+        relacionado, os partifipantes deste projeto, seu orgão e classificação
+
+        :param ID_PROJETO: Identificador único de uma entrada na tabela PROJETOS
+        """
+        projeto = self.getProjeto(ID_PROJETO)
+        SIEParticipantesProjs().removerParticipantesFromProjeto(projeto['ID_PROJETO'])
+        SIEOrgaosProjetos().removerOrgaosProjetos(projeto['ID_PROJETO'])
+        SIEClassifProjetos().removerClassifProjetos(projeto['ID_PROJETO'])
+
+        try:
+            documento = SIEDocumentos().getDocumento(projeto['ID_DOCUMENTO'])
+            SIEDocumentos().removerDocumento(documento)
+        except ValueError:
+            print "Documento %d não encontrado" % projeto['ID_DOCUMENTO']
+
+        self.api.performDELETERequest("PROJETOS", ID_PROJETO)
 
 
 class SIEArquivosProj(SIE):
@@ -333,6 +379,9 @@ class SIEParticipantesProjs(SIE):
         except ValueError:
             return []
 
+    def removerParticipantesFromProjeto(self, ID_PROJETO):
+        pass
+
 
 class SIECursosDisciplinas(SIE):
     def __init__(self):
@@ -400,6 +449,20 @@ class SIEClassifProjetos(SIE):
         except Exception:
             current.session.flash = "Não foi possível criar uma nova classificação para o projeto."
 
+    def removerClassifProjetos(self, ID_PROJETO):
+        params = {
+            "ID_PROJETO": ID_PROJETO,
+            "LMIN": 0,
+            "LMAX": 9999
+        }
+        try:
+            classifs = self.api.performGETRequest(self.path, {"ID_PROJETO": ID_PROJETO}, ["ID_CLASSIF_PROJETO"])
+            for classif in classifs.content:
+                self.api.performDELETERequest(self.path, classif['ID_CLASSIF_PROJETO'])
+        except ValueError:
+            print "Nenhum CLASSIF_PROJETOS a deletar"
+
+
 
 class SIEOrgaosProjetos(SIE):
     def __init__(self):
@@ -411,7 +474,7 @@ class SIEOrgaosProjetos(SIE):
         FUNCAO_ORG_TAB => 6006 - Função dos órgãos nos projetos
         FUNCAO_ITEM_TAB => 6 - Curso beneficiado
 
-        :param projeto:
+        :param projeto: Um dicionário contendo a entrada uma entrada da tabela PROJETOS
         :param ID_UNIDADE:
         :return:
         """
@@ -427,3 +490,20 @@ class SIEOrgaosProjetos(SIE):
             return self.api.performPOSTRequest(self.path, orgaoProj)
         except Exception:
             current.session.flash = "Não foi possível associar um órgão ao projeto."
+
+    def removerOrgaosProjetos(self, ID_PROJETO):
+        """
+        Dada uma entrada na tabela PROJETOS, a função busca e remove todas as entradas de ORGAOES_PROJETOS referentes a
+        esse projeto.
+
+        :param ID_PROJETO: Identificador único de uma entrada na tabela PROJETOS
+        :type ID_PROJETO: int
+        """
+        try:
+            orgaos = self.api.performGETRequest(self.path,
+                                                {"ID_PROJETO": ID_PROJETO},
+                                                ['ID_ORGAO_PROJETO'])
+            for orgao in orgaos.content:
+                self.api.performDELETERequest(self.path, orgao['ID_ORGAO_PROJETO'])
+        except ValueError:
+            print "Nenhuma entrada encontrada em ORGAOS_PROJETOS"
