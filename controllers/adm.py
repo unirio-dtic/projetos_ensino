@@ -23,8 +23,6 @@ def cadastro_edicoes():
 
 def cadastro_perguntas():
     db.avaliacao_perguntas.id.readable = False
-    db.avaliacao_perguntas.edicao.requires = IS_IN_DB(db, 'edicao.id', '%(nome)s', zero='Selecione')
-    db.avaliacao_perguntas.pergunta.requires = IS_NOT_EMPTY()
     grid = SQLFORM.grid(
         query=db.avaliacao_perguntas.edicao==db.edicao.id,
         fields=(db.edicao.nome, db.avaliacao_perguntas.pergunta),
@@ -169,8 +167,19 @@ def deferidos():
                 except Exception as e:
                     pass
 
-            for ID_PROJETO in form.vars.toDelete:
-                __removerProjeto(ID_PROJETO)
+            '''
+            Essa verificação é necessária pela forma como o HTML trabalha com checkboxes. Se apenas um item for
+            selecionado, a variável será uma string, caso vários items sejam selecionados, a variável será uma lista.
+            Não faz o mínimo sentido a forma como isso foi implementado, visto que uma um item poderia ser resprentado
+            como uma lista de apenas um elemento.
+
+            Ref: http://comments.gmane.org/gmane.comp.python.web2py/13251
+            '''
+            if isinstance(form.vars.toDelete, list):
+                for ID_PROJETO in form.vars.toDelete:
+                    __removerProjeto(ID_PROJETO)
+            else:
+                __removerProjeto(form.vars.toDelete)
 
 
         return dict(tableForm=form)

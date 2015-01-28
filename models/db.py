@@ -30,6 +30,7 @@ db.define_table(
     Field('dt_conclusao_projeto', 'date', notnull=True, required=True, label="Data final do projeto*"),
     Field('disciplinas_obrigatorias', 'boolean', notnull=True, required=True, label='Mostrar somente disciplinas obrigatórias?*')
 )
+
 db.define_table(
     'projetos',
     Field('anexo_nome', 'string', notnull=True),
@@ -74,6 +75,9 @@ db.define_table(
     Field('avaliacao', db.avaliacao),
     Field('resposta', 'boolean'),
 )
+
+db.avaliacao_perguntas.edicao.requires = IS_IN_DB(db, 'edicao.id', '%(nome)s', zero='Selecione')
+db.avaliacao_perguntas.pergunta.requires = IS_NOT_EMPTY()
 
 db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('download', args=value))
 
