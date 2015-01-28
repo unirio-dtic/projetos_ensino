@@ -30,4 +30,9 @@ def edicoes():
 
 
 def user():
+    response.view = 'default/login.html'
     return dict(form=auth())
+
+
+def login():
+    return dict(form=auth.login())
