@@ -124,9 +124,9 @@ class SIEDocumentos(SIE):
         :param documento: Um dicionário contendo uma entrada da tabela DOCUMENTOS
         """
         SIETramitacoes(documento).removerTramitacoes()
-        if self.api.performDELETERequest(self.path, documento['ID_DOCUMENTO']).affectedRows > 0:
+        response = self.api.performDELETERequest(self.path, {'ID_DOCUMENTO': documento['ID_DOCUMENTO']})
+        if response.affectedRows > 0:
             del documento
-
 
 class SIENumeroTipoDocumento(SIE):
     def __init__(self, ano, ID_TIPO_DOC):
@@ -313,10 +313,9 @@ class SIETramitacoes(SIE):
         try:
             tramitacoes = self.api.performGETRequest(self.path, {"ID_DOCUMENTO": self.documento['ID_DOCUMENTO']}, ['ID_TRAMITACAO'])
             for tramitacao in tramitacoes.content:
-                self.api.performDELETERequest(self.path, tramitacao['ID_TRAMITACAO'])
+                self.api.performDELETERequest(self.path, {'ID_TRAMITACAO': tramitacao['ID_TRAMITACAO']})
         except ValueError:
-            # Nada a deletar...
-            pass
+            print "Nenhuma tramitação encontrada para o documento %d" % self.documento['ID_DOCUMENTO']
 
 
 class SIEFluxos(SIE):

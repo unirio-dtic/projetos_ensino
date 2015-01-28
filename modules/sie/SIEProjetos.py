@@ -191,8 +191,8 @@ class SIEProjetos(SIE):
         """
         projeto = self.getProjeto(ID_PROJETO)
         SIEParticipantesProjs().removerParticipantesFromProjeto(projeto['ID_PROJETO'])
-        SIEOrgaosProjetos().removerOrgaosProjetos(projeto['ID_PROJETO'])
-        SIEClassifProjetos().removerClassifProjetos(projeto['ID_PROJETO'])
+        SIEOrgaosProjetos().removerOrgaosProjetosDeProjeto(projeto['ID_PROJETO'])
+        SIEClassifProjetos().removerClassifProjetosDeProjeto(projeto['ID_PROJETO'])
 
         try:
             documento = SIEDocumentos().getDocumento(projeto['ID_DOCUMENTO'])
@@ -200,7 +200,7 @@ class SIEProjetos(SIE):
         except ValueError:
             print "Documento %d não encontrado" % projeto['ID_DOCUMENTO']
 
-        self.api.performDELETERequest("PROJETOS", ID_PROJETO)
+        self.api.performDELETERequest(self.path, {"ID_PROJETO": ID_PROJETO})
 
 
 class SIEArquivosProj(SIE):
@@ -379,8 +379,21 @@ class SIEParticipantesProjs(SIE):
         except ValueError:
             return []
 
+    def removerParticipante(self, ID_PARTICIPANTE):
+        self.api.performDELETERequest(self.path, {"ID_PARTICIPANTE": ID_PARTICIPANTE})
+
     def removerParticipantesFromProjeto(self, ID_PROJETO):
-        pass
+        params = {
+            "ID_PROJETO": ID_PROJETO,
+            "LMIN": 0,
+            "LMAX": 99999
+        }
+        try:
+            participantes = self.api.performGETRequest(self.path, params, ['ID_PARTICIPANTE'])
+            for p in participantes.content:
+                self.removerParticipante(p['ID_PARTICIPANTE'])
+        except ValueError as e:
+            print "Nenhum participante para remover do projeto %d" % ID_PROJETO
 
 
 class SIECursosDisciplinas(SIE):
@@ -449,16 +462,19 @@ class SIEClassifProjetos(SIE):
         except Exception:
             current.session.flash = "Não foi possível criar uma nova classificação para o projeto."
 
-    def removerClassifProjetos(self, ID_PROJETO):
+    def removerClassifProjetos(self, ID_CLASSIF_PROJETO):
+        self.api.performDELETERequest(self.path, {"ID_CLASSIF_PROJETO": ID_CLASSIF_PROJETO})
+
+    def removerClassifProjetosDeProjeto(self, ID_PROJETO):
         params = {
             "ID_PROJETO": ID_PROJETO,
             "LMIN": 0,
             "LMAX": 9999
         }
         try:
-            classifs = self.api.performGETRequest(self.path, {"ID_PROJETO": ID_PROJETO}, ["ID_CLASSIF_PROJETO"])
+            classifs = self.api.performGETRequest(self.path, params, ["ID_CLASSIF_PROJETO"])
             for classif in classifs.content:
-                self.api.performDELETERequest(self.path, classif['ID_CLASSIF_PROJETO'])
+                self.removerClassifProjetos(classif['ID_CLASSIF_PROJETO'])
         except ValueError:
             print "Nenhum CLASSIF_PROJETOS a deletar"
 
@@ -491,7 +507,10 @@ class SIEOrgaosProjetos(SIE):
         except Exception:
             current.session.flash = "Não foi possível associar um órgão ao projeto."
 
-    def removerOrgaosProjetos(self, ID_PROJETO):
+    def removerOrgaosProjetos(self, ID_ORGAO_PROJETO):
+        self.api.performDELETERequest(self.path, {"ID_ORGAO_PROJETO": ID_ORGAO_PROJETO})
+
+    def removerOrgaosProjetosDeProjeto(self, ID_PROJETO):
         """
         Dada uma entrada na tabela PROJETOS, a função busca e remove todas as entradas de ORGAOES_PROJETOS referentes a
         esse projeto.
@@ -504,6 +523,6 @@ class SIEOrgaosProjetos(SIE):
                                                 {"ID_PROJETO": ID_PROJETO},
                                                 ['ID_ORGAO_PROJETO'])
             for orgao in orgaos.content:
-                self.api.performDELETERequest(self.path, orgao['ID_ORGAO_PROJETO'])
+                self.removerOrgaosProjetos(orgao['ID_ORGAO_PROJETO'])
         except ValueError:
             print "Nenhuma entrada encontrada em ORGAOS_PROJETOS"
