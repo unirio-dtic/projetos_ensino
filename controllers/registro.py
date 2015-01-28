@@ -8,7 +8,7 @@ from forms import FormProjetos, FormArquivos
 
 @auth.requires_login()
 def registro():
-    if not current.session.edicao:
+    if not (current.session.edicao and current.session.funcionario):
         redirect(URL("default", "edicoes"))
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
