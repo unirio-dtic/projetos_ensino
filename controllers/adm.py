@@ -157,6 +157,7 @@ def deferidos():
         form = table.printTable()
 
         if form.process().accepted:
+            @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
@@ -179,6 +180,7 @@ def deferidos():
                     __removerProjeto(ID_PROJETO)
             else:
                 __removerProjeto(form.vars.toDelete)
+            response.flash = "Projetos removidos com sucesso"
 
 
         return dict(tableForm=form)
@@ -206,6 +208,7 @@ def indeferidos():
         form = table.printTable()
 
         if form.process().accepted:
+            @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
