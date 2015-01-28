@@ -22,7 +22,7 @@ def edicoes():
         except ValueError:
             session.flash = "Seus dados não foram encontrados. É possível que você não esteja " \
                             "autorizado a acessar este recurso."
-            redirect(URL("default", "index"))
+            auth.logout()
 
         redirect(URL('registro', 'registro'))
 
