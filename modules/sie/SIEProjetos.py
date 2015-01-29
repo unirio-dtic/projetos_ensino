@@ -7,6 +7,7 @@ from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos
 from sie.SIEFuncionarios import SIEFuncionarios
+from sie.SIETabEstruturada import SIETabEstruturada
 
 
 __all__ = [
@@ -202,6 +203,14 @@ class SIEProjetos(SIE):
 
         self.api.performDELETERequest(self.path, {"ID_PROJETO": ID_PROJETO})
 
+    def situacoes(self):
+        """
+        A função retorna uma lista de dicionários com as possíveis situações (SITUACAO_ITEM) de um projeto
+
+        :rtype : list
+        :return: Lista de dicionários contendo as chaves `ITEM_TABELA` e `DESCRICAO`
+        """
+        return SIETabEstruturada().itemsDeCodigo(6011)
 
 class SIEArquivosProj(SIE):
     def __init__(self):

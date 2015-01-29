@@ -103,3 +103,5 @@ auth.settings.actions_disabled = [
     'change_password',
     'request_reset_password'
 ]
+
+current.auth = auth
