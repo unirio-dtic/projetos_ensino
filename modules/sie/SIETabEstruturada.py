@@ -52,6 +52,8 @@ class SIETabEstruturada(SIE):
         }
         fields = ["ITEM_TABELA", "DESCRICAO"]
         try:
-            return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
+            items = self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
+            # Primeiro item de uma de ITEMS de uma TABELA é sempre a descrição do conteúdo
+            return items[1:]
         except AttributeError:
             raise AttributeError("Nenhum item encontreado para este código.")
