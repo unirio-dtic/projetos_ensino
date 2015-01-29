@@ -93,7 +93,7 @@ class FormProjetos(CustomFormHelper):
                 self._selectComponent(
                     'Curso*:',
                     'ID_CURSO',
-                    [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in
+                    [OPTION(curso['NOME_CURSO'].encode('latin1'), _value=curso['ID_CURSO']) for curso in
                      self.cursos]
                 ),
                 self._selectComponent(
