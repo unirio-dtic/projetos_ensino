@@ -42,7 +42,12 @@ class TableProjetos(object):
 
     def situacao(self, projeto):
         try:
-            return SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
+            situacao = SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
+            if current.auth.has_permission("alterarSituacao"):
+                situacoes = SIEProjetos().situacoes()
+                return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in situacoes], value=projeto['SITUACAO_ITEM'])
+            else:
+                return situacao
         except AttributeError:
             return "Aguardando..."
 
