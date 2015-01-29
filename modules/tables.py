@@ -40,12 +40,13 @@ class TableProjetos(object):
     def disciplina(self, projeto):
         return SIEProjetos().getDisciplina(projeto['ID_PROJETO'])
 
-    def situacao(self, projeto):
+    def situacao(self, p):
         try:
-            situacao = SIETabEstruturada().descricaoDeItem(projeto["SITUACAO_ITEM"], projeto["SITUACAO_TAB"])
+            situacao = SIETabEstruturada().descricaoDeItem(p["SITUACAO_ITEM"], p["SITUACAO_TAB"])
             if current.auth.has_permission("alterarSituacao"):
                 situacoes = SIEProjetos().situacoes()
-                return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in situacoes], value=projeto['SITUACAO_ITEM'])
+                return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in situacoes],
+                              value=p['SITUACAO_ITEM'], _onchange='alterarSituacao(%d, this.value)' % p['ID_PROJETO'])
             else:
                 return situacao
         except AttributeError:

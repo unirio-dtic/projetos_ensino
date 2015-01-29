@@ -85,6 +85,19 @@ def aprovarAjax():
         return dict(m=e.message)
 
 
+@auth.requires(auth.has_permission('alterarSituacao'))
+def alterarSituacao():
+    try:
+        r = api.performPUTRequest("PROJETOS", {
+            "ID_PROJETO": request.vars.ID_PROJETO,
+            "SITUACAO_ITEM": request.vars.SITUACAO_ITEM
+        })
+        if r.affectedRows:
+            return T('Resource updated')
+    except APIException:
+        return T('Unable to update')
+
+
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
     # TODO deveria ser um decorator

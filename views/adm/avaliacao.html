@@ -3,3 +3,19 @@
         <h3><b>{{=len(projetos)}}</b> projetos cadastrados</h3>
         <div id="callback-placeholder"></div>
         {{=table}}
+
+<script>
+    function alterarSituacao(ID_PROJETO, SITUACAO_ITEM){
+        $.ajax({
+            type: 'POST',
+            url: 'alterarSituacao',
+            data: {
+                ID_PROJETO: ID_PROJETO,
+                SITUACAO_ITEM: SITUACAO_ITEM
+            },
+            success: function(retorno) {
+                alert(retorno);
+            }
+        });
+    }
+</script>
