@@ -1,6 +1,7 @@
 # coding=utf-8
 from datetime import datetime
 
+from applications.projs.modules import relatorios
 from avaliacao import Avaliacao
 from mail import MailAvaliacao
 from forms import FormPerguntas
@@ -24,7 +25,7 @@ def cadastro_edicoes():
 def cadastro_perguntas():
     db.avaliacao_perguntas.id.readable = False
     grid = SQLFORM.grid(
-        query=db.avaliacao_perguntas.edicao==db.edicao.id,
+        query=db.avaliacao_perguntas.edicao == db.edicao.id,
         fields=(db.edicao.nome, db.avaliacao_perguntas.pergunta),
         field_id=db.avaliacao_perguntas.id,
         orderby=db.edicao.nome,
@@ -43,7 +44,6 @@ def avaliacao():
     ID_CLASSIFICACAO_ENSINO = 40161
     projetos = SIEProjetos().projetosDeEnsino(session.edicao, {"ID_CLASSIFICACAO": ID_CLASSIFICACAO_ENSINO})
 
-    ids = [p['ID_PROJETO'] for p in projetos]
     table = TableAvaliacao(projetos)
 
     return dict(
@@ -132,10 +132,10 @@ def avaliacaoPerguntas():
 
             try:
                 coordenador = current.api.performGETRequest(
-                "V_SERVIDORES_EMAIL",
-                {
-                    "ID_PESSOA": SIEProjetos().getCoordenador(request.vars.ID_PROJETO)["ID_PESSOA"]
-                }
+                    "V_SERVIDORES_EMAIL",
+                    {
+                        "ID_PESSOA": SIEProjetos().getCoordenador(request.vars.ID_PROJETO)["ID_PESSOA"]
+                    }
                 ).content[0]
                 email = MailAvaliacao(coordenador)
                 email.sendConfirmationEmail()
@@ -154,20 +154,22 @@ def avaliacaoPerguntas():
 def deferidos():
     try:
         projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-            "DESCRICAO": "Ensino",
-            "ORDERBY": "DT_REGISTRO",
-            "SORT": "DESC",
+            "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
+            "ORDERBY": "COORDENADOR",
+            "SORT": "ASC",
             "SITUACAO": "Em andamento",
+            "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
             "LMIN": 0,
             "LMAX": 5000
-        }, cached=360)
-        avaliador = Avaliacao()
-
-        for p in projetos.content:
-            p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
+        }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"], cached=600)
 
         table = TableDeferimento(projetos.content)
         form = table.printTable()
+        relatorio = relatorios.salvar(
+            projetos.content,
+            ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"),
+            "deferidos"
+        )
 
         if form.process().accepted:
             @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
@@ -195,8 +197,7 @@ def deferidos():
                 __removerProjeto(form.vars.toDelete)
             response.flash = "Projetos removidos com sucesso"
 
-
-        return dict(tableForm=form)
+        return dict(relatorio=relatorio, tableForm=form)
     except AttributeError:
         return dict(tableForm="Nenhum projeto deferido até o momento.")
 
@@ -205,9 +206,10 @@ def deferidos():
 def indeferidos():
     try:
         projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-            "DESCRICAO": "Ensino",
+            "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
             "ORDERBY": "DT_REGISTRO",
             "SITUACAO": "Indeferido",
+            "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
             "SORT": "DESC",
             "LMIN": 0,
             "LMAX": 5000
@@ -257,3 +259,40 @@ def download():
     http://..../[app]/default/download/[filename]
     """
     return response.download(request, db)
+
+
+def xls():
+    from csv import DictWriter
+
+    projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+        "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
+        "ORDERBY": "COORDENADOR",
+        "SORT": "ASC",
+        "SITUACAO": "Em andamento",
+        "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
+        "LMIN": 0,
+        "LMAX": 5000
+    }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"], cached=0)
+
+
+    class DictUnicodeProxy(object):
+        def __init__(self, d):
+            self.d = d
+        def __iter__(self):
+            return self.d.__iter__()
+        def get(self, item, default=None):
+            i = self.d.get(item, default)
+            if isinstance(i, unicode):
+                return i.encode('latin1')
+            return i
+
+    with open(request.folder + 'static/relatorios/deferidos.csv', 'w') as outfile:
+        headers = ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO")
+
+        writer = DictWriter(outfile, headers)
+        writer.writeheader()
+        for p in projetos.content:
+            writer.writerow(DictUnicodeProxy(p))
+        return dict(
+            arquivo=A("download", _href=URL('static/relatorios', 'deferidos.csv?attachment'))
+        )

@@ -135,14 +135,11 @@ class TableDeferimento(TableProjetos):
         super(TableDeferimento, self).__init__(projetos)
         self.headers = (
             "#",
-            "Data de registro",
-            "Num. Processo",
+            "Coordenador",
+            "Disciplina",
+            "Curso",
             "Título",
-            "Situação",
-            "Avaliação",
-            "Qtd. Bolsas",
-            "Arquivos",
-            "Observação"
+            "Qtd. Bolsas"
         )
 
     def removeBtn(self, p):
@@ -150,8 +147,7 @@ class TableDeferimento(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'],
-                      p['SITUACAO'], p['AVALIACAO'], self.bolsa(p), self.arquivos(p), self.observacao(p),
+            return TR(p['ID_PROJETO'], p['COORDENADOR'], p['NOME_DISCIPLINA'], p['NOME_CURSO'], p['TITULO'], self.bolsa(p),
                       self.removeBtn(p), _id=p['ID_PROJETO'])
 
         return FORM(
