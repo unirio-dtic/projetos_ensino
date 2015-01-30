@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from gluon.contrib import simplejson
 
 __all__ = [
     "APIException",
@@ -20,23 +19,25 @@ class APIResultObject(object):
     lmax = 0
     content = []
 
-    def __init__(self, json, APIRequest):
+    def __init__(self, r, APIRequest):
         """
 
+
+        :type r: Response
         :type self.content: list
         :type self.lmin: int
         :type self.lmax: int
         :type self.count: int
-        :param json:
+        :param r:
         :param APIRequest:
         :raise ValueError:
         """
         try:
-            r = simplejson.loads(json)
-            self.content = r["content"]
-            self.lmin = r["subset"][0]
-            self.lmax = r["subset"][1]
-            self.count = r["count"]
+            json = r.json()
+            self.content = json["content"]
+            self.lmin = json["subset"][0]
+            self.lmax = json["subset"][1]
+            self.count = json["count"]
         except ValueError:
             raise ValueError("JSON decoding failed. Value may be None.")
         self.request = APIRequest

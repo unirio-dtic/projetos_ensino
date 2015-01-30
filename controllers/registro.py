@@ -129,7 +129,7 @@ def relatorio_bolsista():
 
 def getDisciplinasHTMLOptions():
     disciplinas = SIECursosDisciplinas().getDisciplinas(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
-    options = [str(OPTION(disciplina["NOME_DISCIPLINA"].encode('latin1'), _value=disciplina["COD_DISCIPLINA"])) for disciplina in
+    options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"])) for disciplina in
                disciplinas]
     return options
 

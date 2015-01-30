@@ -11,7 +11,6 @@ class SIETabEstruturada(SIE):
         super(SIETabEstruturada, self).__init__()
         self.path = "TAB_ESTRUTURADA"
         self.cacheTime *= 2
-        print self.cacheTime
 
     def descricaoDeItem(self, ITEM_TABELA, COD_TABELA):
         """

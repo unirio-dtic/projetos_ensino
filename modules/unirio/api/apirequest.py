@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import urllib
 from datetime import datetime
 
 import requests
@@ -10,13 +9,15 @@ from apiresult import APIResultObject, APIPOSTResponse, APIPUTResponse, APIDELET
 
 __all__ = ["UNIRIOAPIRequest"]
 
+
 class UNIRIOAPIRequest(object):
     """
     UNIRIOAPIRequest is the main class for
     """
     lastQuery = ""
     _versions = {0: "Production", 1: "Development", 2: "Local"}
-    baseAPIURL = {0: "https://sistemas.unirio.br/api", 1: "https://teste.sistemas.unirio.br/api", 2: "http://localhost:8000/api"}
+    baseAPIURL = {0: "https://sistemas.unirio.br/api", 1: "https://teste.sistemas.unirio.br/api",
+                  2: "http://localhost:8000/api"}
     timeout = 5  # 5 seconds
 
     def __init__(self, api_key, server=0, debug=False, cache=current.cache.ram):
@@ -37,7 +38,7 @@ class UNIRIOAPIRequest(object):
         """
         The method receiver a dictionary of URL parameters, validates and returns
         as an URL encoded string
-        :rtype : str
+        :rtype : dict
         :param params: The parameters for the request. A value of None will
                         send only the API_KEY and FORMAT parameters
         :return: URL enconded string with the valid parameters
@@ -49,20 +50,19 @@ class UNIRIOAPIRequest(object):
         for k, v in params.items():
             if not str(v):
                 del params[k]
-        return urllib.urlencode(params)
+        return params
 
-    def _URLQueryReturnFieldsWithList(self, fields=None):
+    def _URLQueryReturnFieldsWithList(self, fields=[]):
         """
         The method receives a list of fields to be returned as a string of
         concatenated FIELDS parameters
         
-        :rtype : str
+        :rtype : dict
         :param fields: A list of strings with valid field names for selected path
         :type fields: list 
         """
-        if not fields: fields = []
-        if ( len(fields) > 0 ):
-            return '&FIELDS=' + ','.join(fields)
+        if fields:
+            return {'FIELDS': ','.join(fields)}
 
     def _URLWithPath(self, path):
         """
@@ -97,9 +97,10 @@ class UNIRIOAPIRequest(object):
         """
         parameters = self._URLQueryParametersWithDictionary(params)
         returnFields = self._URLQueryReturnFieldsWithList(fields)
-        data = parameters + returnFields if returnFields else parameters
-
-        return data
+        # data = parameters + returnFields if returnFields else parameters
+        if returnFields:
+            parameters.update(returnFields)
+        return parameters
 
     def payload(self, params=None):
         """
@@ -142,12 +143,14 @@ class UNIRIOAPIRequest(object):
         :rtype : APIResultObject
         :raises Exception may raise an exception if not able to instantiate APIResultObject
         """
+
         def _get():
-            url = self._URLWithPath(path) + "?" + self.URLQueryData(params, fields)
+            url = self._URLWithPath(path)
+            payload = self.URLQueryData(params, fields)
             print url
             try:
-                json = urllib.urlopen(url).read()
-                resultObject = APIResultObject(json, self)
+                r = requests.get(url, params=payload)
+                resultObject = APIResultObject(r, self)
                 self.lastQuery = url
                 return resultObject
             except ValueError as e:

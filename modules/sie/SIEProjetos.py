@@ -212,6 +212,7 @@ class SIEProjetos(SIE):
         """
         return SIETabEstruturada().itemsDeCodigo(6011)
 
+
 class SIEArquivosProj(SIE):
     def __init__(self):
         super(SIEArquivosProj, self).__init__()
