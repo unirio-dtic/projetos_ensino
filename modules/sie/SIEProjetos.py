@@ -1,11 +1,12 @@
 # coding=utf-8
 import base64
 from datetime import date, datetime
+import psycopg2
 
 from unirio.api.apiresult import APIException
-from sie import SIE
+from sie import SIE, SIEDocumento
 from gluon import current
-from sie.SIEDocumento import SIEDocumentos
+from sie.SIEDocumento import SIEDocumentos, SIETramitacoes
 from sie.SIEFuncionarios import SIEFuncionarios
 from sie.SIETabEstruturada import SIETabEstruturada
 
@@ -27,6 +28,10 @@ class SIEProjetos(SIE):
         self.path = "PROJETOS"
 
     def getProjeto(self, ID_PROJETO):
+        """
+
+        :rtype : dict
+        """
         params = {
             'LMIN': 0,
             'LMAX': 1,
@@ -35,6 +40,18 @@ class SIEProjetos(SIE):
 
         try:
             return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content[0]
+        except (ValueError, AttributeError):
+            return None
+
+    def getProjetoDados(self, ID_PROJETO):
+        params = {
+            'LMIN': 0,
+            'LMAX': 1,
+            'ID_PROJETO': ID_PROJETO
+        }
+
+        try:
+            return self.api.performGETRequest("V_PROJETOS_DADOS", params, cached=self.cacheTime).content[0]
         except (ValueError, AttributeError):
             return None
 
@@ -166,9 +183,9 @@ class SIEProjetos(SIE):
         AVALIACAO_ITEM = 3      => Avaliado
         AVALIACAO_ITEM = 4      => Avaliado fora do prazo
 
-        :type projeto: dict
+        :type ID_PROJETO: int
         :type avaliacao: int
-        :param projeto: Um dicionário contendo a entrada uma entrada da tabela PROJETOS
+        :param ID_PROJETO: Identificador único de um PROJETO
         :param avaliacao: Um inteiro correspondente a uma avaliação
         """
         try:
@@ -180,6 +197,7 @@ class SIEProjetos(SIE):
                     "SITUACAO_ITEM": avaliacao
                 }
             )
+            self.tramitarDocumentoProjeto(ID_PROJETO, avaliacao)
         except APIException:
             raise APIException("Não foi possível atualizar o estado da avaliação de um projeto.")
 
@@ -211,6 +229,35 @@ class SIEProjetos(SIE):
         :return: Lista de dicionários contendo as chaves `ITEM_TABELA` e `DESCRICAO`
         """
         return SIETabEstruturada().itemsDeCodigo(6011)
+
+    def tramitarDocumentoProjeto(self, ID_PROJETO, avaliacao):
+        """
+        avaliacao = 9           => indeferido (Indeferido)
+        avaliacao = 2           => deferido (Em andamento)
+
+        :type ID_PROJETO: int
+        :param ID_PROJETO: Identificador único de um PROJETO
+        :type avaliacao: int
+        :param avaliacao: Um inteiro correspondente a uma avaliação
+        """
+        projeto = self.getProjeto(ID_PROJETO)
+        documento = SIEDocumentos().getDocumento(projeto['ID_DOCUMENTO'])
+
+        if avaliacao == 9:
+            fluxo = None
+        elif avaliacao == 2:
+            fluxo = None
+        else:
+            raise ValueError("%d não é um tipo de avaliação reconhecido" % avaliacao)
+
+        tramitacao = SIETramitacoes(documento)
+        novaTramitacao = tramitacao.criarTramitacao()
+        tramitacao.tramitarDocumento(
+            novaTramitacao,
+            current.session.funcionario,
+            fluxo
+        )
+
 
 
 class SIEArquivosProj(SIE):
@@ -284,13 +331,15 @@ class SIEArquivosProj(SIE):
                     dt_envio=datetime.now()
                 )
                 print "Gravou localmente [%s] com ID [%d]" % (arquivo.filename, i)
-        except Exception as e:
-            current.db.rollback()
-            raise e
-            # raise Exception("Não foi possível salvar o arquivo %s do projeto localmente" % arquivo.filename)
         except IOError as e:
             if e.errno == 63:
                 current.session.flash += "Impossivel salvar o arquivo %s. Nome muito grande" % arquivo.filename
+        except psycopg2.IntegrityError:
+            current.db.rollback()
+            current.session.flash += "Não é possível enviar mais de um arquivo por etapa"
+        except Exception as e:
+            current.db.rollback()
+            raise e
         finally:
             current.db.commit()
 

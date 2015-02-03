@@ -114,7 +114,6 @@ class TableAcompanhamento(TableProjetos):
                 except TypeError:
                     return 'Indefinido'
 
-
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
