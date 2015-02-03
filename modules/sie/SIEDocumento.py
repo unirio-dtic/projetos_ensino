@@ -80,8 +80,7 @@ class SIEDocumentos(SIE):
                 tramitacao.tramitarDocumento(
                     novaTramitacao,
                     funcionario,
-                    SIEFluxos().getFluxoFromDocumento(documento),
-                    documento
+                    SIEFluxos().getFluxoFromDocumento(documento)
                 )
                 return documento
 
@@ -262,7 +261,7 @@ class SIETramitacoes(SIE):
         """
         return data + timedelta(days=dias)
 
-    def tramitarDocumento(self, tramitacao, funcionario, fluxo, documento):
+    def tramitarDocumento(self, tramitacao, funcionario, fluxo):
         """
         A regra de negócios diz que uma tramitação muda a situação atual de um documento para uma situação futura
         determinada pelo seu fluxo. Isso faz com que seja necessário que atulizemos as tabelas `TRAMITACOES` e
@@ -297,7 +296,7 @@ class SIETramitacoes(SIE):
             }
             self.api.performPUTRequest(self.path, novaTramitacao)
             try:
-                SIEDocumentos().atualizarSituacaoDocumento(documento, fluxo)
+                SIEDocumentos().atualizarSituacaoDocumento(self.documento, fluxo)
             except Exception:
                 current.session.flash = "Não foi possível atualizar o documento"
         except Exception:
