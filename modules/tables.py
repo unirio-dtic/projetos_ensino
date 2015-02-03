@@ -2,7 +2,6 @@
 from gluon import current
 from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 from sie.SIEServidores import SIEServidores
-from sie.SIETabEstruturada import SIETabEstruturada
 from gluon.html import *
 
 __all__ = [
@@ -42,7 +41,7 @@ class TableProjetos(object):
 
     def situacao(self, p):
         try:
-            situacao = SIETabEstruturada().descricaoDeItem(p["SITUACAO_ITEM"], p["SITUACAO_TAB"])
+            situacao = p['SITUACAO']
             if current.auth.has_permission("alterarSituacao"):
                 situacoes = SIEProjetos().situacoes()
                 return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in situacoes],
@@ -52,11 +51,9 @@ class TableProjetos(object):
         except AttributeError:
             return "Aguardando..."
 
-    def avaliacao(self, projeto):
-        try:
-            return SIETabEstruturada().descricaoDeItem(projeto["AVALIACAO_ITEM"], projeto["AVALIACAO_TAB"])
-        except AttributeError:
-            return "Avaliação não cadastrada"
+    def avaliacao(self, p):
+        return p['AVALIACAO'] if p['AVALIACAO'] else "Avaliação não cadastrada"
+
 
     def avaliador(self, projeto):
         user = current.db((current.db.avaliacao.avaliador == current.db.auth_user.id) & (
@@ -192,7 +189,7 @@ class TableAvaliacao(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(str(self.projetos.index(p) + 1), self.coordenador(p), self.disciplina(p), self.arquivos(p),
+            return TR(str(self.projetos.index(p) + 1), p['COORDENADOR'], p['NOME_DISCIPLINA'], self.arquivos(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p))
 
         return TABLE(

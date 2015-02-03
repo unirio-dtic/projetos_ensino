@@ -41,8 +41,11 @@ def avaliacao():
     if not current.session.edicao:
         redirect(URL("default", "edicoes"))
 
-    ID_CLASSIFICACAO_ENSINO = 40161
-    projetos = SIEProjetos().projetosDeEnsino(session.edicao, {"ID_CLASSIFICACAO": ID_CLASSIFICACAO_ENSINO})
+    projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+        "DT_INICIAL": session.edicao.dt_inicial_projeto,
+        "LMIN": 0,
+        "LMAX": 99999
+    }).content
 
     table = TableAvaliacao(projetos)
 
