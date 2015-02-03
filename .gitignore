@@ -8,3 +8,4 @@ databases
 modules/unirio/api/certs
 controllers/sandbox.py
 tests
+*.csv

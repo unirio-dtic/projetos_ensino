@@ -1,5 +1,7 @@
 {{extend "layout.html"}}
-        <div class="alert alert-info" role="alert">Para o Envio ou Acompanhamento de seu Projeto, favor selecionar primeiramente a Edição desejada.</div>
-        <h1>Edições</h1>
-        <p>Selecione uma das edições com registro aberto.</p>
-        {{=form}}
+<div class="alert alert-info" role="alert">Para o Envio ou Acompanhamento de seu Projeto, favor selecionar primeiramente a Edição desejada.</div>
+
+<div class="alert {{=alert_class}}" role="alert">{{=alert}}</div>
+<h1>Edições</h1>
+<p>Selecione uma das edições com registro aberto.</p>
+{{=form}}

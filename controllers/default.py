@@ -12,7 +12,6 @@ def edicoes():
 
     session.edicao = None
     session.funcionario = None
-
     form = FormEdicoes().form()
 
     if form.process().accepted:
@@ -26,7 +25,10 @@ def edicoes():
 
         redirect(URL('registro', 'registro'))
 
-    return dict(form=form)
+    return dict(
+        form=form,
+        alert=alert,
+        alert_class=alert_class)
 
 
 def user():

@@ -147,9 +147,9 @@ class UNIRIOAPIRequest(object):
         def _get():
             url = self._URLWithPath(path)
             payload = self.URLQueryData(params, fields)
-            print url
             try:
                 r = requests.get(url, params=payload)
+                print r.url     #debuging
                 resultObject = APIResultObject(r, self)
                 self.lastQuery = url
                 return resultObject
