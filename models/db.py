@@ -39,13 +39,10 @@ db.define_table(
     Field('id_funcionario', 'integer', notnull=True),
     Field('id_projeto', 'integer', notnull=True),
     Field('edicao', db.edicao, notnull=True),
-    # gravacao no banco
-    # Field('arquivo', 'upload', uploadfield='arquivo_file'),
-    # Field('arquivo_file', 'blob'),
-    # gravacao na pasta uploads so
     Field('arquivo', 'upload'),
     Field('tipo_arquivo_item', 'integer'),
-    Field('dt_envio', 'datetime')
+    Field('dt_envio', 'datetime'),
+    Field("unique_validator", unique=True, compute=lambda r: str(r.id_projeto) + str(r.tipo_arquivo_item))
 )
 
 db.define_table(

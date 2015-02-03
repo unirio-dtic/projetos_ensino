@@ -12,7 +12,7 @@ def index():
     projetosLocais = db(db.projetos.id_funcionario == session.funcionario['ID_FUNCIONARIO']).select(db.projetos.id_projeto)
     ids = [p.id_projeto for p in projetosLocais]
 
-    projetos = [SIEProjetos().getProjeto(projeto["ID_PROJETO"]) for projeto in participacoes if projeto['ID_PROJETO'] in ids]
+    projetos = [SIEProjetos().getProjetoDados(projeto["ID_PROJETO"]) for projeto in participacoes if projeto['ID_PROJETO'] in ids]
 
     tabela = TableAcompanhamento(participacoes, projetos)
     try:
