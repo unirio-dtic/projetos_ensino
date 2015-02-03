@@ -25,10 +25,7 @@ def edicoes():
 
         redirect(URL('registro', 'registro'))
 
-    return dict(
-        form=form,
-        alert=alert,
-        alert_class=alert_class)
+    return dict(form=form)
 
 
 def user():
