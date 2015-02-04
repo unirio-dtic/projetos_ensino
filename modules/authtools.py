@@ -10,13 +10,21 @@ class Edicao(object):
 
     def requires_edicao(self):
         """
-        Decorator para verifiicar se o usuário selecionou uma edição
-        :param f:
-        :type f: callable
+        Usado para verificar se o usuário selecionou uma edição
         """
-        def wrapper():
-            if not current.session.edicao:
-                redirect(URL("default", "edicoes"))
-            else:
-                pass
-        return wrapper()
+        if current.session.edicao:
+            return True
+        else:
+            current.session.flash = "Você precisa selecionar uma edição."
+            redirect(URL("default", "edicoes", vars={"_next": URL(current.request.controller, current.request.function)}))
+
+
+class Projeto(object):
+    def __init__(self, db):
+        self.db = db
+
+    def requires_projeto(self):
+        if current.session.projeto:
+            return True
+        else:
+            redirect(URL("consulta", "index"))

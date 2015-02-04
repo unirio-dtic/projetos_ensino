@@ -6,7 +6,7 @@ from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjeto
 from forms import FormProjetos, FormArquivos
 
 
-@auth.requires_login()
+@auth.requires(edicao.requires_edicao())
 def registro():
     if not (current.session.edicao and current.session.funcionario):
         redirect(URL("default", "edicoes"))
@@ -42,15 +42,12 @@ def registro():
     return dict(form=form)
 
 
+@auth.requires(projeto.requires_projeto())
 def arquivo_projeto():
     response.title = 'Registro - Envio de arquivos 1/4'
     response.view = 'registro/envioArquivo.html'
     progress = 20
     form = FormArquivos().formArquivoProjeto()
-
-    # TODO deveria ser um decorator
-    if not session.projeto:
-        redirect(URL("registro", "registro"))
 
     if form.process().accepted:
         try:
@@ -62,15 +59,12 @@ def arquivo_projeto():
     return dict(locals())
 
 
+@auth.requires(projeto.requires_projeto())
 def ata_departamento():
     response.title = 'Registro - Envio de arquivos 2/4'
     response.view = 'registro/envioArquivo.html'
     progress = 40
     form = FormArquivos().formArquivoAta()
-
-    # TODO deveria ser um decorator
-    if not session.projeto:
-        redirect(URL("registro", "registro"))
 
     if form.process().accepted:
         try:
@@ -82,15 +76,12 @@ def ata_departamento():
     return dict(locals())
 
 
+@auth.requires(projeto.requires_projeto())
 def relatorio_docente():
     response.title = 'Registro - Envio de arquivos 3/4'
     response.view = 'registro/envioArquivo.html'
     progress = 60
     form = FormArquivos().formArquivoRelatioDocente()
-
-    # TODO deveria ser um decorator
-    if not session.projeto:
-        redirect(URL("registro", "registro"))
 
     if form.process().accepted:
         try:
@@ -103,15 +94,12 @@ def relatorio_docente():
     return dict(locals())
 
 
+@auth.requires(projeto.requires_projeto())
 def relatorio_bolsista():
     response.title = 'Registro - Envio de arquivos 4/4'
     response.view = 'registro/envioArquivo.html'
     progress = 80
     form = FormArquivos().formArquivoRelatorioBolsista()
-
-    # TODO deveria ser um decorator'
-    if not session.projeto:
-        redirect(URL("registro", "registro"))
 
     if form.process().accepted:
         try:
@@ -136,3 +124,8 @@ def getDisciplinasHTMLOptions():
 
 def getIdUnidade():
     return SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO)
+
+
+@auth.requires(edicao.requires_edicao())
+def bolsista():
+    return dict()

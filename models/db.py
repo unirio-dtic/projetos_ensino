@@ -1,11 +1,12 @@
 # coding=utf-8
-from authtools import Edicao
+from authtools import Edicao, Projeto
 from gluon.tools import Auth, Service, PluginManager
 
 auth = Auth(db)
 service = Service()
 plugins = PluginManager()
 edicao = Edicao(db)
+projeto = Projeto(db)
 
 ## create all tables needed by auth if not custom tables
 auth.define_tables(username=True, signature=False)
@@ -16,7 +17,6 @@ auth.settings.actions_disabled = [
     'lost_password'
 ]
 db.auth_user.username.label = 'CPF'
-
 
 from gluon.contrib.login_methods.ldap_auth import ldap_auth
 auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]

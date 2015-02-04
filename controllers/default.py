@@ -23,7 +23,8 @@ def edicoes():
                             "autorizado a acessar este recurso."
             auth.logout()
 
-        redirect(URL('registro', 'registro'))
+        if request.vars._next:
+            redirect(request.vars._next)
 
     return dict(form=form)
 
