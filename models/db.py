@@ -1,5 +1,5 @@
 # coding=utf-8
-from authtools import Edicao, Projeto
+from authtools import Edicao, Projeto, Pessoa
 from gluon.tools import Auth, Service, PluginManager
 
 auth = Auth(db)
@@ -7,6 +7,7 @@ service = Service()
 plugins = PluginManager()
 edicao = Edicao(db)
 projeto = Projeto(db)
+pessoa = Pessoa(db)
 
 ## create all tables needed by auth if not custom tables
 auth.define_tables(username=True, signature=False)
