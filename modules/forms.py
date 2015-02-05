@@ -25,9 +25,10 @@ class CustomFormHelper(object):
             name)
 
     def _bigTextComponent(self, label, name, isNotEmpty=True, **kwargs):
-        return self._component(TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, **kwargs),
-                               label,
-                               name)
+        return self._component(
+            TEXTAREA(_name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None, **kwargs),
+            label,
+            name)
 
     def _selectComponent(self, label, name, options, isNotEmpty=True):
         return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
@@ -114,7 +115,7 @@ class FormProjetos(CustomFormHelper):
             ),
             # FIELDSET(
             # self._fileComponent("Projeto*:", "CONTEUDO_ARQUIVO1"),
-            #     self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
+            # self._fileComponent("Ata do Departamento*:", "CONTEUDO_ARQUIVO5"),
             #     self._fileComponent("Relatório Docente:", "CONTEUDO_ARQUIVO14", False),
             #     self._fileComponent("Relatório de Bolsista:", "CONTEUDO_ARQUIVO17", False)
             # ),
@@ -164,3 +165,19 @@ class FormPerguntas(CustomFormHelper):
         perguntas.append(INPUT(_type="submit", _value="Indeferir"))
 
         return FORM(perguntas)
+
+
+class FormBolsista(CustomFormHelper):
+    def formCadastroBolsista(self):
+        bancos = current.db(current.db.bancos).select(orderby=current.db.bancos.codigo, cache=(current.cache.ram, 86400))
+        bancos_options = [OPTION('%s - %s' % (banco.codigo, banco.nome), _value=banco.codigo) for banco in bancos]
+
+        return FORM(
+            FIELDSET(
+                LEGEND("Dados Bancários"),
+                self._selectComponent("Banco", "nome_banco", bancos_options),
+                self._inputComponent("Agência", "agencia"),
+                self._inputComponent("Conta Corrente", "cc"),
+                INPUT('Enviar', _type='submit')
+            )
+        )

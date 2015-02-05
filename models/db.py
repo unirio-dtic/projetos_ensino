@@ -74,6 +74,12 @@ db.define_table(
     Field('resposta', 'boolean'),
 )
 
+db.define_table(
+    'bancos',
+    Field('codigo', 'string', notnull=True, label="Código do banco"),
+    Field('nome', 'string', notnull=True, label="Nome do banco")
+)
+
 db.avaliacao_perguntas.edicao.requires = IS_IN_DB(db, 'edicao.id', '%(nome)s', zero='Selecione')
 db.avaliacao_perguntas.pergunta.requires = IS_NOT_EMPTY()
 
