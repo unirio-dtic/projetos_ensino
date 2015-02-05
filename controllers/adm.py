@@ -22,6 +22,7 @@ def cadastro_edicoes():
     return dict(grid=grid)
 
 
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def cadastro_perguntas():
     db.avaliacao_perguntas.id.readable = False
     grid = SQLFORM.grid(
@@ -35,17 +36,16 @@ def cadastro_perguntas():
     return dict(grid=grid)
 
 
-# @edicao.requires_edicao()
-@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
+@auth.requires((auth.has_membership('PROGRAD') or auth.has_membership('DTIC')) and edicao.requires_edicao())
 def avaliacao():
-    if not current.session.edicao:
-        redirect(URL("default", "edicoes"))
-
-    projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-        "DT_INICIAL": session.edicao.dt_inicial_projeto,
-        "LMIN": 0,
-        "LMAX": 99999
-    }).content
+    try:
+        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+            "DT_INICIAL": session.edicao.dt_inicial_projeto,
+            "LMIN": 0,
+            "LMAX": 99999
+        }).content
+    except ValueError:
+        projetos = []
 
     table = TableAvaliacao(projetos)
 
@@ -103,7 +103,7 @@ def alterarSituacao():
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
-    # TODO deveria ser um decorator
+    # TODO deveria ser um decorator?
     if Avaliacao().isAvaliado(request.vars.ID_PROJETO):
         session.flash = "Este projeto já foi avaliado."
         redirect(URL('adm', 'avaliacao'))
@@ -201,8 +201,8 @@ def deferidos():
             response.flash = "Projetos removidos com sucesso"
 
         return dict(relatorio=relatorio, tableForm=form)
-    except AttributeError:
-        return dict(tableForm="Nenhum projeto deferido até o momento.")
+    except (AttributeError, ValueError):
+        return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
 
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
@@ -251,7 +251,7 @@ def indeferidos():
                 __removerProjeto(form.vars.toDelete)
 
         return dict(tableForm=form)
-    except AttributeError:
+    except (AttributeError, ValueError):
         return dict(tableForm="Nenhum projeto indeferido.")
 
 
@@ -277,12 +277,13 @@ def xls():
         "LMAX": 5000
     }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"], cached=0)
 
-
     class DictUnicodeProxy(object):
         def __init__(self, d):
             self.d = d
+
         def __iter__(self):
             return self.d.__iter__()
+
         def get(self, item, default=None):
             i = self.d.get(item, default)
             if isinstance(i, unicode):
