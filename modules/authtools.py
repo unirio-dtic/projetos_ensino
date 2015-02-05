@@ -41,3 +41,6 @@ class Pessoa(object):
             return True
         except ValueError:
             current.session.flash = "Seus dados não foram encontrados. É possível que você não esteja autorizado a acessar este recurso."
+
+    def isAluno(self):
+        return True

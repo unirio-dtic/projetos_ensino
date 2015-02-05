@@ -3,14 +3,11 @@ from cgi import FieldStorage
 
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
-from forms import FormProjetos, FormArquivos
+from forms import FormProjetos, FormArquivos, FormBolsista
 
 
-@auth.requires(edicao.requires_edicao())
+@auth.requires(edicao.requires_edicao() and pessoa.isFuncionario())
 def registro():
-    if not (current.session.edicao and current.session.funcionario):
-        redirect(URL("default", "edicoes"))
-
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
     cursos = SIECursosDisciplinas().getCursos()
 
@@ -126,6 +123,7 @@ def getIdUnidade():
     return SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO)
 
 
-@auth.requires(edicao.requires_edicao())
+@auth.requires(edicao.requires_edicao() and pessoa.isAluno())
 def bolsista():
-    return dict()
+    form = FormBolsista().formCadastroBolsista()
+    return dict(form=form)
