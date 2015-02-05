@@ -8,9 +8,10 @@ class SIEFuncionarioID(SIE):
         super(SIEFuncionarioID, self).__init__()
         self.path = "V_FUNCIONARIO_IDS"
         self.CPF = CPF
+        self.cacheTime *= 10
 
     def getFuncionarioIDs(self):
-        return self.api.performGETRequest(self.path, params={"CPF": self.CPF}).content[0]
+        return self.api.performGETRequest(self.path, params={"CPF": self.CPF}, cached=self.cacheTime).content[0]
 
 
 class SIEFuncionarios(SIE):
