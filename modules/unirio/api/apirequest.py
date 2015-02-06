@@ -125,7 +125,10 @@ class UNIRIOAPIRequest(object):
         :param params: Dicionário de parâmetros
         :return: String a ser utilizada como chave de um cache
         """
-        return path + str(hash(frozenset(params.items())))
+        if params:
+            return path + str(hash(frozenset(params.items())))
+        else:
+            return path
 
     def performGETRequest(self, path, params=None, fields=None, cached=0):
         """
@@ -148,7 +151,7 @@ class UNIRIOAPIRequest(object):
             url = self._URLWithPath(path)
             payload = self.URLQueryData(params, fields)
             try:
-                r = requests.get(url, params=payload)
+                r = requests.get(url, params=payload, verify=False)
                 print r.url     #debuging
                 resultObject = APIResultObject(r, self)
                 self.lastQuery = url
