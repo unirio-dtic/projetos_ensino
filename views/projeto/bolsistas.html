@@ -1,0 +1,13 @@
+{{extend "layout.html"}}
+<h2>Bolsistas Elegíveis</h2>
+<ul class="thumbnails">
+{{for aluno in alunosComFotos:}}
+    <li class="span4">
+        <div class="thumbnail">
+            <img src="data:image/jpeg;base64,{{=aluno['FOTO']}}" alt="">
+            <h3>Nome do aluno</h3>
+            <p>Texto do thumbnail...</p>
+        </div>
+    </li>
+{{pass}}
+</ul>

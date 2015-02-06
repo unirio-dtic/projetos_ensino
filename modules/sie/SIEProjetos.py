@@ -1,10 +1,8 @@
 # coding=utf-8
 import base64
 from datetime import date, datetime
-import psycopg2
-
 from unirio.api.apiresult import APIException
-from sie import SIE, SIEDocumento
+from sie import SIE
 from gluon import current
 from sie.SIEDocumento import SIEDocumentos, SIETramitacoes
 from sie.SIEFuncionarios import SIEFuncionarios
