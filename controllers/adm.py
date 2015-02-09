@@ -1,7 +1,7 @@
 # coding=utf-8
 from datetime import datetime
 
-from applications.projs.modules import relatorios
+import relatorios
 from avaliacao import Avaliacao
 from mail import MailAvaliacao
 from forms import FormPerguntas
