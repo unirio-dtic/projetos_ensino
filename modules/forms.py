@@ -62,9 +62,7 @@ class FormEdicoes(CustomFormHelper):
         :rtype : list
         :return: Um SELECT com as possíveis edições
         """
-        edicoes = self.db((self.db.edicao.dt_inicial <= date.today())
-                          & (self.db.edicao.dt_conclusao >= date.today())).select(cache=(current.cache.ram, 86400),
-                                                                                  cacheable=True)
+        edicoes = self.db(self.db.edicao).select(cache=(current.cache.ram, 86400), cacheable=True)
         if edicoes:
             return [OPTION(edicao.nome, _value=edicao.id) for edicao in edicoes]
 

@@ -8,6 +8,10 @@ from forms import FormProjetos, FormArquivos, FormBolsista
 
 @auth.requires(edicao.requires_edicao() and pessoa.isFuncionario())
 def registro():
+    if not edicao.isValidEdicaoForRegistro(session.edicao):
+        session.flash = "Edição não está aberta para registro"
+        redirect(URL('default', 'edicoes'))
+
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
     cursos = SIECursosDisciplinas().getCursos()
 
