@@ -9,7 +9,6 @@ def index():
 def edicoes():
     from forms import FormEdicoes
 
-    session.edicao = None
     try:
         form = FormEdicoes().form()
 
