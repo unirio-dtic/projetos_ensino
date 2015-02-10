@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from cgi import FieldStorage
-
+from itertools import izip_longest
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
 from forms import FormProjetos, FormArquivos, FormBolsista
@@ -129,5 +129,36 @@ def getIdUnidade():
 
 @auth.requires(edicao.requires_edicao() and pessoa.isAluno())
 def bolsista():
-    form = FormBolsista().formCadastroBolsista()
-    return dict(form=form)
+    # form = FormBolsista().formCadastroBolsista()
+    projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
+    try:
+        alunosPossiveis = api.performGETRequest(
+            "V_NOTAS_FINAIS_ALUNOS_DISCIPLINAS",
+            {
+                "COD_ATIV_CURRIC": projeto['COD_DISCIPLINA'],
+                "LMIN": 0,
+                "LMAX": 2000,
+                "MEDIA_FINAL_MIN": 7.0,
+                "ORDERBY": "NOME_PESSOA"
+            },
+            ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "NOME_PAI", "NOME_MAE", "SEXO",
+             "NOME_CIDADE", "DESCR_BAIRRO", "FOTO", "ANO", "PERIODO_ITEM"]
+        ).content
+
+        def grouper(n, iterable, fillvalue=None):
+            """
+            Usado para agrupar os alunos em grupos de 3 para poder usar corretamente bs`s row-fluid
+
+            ref: http://stackoverflow.com/questions/1624883/alternative-way-to-split-a-list-into-groups-of-n
+            ref: http://stackoverflow.com/questions/15869169/bootstrap-thumbnails-not-stacking-properly
+            grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx
+            """
+            args = [iter(iterable)] * n
+            return izip_longest(*args)
+        groups = list(grouper(3, alunosPossiveis))
+    except ValueError:
+        groups = []
+    return dict(
+        projeto=projeto,
+        groups=groups
+    )

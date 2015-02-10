@@ -1,0 +1,49 @@
+{{extend "layout.html"}}
+
+<h2>Seleção de bolsistas</h2>
+<h3>"{{=projeto['TITULO']}}"</h3>
+
+<div class="alert alert-block">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <h4>Atenção!</h4>
+    Nesta página você encontrará, em ordem alfabética, <b>somente</b> os alunos que apresentam os critérios do
+    <a href="http://www2.unirio.br/unirio/prograd/programas/monitoria">edital de bolsa de projetos de ensino</a> e
+    <a href="{{URL('static', 'RESOLUCAO1937.pdf')}}">resolução</a>. Esta lista é gerada automaticamente e não pode ser
+    alterada.
+
+</div>
+<div class="container">
+    <ul class="thumbnails">
+    {{for alunosPossiveis in groups:}}
+        <div class="row-fluid">
+        {{for aluno in alunosPossiveis:}}
+        {{if aluno:}}
+            <li class="span4">
+                <div class="thumbnail">
+                {{if aluno['FOTO']:}}
+                    <img src='data:image/jpeg;base64,{{=aluno['FOTO']}}' alt="Foto de {{=aluno['NOME_PESSOA']}}" >
+                {{else:}}
+                    <img src="{{=URL('static/images', 'profile-256.png')}}" width=170 alt="Foto indisponível">
+                {{pass}}
+                    <div class="caption">
+                        <h3>{{=aluno['NOME_PESSOA']}}</h3>
+                        <ul>
+                            <li><b>Matrícula: </b>{{=aluno['MATR_ALUNO']}}</li>
+                            <li><b>Média Final: </b>{{=aluno['MEDIA_FINAL']}}</li>
+                            <li><b>Curso: </b>{{=aluno['MATR_ALUNO']}}</li>
+                            <li><b>Cursou a disciplina em: </b>{{=aluno['ANO']}}</li>
+                            <li><b>Período Atual: </b> --</li>
+                        </ul>
+
+                        <p align="center">
+                            <a href="#myModal" class="btn btn-primary btn-block" data-toggle="modal" style="margin-top:30px;"">Cadastrar como participante</a>
+                        </p>
+                    </div>
+                </div>
+            </li>
+        {{pass}}
+        {{pass}}
+        </div>
+    {{pass}}
+    </ul>
+</div>

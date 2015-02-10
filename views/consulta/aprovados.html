@@ -1,0 +1,28 @@
+{{extend "layout.html"}}
+
+<div class="alert alert-block">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <h4>Atenção!</h4>
+  Abaixo, você encontrará somente projetos aprovados para edição selecionada ("<b>{{=session.edicao.nome}}</b>")
+</div>
+
+<ul class="thumbnails">
+{{
+for projeto in projetos:
+}}
+    <li class="span5">
+        <div class="thumbnail well well-large">
+            <img src="{{=URL('static/images', 'check-256.png')}}" alt="Aprovado" width="128">
+            <h3>{{=projeto['TITULO']}}</h3>
+            <ul>
+                <li><b>Coordenador: </b> {{=projeto['COORDENADOR']}}</li>
+                <li><b>Componente Curricular:</b> {{=projeto['NOME_DISCIPLINA']}}</li>
+                <li><b>Curso:</b> {{=projeto['NOME_CURSO']}}</li>
+                <li><b>Num. Processo:</b> {{=projeto['NUM_PROCESSO']}}</li>
+                <li><b>Qtd. Bolsas:</b> {{=bolsas[projeto['ID_PROJETO']]}}</li>
+            </ul>
+            <a href="{{=URL('registro', 'bolsista', vars=dict(ID_PROJETO=projeto['ID_PROJETO']))}}" class="btn btn-primary">Cadastrar Bolsistas</a>
+        </div>
+    </li>
+{{pass}}
+</ul>
