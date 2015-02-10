@@ -43,6 +43,7 @@ def aprovados():
     ids = [p['ID_PROJETO'] for p in projetos]
     bolsas = {p['id_projeto']: p['quantidade_bolsas'] for p in db(db.bolsas.id_projeto.belongs(ids)).select(cache=(cache.ram, 600))}
 
+
     return dict(
         projetos=projetos,
         bolsas=bolsas

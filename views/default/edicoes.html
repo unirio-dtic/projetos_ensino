@@ -3,4 +3,8 @@
 
 <h1>Edições</h1>
 <p>Selecione uma das edições com registro aberto.</p>
-{{=form}}
+{{if form:}}
+    {{=form}}
+{{else:}}
+    <div class="alert alert-danger" role="alert">Nenhuma edição cadastrada.</div>
+{{pass}}

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from cgi import FieldStorage
 from itertools import izip_longest
+from sie.SIEAlunos import SIEAlunos
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
 from forms import FormProjetos, FormArquivos, FormBolsista
@@ -129,7 +130,6 @@ def getIdUnidade():
 
 @auth.requires(edicao.requires_edicao() and pessoa.isAluno())
 def bolsista():
-    # form = FormBolsista().formCadastroBolsista()
     projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
     try:
         alunosPossiveis = api.performGETRequest(
@@ -139,13 +139,19 @@ def bolsista():
                 "LMIN": 0,
                 "LMAX": 2000,
                 "MEDIA_FINAL_MIN": 7.0,
+                "FORMA_EVASAO_ITEM": 1,
                 "ORDERBY": "NOME_PESSOA"
             },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "NOME_PAI", "NOME_MAE", "SEXO",
              "NOME_CIDADE", "DESCR_BAIRRO", "FOTO", "ANO", "PERIODO_ITEM"]
         ).content
 
-        def grouper(n, iterable, fillvalue=None):
+        apiAlunos = SIEAlunos()
+
+        for aluno in alunosPossiveis:
+            aluno.update({"CRA": apiAlunos.getCRA(aluno['ID_ALUNO'])})
+
+        def grouper(n, iterable):
             """
             Usado para agrupar os alunos em grupos de 3 para poder usar corretamente bs`s row-fluid
 

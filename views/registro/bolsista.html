@@ -13,17 +13,18 @@
 
 </div>
 <div class="container">
+    <p>Tste</p>
     <ul class="thumbnails">
     {{for alunosPossiveis in groups:}}
         <div class="row-fluid">
         {{for aluno in alunosPossiveis:}}
         {{if aluno:}}
-            <li class="span4">
+            <li class="span4" id="{{=aluno['ID_PESSOA']}}">
                 <div class="thumbnail">
                 {{if aluno['FOTO']:}}
-                    <img src='data:image/jpeg;base64,{{=aluno['FOTO']}}' alt="Foto de {{=aluno['NOME_PESSOA']}}" >
+                    <img class="img-circle" src='data:image/jpeg;base64,{{=aluno['FOTO']}}' style="width: 140px; height: 140px;" alt="Foto de {{=aluno['NOME_PESSOA']}}" >
                 {{else:}}
-                    <img src="{{=URL('static/images', 'profile-256.png')}}" width=170 alt="Foto indisponível">
+                    <img class="img-circle" src="{{=URL('static/images', 'profile-256.png')}}" style="width: 140px; height: 140px;" alt="Foto indisponível">
                 {{pass}}
                     <div class="caption">
                         <h3>{{=aluno['NOME_PESSOA']}}</h3>
@@ -32,11 +33,12 @@
                             <li><b>Média Final: </b>{{=aluno['MEDIA_FINAL']}}</li>
                             <li><b>Curso: </b>{{=aluno['MATR_ALUNO']}}</li>
                             <li><b>Cursou a disciplina em: </b>{{=aluno['ANO']}}</li>
+                            <li><b>CRA: </b>{{=aluno['CRA']}}</li>
                             <li><b>Período Atual: </b> --</li>
                         </ul>
 
                         <p align="center">
-                            <a href="#myModal" class="btn btn-primary btn-block" data-toggle="modal" style="margin-top:30px;"">Cadastrar como participante</a>
+                            <a href="#myModal" class="btn btn-block" data-toggle="modal" style="margin-top:30px;">Cadastrar como participante</a>
                         </p>
                     </div>
                 </div>
