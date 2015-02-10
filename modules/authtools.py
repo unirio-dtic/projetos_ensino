@@ -16,6 +16,8 @@ class Edicao(object):
         """
         if current.session.edicao:
             return True
+        else:
+            redirect(URL('default', 'edicoes', vars=dict(_next=URL(current.request.controller, current.request.function))))
 
     def isValidEdicaoForRegistro(self, edicao):
         if self.db((self.db.edicao.dt_inicial <= date.today()) & (self.db.edicao.dt_conclusao >= date.today()) & (

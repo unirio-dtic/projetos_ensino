@@ -23,6 +23,7 @@ response.google_analytics_id = None
 #########################################################################
 
 menu = [
+    ('Página Inicial', False, URL('default', 'index'), []),
     ('Edições', False, URL('default', 'edicoes'), []),
     ('Registro', False, False, [
         ("Registro de Projeto", False, URL('registro', 'registro')),

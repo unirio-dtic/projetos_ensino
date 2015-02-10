@@ -1,0 +1,69 @@
+{{extend "layout.html"}}
+<div class="container marketing">
+{{try: }}
+{{if edital:}}
+    <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <b>{{=T('Inscrições prorrogadas!')}}</b> Edital "{{=edital.nome}}" aberto para registro até {{=dataFinal}}
+    </div>
+{{pass}}
+{{except NameError:}}
+{{pass}}
+{{pass}}
+    <div class="hero-unit">
+        <p>A oferta de bolsas de monitoria visa, entre outros objetivos, propiciar maior engajamento do estudante nas
+            atividades acadêmicas de ensino; estimular o pensamento crítico, mediante o confronto da prática didática
+            com os conhecimentos científicos; e integrar o corpo docente e discente no planejamento, realização e avaliação
+            de atividades acadêmicas.</p>
+
+        <p>Podem se inscrever na seleção docentes do quadro efetivo da UNIRIO, com Projeto de Ensino relacionado à matriz
+            curricular do curso de atuação, aprovado no Conselho de Ensino, Pesquisa e Extensão (Consepe). Cada docente
+            pode inscrever apenas um projeto, que poderá ser contemplado com até duas bolsas.</p>
+
+        <p>A vigência da bolsa de monitoria será de março a dezembro de 2015, com valor mensal de R$ 400 e carga horária
+            de 20 horas semanais. Outras informações podem ser obtidas no
+            <a href="http://www.unirio.br/arquivos/noticias/edital-de-bolsas-de-monitoria-2015">edital de seleção</a>,
+            ou pelos telefones 2542-7957/ 6735/ 7373.</p>
+
+        <p>
+            <a class="btn btn-primary btn-large" href="{{=URL('default', 'edicoes', vars=dict(_next=URL('registro', 'registro')))}}">
+                Registre um Projeto
+            </a>
+        </p>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <div class="featurette">
+        <img class="featurette-image pull-right" src="{{=URL('static/images', 'Checklist-512.png')}}">
+        <h2 class="featurette-heading">Inscreva o seu projeto de ensino. <span class="muted">São 420 bolsas disponíveis.</span></h2>
+        <p class="lead">Poderão se inscrever, para seleção, Docentes do quadro efetivo (Doutores, Mestres e Especialistas),
+            inclusive em período probatório, que apresentarem Projeto de Ensino relacionado à Matriz Curricular do Curso
+            de atuação, aprovado no CONSEPE.</p>
+        <p>
+            <a class="btn btn-primary btn-large" href="{{=URL('registro', 'registro')}}">
+                Registre um Projeto
+            </a>
+            <a class="btn btn-large" href="{{=URL('consulta', 'index')}}">
+                Acompanhe seus projetos
+            </a>
+        </p>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <div class="featurette">
+        <img class="featurette-image pull-left" src="{{=URL('static/images', 'Student-512.png')}}">
+        <h2 class="featurette-heading">Oh yeah, it's that good. <span class="muted">See for yourself.</span></h2>
+        <p class="lead">As atribuições do aluno bolsista estão relacionadas às atividades inseridas no Plano de Trabalho
+            elaborado pelo docente, a partir do Projeto de Ensino selecionado. Além disso, os bolsistas também devem participar
+            de outras atividades. <a href="http://www.unirio.br/arquivos/noticias/edital-de-bolsas-de-monitoria-2015">Saiba mais</a></p>
+        <p>
+            <a class="btn btn-large pull-right">
+                Atualize seus dados
+            </a>
+        </p>
+      </div>
+
+    <hr class="featurette-divider">
+</div>

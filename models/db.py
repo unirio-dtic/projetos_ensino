@@ -19,9 +19,8 @@ auth.settings.actions_disabled = [
 ]
 db.auth_user.username.label = 'CPF'
 
-if not request.is_local:
-    from gluon.contrib.login_methods.ldap_auth import ldap_auth
-    auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
+from gluon.contrib.login_methods.ldap_auth import ldap_auth
+auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
 
 db.define_table(
     'edicao',

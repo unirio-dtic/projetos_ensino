@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
+from datetime import date
 
 
 def index():
-    redirect(URL("registro", "registro"))
+    editalAberto = db((db.edicao.dt_inicial <= date.today()) & (db.edicao.dt_conclusao >= date.today())
+    ).select(cache=(cache.ram, 86400), cacheable=True).first()
 
+    if not editalAberto:
+        return dict(
+            edital=editalAberto,
+            dataFinal=editalAberto.dt_conclusao.strftime('%d/%m/%Y')
+        )
+    else:
+        return dict()
 
 @auth.requires_login()
 def edicoes():
