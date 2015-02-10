@@ -31,6 +31,24 @@ def index():
     )
 
 
+@auth.requires(edicao.requires_edicao())
+def aprovados():
+    projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+        "COORDENADOR_CPF": auth.user.username,
+        "LMIN": 0,
+        "LMAX": 99999,
+        "SITUACAO_ITEM": 2  # Aprovado
+    }).content
+
+    ids = [p['ID_PROJETO'] for p in projetos]
+    bolsas = {p['id_projeto']: p['quantidade_bolsas'] for p in db(db.bolsas.id_projeto.belongs(ids)).select(cache=(cache.ram, 600))}
+
+    return dict(
+        projetos=projetos,
+        bolsas=bolsas
+    )
+
+
 @cache.action()
 def download():
     """
