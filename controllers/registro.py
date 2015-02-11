@@ -44,7 +44,7 @@ def registro():
     return dict(form=form)
 
 
-@auth.requires(projeto.requires_projeto())
+@auth.requires(proj.requires_projeto())
 def arquivo_projeto():
     response.title = 'Registro - Envio de arquivos 1/4'
     response.view = 'registro/envioArquivo.html'
@@ -61,7 +61,7 @@ def arquivo_projeto():
     return dict(locals())
 
 
-@auth.requires(projeto.requires_projeto())
+@auth.requires(proj.requires_projeto())
 def ata_departamento():
     response.title = 'Registro - Envio de arquivos 2/4'
     response.view = 'registro/envioArquivo.html'
@@ -78,7 +78,7 @@ def ata_departamento():
     return dict(locals())
 
 
-@auth.requires(projeto.requires_projeto())
+@auth.requires(proj.requires_projeto())
 def relatorio_docente():
     response.title = 'Registro - Envio de arquivos 3/4'
     response.view = 'registro/envioArquivo.html'
@@ -96,7 +96,7 @@ def relatorio_docente():
     return dict(locals())
 
 
-@auth.requires(projeto.requires_projeto())
+@auth.requires(proj.requires_projeto())
 def relatorio_bolsista():
     response.title = 'Registro - Envio de arquivos 4/4'
     response.view = 'registro/envioArquivo.html'
@@ -128,8 +128,12 @@ def getIdUnidade():
     return SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO)
 
 
-@auth.requires(edicao.requires_edicao() and pessoa.isAluno())
+@auth.requires(edicao.requires_edicao() and proj.isCoordenador())
 def bolsista():
+    if not proj.registroBolsistaAberto(request.vars.ID_PROJETO):
+        session.flash = 'O período de cadastro de bolsistas não está aberto.'
+        redirect(URL('consulta', 'aprovados'))
+
     projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
     try:
         alunosPossiveis = api.performGETRequest(
