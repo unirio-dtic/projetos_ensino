@@ -50,7 +50,7 @@ def aprovados():
         )
     except ValueError:
         session.flash = "Você não possui projetos aprovados."
-        redirect(URL('default', 'index'))
+        redirect(URL('consulta', 'index'))
 
 
 @cache.action()
