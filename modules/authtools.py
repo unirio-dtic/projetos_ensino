@@ -1,5 +1,6 @@
 # coding=utf-8
 from datetime import date
+from sie.SIEProjetos import SIEProjetos
 from sie.SIEFuncionarios import SIEFuncionarioID
 from gluon import current, redirect, URL
 
@@ -17,7 +18,8 @@ class Edicao(object):
         if current.session.edicao:
             return True
         else:
-            redirect(URL('default', 'edicoes', vars=dict(_next=URL(current.request.controller, current.request.function))))
+            redirect(
+                URL('default', 'edicoes', vars=dict(_next=URL(current.request.controller, current.request.function))))
 
     def isValidEdicaoForRegistro(self, edicao):
         if self.db((self.db.edicao.dt_inicial <= date.today()) & (self.db.edicao.dt_conclusao >= date.today()) & (
@@ -32,6 +34,19 @@ class Projeto(object):
     def requires_projeto(self):
         if current.session.projeto:
             return True
+
+    def registroBolsistaAberto(self, ID_PROJETO):
+        if self.db((self.db.edicao.dt_inicial_bolsistas <= date.today()) & (
+                    self.db.projetos.edicao == self.db.edicao.id) & (
+                    self.db.projetos.id_projeto == ID_PROJETO)).select().first():
+            return True
+
+    def isCoordenador(self):
+        coordenador = SIEProjetos().getCoordenador(current.request.vars.ID_PROJETO)
+        if coordenador['ID_PESSOA'] == current.session.funcionario['ID_PESSOA']:
+            return True
+
+
 
 
 class Pessoa(object):

@@ -8,22 +8,22 @@
 
 <ul class="thumbnails">
 {{
-for projeto in projetos:
+for proj in projetos:
 }}
     <li class="span5">
         <div class="thumbnail">
             <img src="{{=URL('static/images', 'check-256.png')}}" alt="Aprovado" width="128">
-            <h3>{{=projeto['TITULO']}}</h3>
+            <h3>{{=proj['TITULO']}}</h3>
             <ul>
-                <li><b>Coordenador: </b> {{=projeto['COORDENADOR']}}</li>
-                <li><b>Componente Curricular:</b> {{=projeto['NOME_DISCIPLINA']}}</li>
-                <li><b>Curso:</b> {{=projeto['NOME_CURSO']}}</li>
-                <li><b>Num. Processo:</b> {{=projeto['NUM_PROCESSO']}}</li>
-                <li><b>Qtd. Bolsas:</b> {{=bolsas[projeto['ID_PROJETO']]}}</li>
+                <li><b>Coordenador: </b> {{=proj['COORDENADOR']}}</li>
+                <li><b>Componente Curricular:</b> {{=proj['NOME_DISCIPLINA']}}</li>
+                <li><b>Curso:</b> {{=proj['NOME_CURSO']}}</li>
+                <li><b>Num. Processo:</b> {{=proj['NUM_PROCESSO']}}</li>
+                <li><b>Qtd. Bolsas:</b> {{=bolsas[proj['ID_PROJETO']]}}</li>
             </ul>
             <hr>
             <p align="center">
-                <a class="btn btn-block" href="{{=URL('registro', 'bolsista', vars=dict(ID_PROJETO=projeto['ID_PROJETO']))}}">
+                <a class="btn btn-block" href="{{=URL('registro', 'bolsista', vars=dict(ID_PROJETO=proj['ID_PROJETO']))}}">
                     Cadastrar Bolsistas
                 </a>
             </p>
