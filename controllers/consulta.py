@@ -31,23 +31,26 @@ def index():
     )
 
 
-@auth.requires(edicao.requires_edicao())
+@auth.requires(edicao.requires_edicao() and pessoa.isFuncionario())
 def aprovados():
-    projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-        "COORDENADOR_CPF": auth.user.username,
-        "LMIN": 0,
-        "LMAX": 99999,
-        "SITUACAO_ITEM": 2  # Aprovado
-    }).content
+    try:
+        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+            "COORDENADOR_CPF": auth.user.username,
+            "LMIN": 0,
+            "LMAX": 99999,
+            "SITUACAO_ITEM": 2  # Aprovado
+        }).content
 
-    ids = [p['ID_PROJETO'] for p in projetos]
-    bolsas = {p['id_projeto']: p['quantidade_bolsas'] for p in db(db.bolsas.id_projeto.belongs(ids)).select(cache=(cache.ram, 600))}
+        ids = [p['ID_PROJETO'] for p in projetos]
+        bolsas = {p['id_projeto']: p['quantidade_bolsas'] for p in db(db.bolsas.id_projeto.belongs(ids)).select(cache=(cache.ram, 600))}
 
-
-    return dict(
-        projetos=projetos,
-        bolsas=bolsas
-    )
+        return dict(
+            projetos=projetos,
+            bolsas=bolsas
+        )
+    except ValueError:
+        session.flash = "Você não possui projetos aprovados."
+        redirect(URL('default', 'index'))
 
 
 @cache.action()
