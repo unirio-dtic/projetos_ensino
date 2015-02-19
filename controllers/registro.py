@@ -153,7 +153,7 @@ def bolsista():
         apiAlunos = SIEAlunos()
 
         for aluno in alunosPossiveis:
-            aluno.update({"CRA": apiAlunos.getCRA(aluno['ID_ALUNO'])})
+            aluno.update(apiAlunos.getCRA(aluno['ID_ALUNO']))
 
         def grouper(n, iterable):
             """
