@@ -390,7 +390,7 @@ class SIEParticipantesProjs(SIE):
         super(SIEParticipantesProjs, self).__init__()
         self.path = "PARTICIPANTES_PROJ"
 
-    def criarParticipante(self, ID_PROJETO, funcionario):
+    def criarParticipanteCoordenador(self, ID_PROJETO, funcionario):
         """
         FUNCAO_TAB = 6003       => Papel do participante de um projeto
         FUNCAO_ITEM = 1         => Coordenador
@@ -416,6 +416,9 @@ class SIEParticipantesProjs(SIE):
         }
 
         return self.api.performPOSTRequest(self.path, participante)
+
+    def criarParticipante(self, ID_PROJETO):
+
 
     def descricaoDeFuncaoDeParticipante(self, participante):
         """

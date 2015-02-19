@@ -33,7 +33,7 @@ def registro():
         SIEOrgaosProjetos().criarOrgaosProjetos(novoProjeto, form.vars.ID_UNIDADE)
 
         participantesProj = SIEParticipantesProjs()
-        novoParticipante = participantesProj.criarParticipante(
+        novoParticipante = participantesProj.criarParticipanteCoordenador(
             novoProjeto["ID_PROJETO"],
             session.funcionario
         )
