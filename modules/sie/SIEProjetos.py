@@ -27,7 +27,12 @@ class SIEProjetos(SIE):
 
     def getProjeto(self, ID_PROJETO):
         """
+        Dado o identificador único de um projeto na tabela PROJETOS, a função retorna um dicionáio
+        correspondente. A requisição é cacheada.
 
+        :param ID_PROJETO: Identificador único de um projeto
+        :type ID_PROJETO: int
+        :return: Uma entrada na tabela PROJETOS
         :rtype : dict
         """
         params = {
@@ -42,6 +47,16 @@ class SIEProjetos(SIE):
             return None
 
     def getProjetoDados(self, ID_PROJETO):
+        """
+        Dado o identificador único de um projeto na tabela PROJETOS, a função retorna um dicionáio
+        correspondente a uma entrada na view V_PROJETOS_DADOS, que é uma juncão das tabelas PROJETOS,
+        PARTICIPANTES_PRJ, DOCUMENTOS, CLASSIFICACAO_PRJ
+
+        :param ID_PROJETO: Identificador único de um projeto
+        :type ID_PROJETO: int
+        :return: Uma entrada na view V_PROJETOS_DADOS
+        :rtype: dict
+        """
         params = {
             'LMIN': 0,
             'LMAX': 1,
@@ -406,6 +421,23 @@ class SIEParticipantesProjs(SIE):
         """
         Dado um parcipante, o método retorna a descrição textual de sua função no projeto
 
+        1 => Coordenador
+        2 => Orientador
+        3 => Bolsista
+        4 => Participante Voluntário
+        5 => Pesquisador Colaborador
+        6 => Co-orientador
+        10 => Apresentador
+        11 => Autor
+        12 => Co-autor
+        13 => Executor
+        14 => Estagiário
+        15 => Acompanhante
+        16 => Monitoria não subsidiada
+        20 => Não definida
+        17 => Orientador de aluno
+        50 => Candidato a bolsista
+
         :type participante: dict
         :rtype : str
         :param participante: Um dicionário correspondente a uma entrada da tabela PARTICIPANTES_PROJ que contenha pelo
@@ -424,6 +456,12 @@ class SIEParticipantesProjs(SIE):
             return "Não foi possível recuperar"
 
     def getParticipacoes(self, funcionario):
+        """
+
+        :param funcionario: Um dicionário da view V_FUNCIONARIO_IDS
+        :return: Uma lista de participações em projetos
+        :rtype: list
+        """
         params = {
             "ID_PESSOA": funcionario["ID_PESSOA"],
             "LMIN": 0,
