@@ -21,7 +21,6 @@ class SIEAlunos(SIE):
         :type ID_ALUNO: int
         :param ID_ALUNO: Idenficador único de um aluno na tabela ALUNOS
         :return: O coeficiente de rendimento acumulado deste aluno
-        :rtype : float
+        :rtype : dict
         """
-        return self.api.performGETRequest("V_COEF_REND_ACAD", {"ID_ALUNO": ID_ALUNO}, ["COEFICIENTE"],
-                                          cached=self.cacheTime).content[0]['COEFICIENTE']
+        return self.api.performGETRequest("V_COEF_REND_ACAD", {"ID_ALUNO": ID_ALUNO}, cached=self.cacheTime).content[0]
