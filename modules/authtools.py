@@ -43,7 +43,6 @@ class Projeto(object):
 
     def isCoordenador(self):
         coordenador = SIEProjetos().getCoordenador(current.request.vars.ID_PROJETO)
-        return True
         if coordenador['ID_PESSOA'] == current.session.funcionario['ID_PESSOA']:
             return True
 
