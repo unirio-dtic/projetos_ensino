@@ -37,9 +37,12 @@
                         </ul>
 
                         <p align="center" id="btnCadastro{{=aluno['ID_PESSOA']}}">
-                            <a href="{{=URL('bolsista', 'ajaxCadastrarParticipante')}}" cid="btnCadastro{{=aluno['ID_PESSOA']}}" class="btn btn-block" data-toggle="modal" style="margin-top:30px;">
-                                Cadastrar como participante
-                            </a>
+
+                            {{
+                                aAttr = { 'class': "btn btn-block", 'data-toggle': "modal", 'style': "margin-top:30px;", 'cid': 'btnCadastro%s' % aluno['ID_PESSOA']}
+                            }}
+                            {{=A('Cadastrar como participante', _href=URL('bolsista', 'ajaxCadastrarParticipante', vars={"ID_CURSO_ALUNO": aluno['ID_CURSO_ALUNO'], "ID_PROJETO": projeto['ID_PROJETO'] }), **aAttr)}}
+
                         </p>
                     </div>
                 </div>

@@ -136,6 +136,7 @@ def bolsista():
 
     projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
     try:
+        session.alunosPossiveis = None
         alunosPossiveis = api.performGETRequest(
             "V_NOTAS_FINAIS_ALUNOS_DISCIPLINAS",
             {
@@ -151,9 +152,8 @@ def bolsista():
         ).content
 
         apiAlunos = SIEAlunos()
-
-        for aluno in alunosPossiveis:
-            aluno.update(apiAlunos.getCRA(aluno['ID_ALUNO']))
+        map(lambda a: a.update(apiAlunos.getCRA(a['ID_ALUNO'])), alunosPossiveis)
+        session.alunosPossiveis = alunosPossiveis[:]
 
         def grouper(n, iterable):
             """
@@ -165,6 +165,7 @@ def bolsista():
             """
             args = [iter(iterable)] * n
             return izip_longest(*args)
+
         groups = list(grouper(3, alunosPossiveis))
     except ValueError:
         groups = []
