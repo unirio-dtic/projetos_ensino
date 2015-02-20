@@ -403,26 +403,25 @@ class SIEParticipantesProjs(SIE):
         """
         escolaridade = SIEFuncionarios().getEscolaridade(funcionario["ID_FUNCIONARIO"])
         participante = {
-            "ID_PROJETO": ID_PROJETO,
-            "FUNCAO_TAB": 6003,
-            "FUNCAO_ITEM": 1,
-            "CARGA_HORARIA": 20,
             "TITULACAO_TAB": escolaridade["ESCOLARIDADE_TAB"],
             "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
-            "SITUACAO": "A",
-            "CH_SUGERIDA": 20,
             "ID_PESSOA": funcionario["ID_PESSOA"],
             "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"],
         }
 
-        return self.api.performPOSTRequest(self.path, participante)
+        return self._criarParticipante(ID_PROJETO, 1, participante)
 
-    def criarParticipante(self, ID_PROJETO):
+    def criarParticipanteAluno(self, ID_PROJETO, FUNCAO_ITEM,  aluno):
+        participante = {
+            "ID_PESSOA": aluno["ID_PESSOA"],
+            "TITULACAO_TAB": 000000000 # TODO corrigir
+        }
 
+        return self._criarParticipante(ID_PROJETO, FUNCAO_ITEM, participante)
 
-    def descricaoDeFuncaoDeParticipante(self, participante):
+    def _criarParticipante(self, ID_PROJETO, FUNCAO_ITEM, participante={}):
         """
-        Dado um parcipante, o método retorna a descrição textual de sua função no projeto
+        Funções de participantes previstas na TAB_ESTRUTURADA COD_TABELA 6003:
 
         1 => Coordenador
         2 => Orientador
@@ -441,20 +440,38 @@ class SIEParticipantesProjs(SIE):
         17 => Orientador de aluno
         50 => Candidato a bolsista
 
+        :type ID_PROJETO: int
+        :param ID_PROJETO: Identificador único de uma projeto na tabela PROJETOS
+        :type FUNCAO_ITEM: int
+        :param FUNCAO_ITEM: Identificador úncio de uma descrição de função. Identificadores possíveis podem ser
+                            encontrados na TAB_ESTRUTURADA, COD_TABELA 6003
+        :type pessoa: dict
+        :param pessoa: Dicionário contendo dados
+        :rtype : unirio.api.apiresult.APIPostResponse
+        """
+        participante.update({
+            "ID_PROJETO": ID_PROJETO,
+            "FUNCAO_TAB": 6003,
+            "FUNCAO_ITEM": FUNCAO_ITEM,
+            "CARGA_HORARIA": 20,
+            "SITUACAO": "A",
+            "CH_SUGERIDA": 20,
+            "ID_PESSOA": pessoa["ID_PESSOA"],
+        })
+
+        return self.api.performPOSTRequest(self.path, participante)
+
+    def descricaoDeFuncaoDeParticipante(self, participante):
+        """
+        Dado um parcipante, o método retorna a descrição textual de sua função no projeto
+
         :type participante: dict
         :rtype : str
         :param participante: Um dicionário correspondente a uma entrada da tabela PARTICIPANTES_PROJ que contenha pelo
         menos a chave FUNCAO_ITEM
         """
-        params = {
-            "LMIN": 0,
-            "LMAX": 1,
-            "COD_TABELA": 6003,
-            "ITEM_TABELA": participante["FUNCAO_ITEM"]
-        }
         try:
-            r = self.api.performGETRequest("TAB_ESTRUTURADA", params, ["DESCRICAO"], self.cacheTime)
-            return r.first()["DESCRICAO"]
+            return SIETabEstruturada().descricaoDeItem(participante["FUNCAO_ITEM"], 6003)
         except AttributeError:
             return "Não foi possível recuperar"
 
