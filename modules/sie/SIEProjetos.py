@@ -4,6 +4,7 @@ from datetime import date, datetime
 from unirio.api.apiresult import APIException
 from sie import SIE
 from gluon import current
+from sie.SIEBolsistas import SIEBolsas, SIEBolsistas
 from sie.SIEDocumento import SIEDocumentos, SIETramitacoes
 from sie.SIEFuncionarios import SIEFuncionarios
 from sie.SIETabEstruturada import SIETabEstruturada
@@ -396,32 +397,46 @@ class SIEParticipantesProjs(SIE):
         FUNCAO_ITEM = 1         => Coordenador
         SITUACAO = A            => Ao adicionar um participante, ele estará ativo(A)
 
-        :rtype : unirio.api.apiresult.APIPostResponse
         :param ID_PROJETO: Identificador único de uma entrada na tabela PROJETOS
         :param funcionario: Dicionário de IDS de um funcionário
-        :return:
+        :rtype : unirio.api.apiresult.APIPostResponse
         """
         escolaridade = SIEFuncionarios().getEscolaridade(funcionario["ID_FUNCIONARIO"])
         participante = {
-            "TITULACAO_TAB": escolaridade["ESCOLARIDADE_TAB"],
             "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
             "ID_PESSOA": funcionario["ID_PESSOA"],
-            "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"],
+            "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"]
+            # "DESCR_MAIL": funcionario["DESCR_MAIL"],   #TODO deveria constar na session.funcionario
         }
 
         return self._criarParticipante(ID_PROJETO, 1, participante)
 
-    def criarParticipanteAluno(self, ID_PROJETO, FUNCAO_ITEM,  aluno):
+    def criarParticipanteBolsista(self, ID_PROJETO, aluno):
+        """
+        TITULACAO_ITEM = 9      => Superior Incompleto
+        FUNCAO_ITEM = 3         => Bolsista
+
+        :param ID_PROJETO: Identificador único de uma entrada na tabela PROJETOS
+        :param aluno: Dicionário de atributos de um aluno
+        :rtype : unirio.api.apiresult.APIPostResponse
+        """
+        ID_BOLSISTA = SIEBolsistas().criarBolsista(SIEBolsas().getBolsa(6), current.edicao, aluno).insertId
+
         participante = {
             "ID_PESSOA": aluno["ID_PESSOA"],
-            "TITULACAO_TAB": 000000000 # TODO corrigir
+            "ID_CURSO_ALUNO": aluno["ID_CURSO_ALUNO"],
+            "TITULACAO_ITEM": 9,
+            "DESCR_MAIL": aluno["DESCR_MAIL"],
+            "ID_BOLSISTA": ID_BOLSISTA
         }
 
-        return self._criarParticipante(ID_PROJETO, FUNCAO_ITEM, participante)
+        return self._criarParticipante(ID_PROJETO, 3, participante)
 
     def _criarParticipante(self, ID_PROJETO, FUNCAO_ITEM, participante={}):
         """
-        Funções de participantes previstas na TAB_ESTRUTURADA COD_TABELA 6003:
+        FUNCAO_TAB = 6003       => Papel do participante de um projeto
+
+        FUNCAO_ITEM previstas na TAB_ESTRUTURADA:
 
         1 => Coordenador
         2 => Orientador
@@ -451,12 +466,13 @@ class SIEParticipantesProjs(SIE):
         """
         participante.update({
             "ID_PROJETO": ID_PROJETO,
+            "TITULACAO_TAB": 168,
             "FUNCAO_TAB": 6003,
             "FUNCAO_ITEM": FUNCAO_ITEM,
             "CARGA_HORARIA": 20,
             "SITUACAO": "A",
             "CH_SUGERIDA": 20,
-            "ID_PESSOA": pessoa["ID_PESSOA"],
+            "ID_PESSOA": participante["ID_PESSOA"],
         })
 
         return self.api.performPOSTRequest(self.path, participante)
@@ -474,6 +490,17 @@ class SIEParticipantesProjs(SIE):
             return SIETabEstruturada().descricaoDeItem(participante["FUNCAO_ITEM"], 6003)
         except AttributeError:
             return "Não foi possível recuperar"
+
+    def getParticipantes(self, params):
+        params.update({
+            'LMIN': 0,
+            'LMAX': 9999
+        })
+
+        try:
+            return self.api.performGETRequest(self.path, params).content
+        except (ValueError, AttributeError):
+            return None
 
     def getParticipacoes(self, funcionario):
         """
