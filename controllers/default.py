@@ -6,7 +6,7 @@ def index():
     editalAberto = db((db.edicao.dt_inicial <= date.today()) & (db.edicao.dt_conclusao >= date.today())
     ).select(cache=(cache.ram, 86400), cacheable=True).first()
 
-    if not editalAberto:
+    if editalAberto:
         return dict(
             edital=editalAberto,
             dataFinal=editalAberto.dt_conclusao.strftime('%d/%m/%Y')

@@ -36,8 +36,10 @@
                             <li><b>Período Atual: </b> {{=aluno['PERIODO_ATUAL']}}</li>
                         </ul>
 
-                        <p align="center">
-                            <a href="#myModal" class="btn btn-block" data-toggle="modal" style="margin-top:30px;">Cadastrar como participante</a>
+                        <p align="center" id="btnCadastro{{=aluno['ID_PESSOA']}}">
+                            <a href="{{=URL('bolsista', 'ajaxCadastrarParticipante')}}" cid="btnCadastro{{=aluno['ID_PESSOA']}}" class="btn btn-block" data-toggle="modal" style="margin-top:30px;">
+                                Cadastrar como participante
+                            </a>
                         </p>
                     </div>
                 </div>

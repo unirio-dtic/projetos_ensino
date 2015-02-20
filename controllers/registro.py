@@ -147,7 +147,7 @@ def bolsista():
                 "ORDERBY": "NOME_PESSOA"
             },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "NOME_PAI", "NOME_MAE", "SEXO",
-             "NOME_CIDADE", "DESCR_BAIRRO", "FOTO", "ANO", "PERIODO_ITEM"]
+             "NOME_CIDADE", "DESCR_BAIRRO", "FOTO", "ANO"]
         ).content
 
         apiAlunos = SIEAlunos()

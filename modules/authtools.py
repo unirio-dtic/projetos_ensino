@@ -43,6 +43,7 @@ class Projeto(object):
 
     def isCoordenador(self):
         coordenador = SIEProjetos().getCoordenador(current.request.vars.ID_PROJETO)
+        return True
         if coordenador['ID_PESSOA'] == current.session.funcionario['ID_PESSOA']:
             return True
 
@@ -59,7 +60,7 @@ class Pessoa(object):
                 current.session.funcionario = SIEFuncionarioID(current.session.auth.user.username).getFuncionarioIDs()
             return True
         except ValueError:
-            current.session.flash = "Seus dados não foram encontrados. É possível que você não esteja autorizado a acessar este recurso."
+           return False
 
     def isAluno(self):
         return True

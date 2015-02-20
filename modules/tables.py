@@ -189,7 +189,7 @@ class TableAvaliacao(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(str(self.projetos.index(p) + 1), p['COORDENADOR'], p['NOME_DISCIPLINA'], self.arquivos(p),
-                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p))
+                      self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p), _id=p['ID_PROJETO'])
 
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
