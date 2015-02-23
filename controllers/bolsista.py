@@ -1,11 +1,33 @@
 # coding=utf-8
-from sie.SIEProjetos import SIEParticipantesProjs
+from forms import FormBolsista
+from sie.SIEBolsistas import SIEBolsistas
+from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 
 
 @auth.requires(pessoa.isAluno())
 def dados():
-    session.flash = 'Indisponível no momento.'
-    redirect(URL('default', 'index'))
+    participacoes = SIEParticipantesProjs().getParticipacoes(session.aluno, {'FUNCAO_ITEM': 3})
+
+    if not participacoes:
+        session.flash = 'Você não foi selecionado como bolsista para nenhum projeto.'
+        redirect(URL('default', 'index'))
+
+    def __getter(participacoes):
+        p = SIEProjetos()
+        b = SIEBolsistas()
+        for part in participacoes:
+            yield p.getProjeto(part['ID_PROJETO'])
+            yield b.getBolsista(part['ID_BOLSISTA'])
+
+    projetos, bolsistas = __getter(participacoes)
+
+    form = FormBolsista().formCadastroBolsista()
+
+    if form.process().accepted:
+        # Atualizar entrada na tabela de bolsista para os dados bancários do form
+        pass
+
+    return dict(locals())
 
 
 @auth.requires(pessoa.isFuncionario() and proj.isCoordenador())
