@@ -30,8 +30,9 @@ class CustomFormHelper(object):
             label,
             name)
 
-    def _selectComponent(self, label, name, options, isNotEmpty=True):
-        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None),
+    def _selectComponent(self, label, name, options, isNotEmpty=True, **kwargs):
+        return self._component(SELECT(*options, _name=name, _id=name, requires=IS_NOT_EMPTY() if isNotEmpty else None,
+                                      **kwargs),
                                label, name)
 
 
@@ -167,14 +168,14 @@ class FormPerguntas(CustomFormHelper):
 
 class FormBolsista(CustomFormHelper):
     def formCadastroBolsista(self):
-        bancos = current.db(current.db.bancos).select(orderby=current.db.bancos.codigo,
-                                                      cache=(current.cache.ram, 86400))
-        bancos_options = [OPTION('%s - %s' % (banco.codigo, banco.nome), _value=banco.codigo) for banco in bancos]
+        bancos = current.api.performGETRequest('CAD_BANCOS', cached=84600*3).content
+
+        bancos_options = [OPTION(banco['NOME_BANCO'], _value=banco['ID_BANCO']) for banco in bancos]
 
         return FORM(
             FIELDSET(
                 LEGEND("Dados Bancários"),
-                self._selectComponent("Banco", "nome_banco", bancos_options),
+                self._selectComponent("Banco", "nome_banco", bancos_options, onchange='ajaxCarregarAgencias'),
                 self._inputComponent("Agência", "agencia"),
                 self._inputComponent("Conta Corrente", "cc"),
                 INPUT(_value='Enviar', _type='submit')
