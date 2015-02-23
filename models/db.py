@@ -19,9 +19,8 @@ auth.settings.actions_disabled = [
 
 db.auth_user.username.label = 'CPF'
 
-if not request.is_local:
-    from gluon.contrib.login_methods.ldap_auth import ldap_auth
-    auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
+from gluon.contrib.login_methods.ldap_auth import ldap_auth
+auth.settings.login_methods=[ldap_auth(mode='uid', server='ldap.unirio.br', base_dn='ou=people,dc=unirio,dc=br')]
 
 db.define_table(
     'edicao',
@@ -74,12 +73,6 @@ db.define_table(
     Field('pergunta', db.avaliacao_perguntas),
     Field('avaliacao', db.avaliacao),
     Field('resposta', 'boolean'),
-)
-
-db.define_table(
-    'bancos',
-    Field('codigo', 'string', notnull=True, label="Código do banco"),
-    Field('nome', 'string', notnull=True, label="Nome do banco")
 )
 
 db.avaliacao_perguntas.edicao.requires = IS_IN_DB(db, 'edicao.id', '%(nome)s', zero='Selecione')
