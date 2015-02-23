@@ -54,3 +54,11 @@ class SIEBolsistas(SIE):
         }
         return self.api.performPOSTRequest(self.path, params)
 
+    def getBolsista(self, ID_BOLSISTA):
+        params = {
+            'ID_BOLSISTA': ID_BOLSISTA,
+            'LMIN': 0,
+            'LMAX': 1
+        }
+        return  self.api.performGETRequest(self.path, params, cached=self.cacheTime)
+
