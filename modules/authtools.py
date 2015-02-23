@@ -1,5 +1,6 @@
 # coding=utf-8
 from datetime import date
+from sie.SIEAlunos import SIEAlunos
 from sie.SIEProjetos import SIEProjetos
 from sie.SIEFuncionarios import SIEFuncionarioID
 from gluon import current, redirect, URL
@@ -47,8 +48,6 @@ class Projeto(object):
             return True
 
 
-
-
 class Pessoa(object):
     def __init__(self, db):
         self.db = db
@@ -58,8 +57,13 @@ class Pessoa(object):
             if not current.session.funcionario:
                 current.session.funcionario = SIEFuncionarioID(current.session.auth.user.username).getFuncionarioIDs()
             return True
-        except ValueError:
-           return False
+        except (ValueError, AttributeError):
+            return False
 
     def isAluno(self):
-        return True
+        try:
+            if not current.session.aluno:
+                current.session.aluno = SIEAlunos().getAlunoAtivoFromCPF(current.session.auth.user.username)
+            return True
+        except (ValueError, AttributeError):
+            return False
