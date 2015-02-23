@@ -24,3 +24,10 @@ class SIEAlunos(SIE):
         :rtype : dict
         """
         return self.api.performGETRequest("V_COEF_REND_ACAD", {"ID_ALUNO": ID_ALUNO}, cached=self.cacheTime).content[0]
+
+    def getAlunoAtivoFromCPF(self, cpf):
+        """
+        :type cpf: str
+        :rtype : dict
+        """
+        return self.api.performGETRequest("V_ALUNOS_ATIVOS", {"CPF_SEM_MASCARA": cpf}, cached=self.cacheTime).content[0]
