@@ -331,6 +331,18 @@ class SIEFluxos(SIE):
         params = {
             "ID_TIPO_DOC": documento["ID_TIPO_DOC"],
             "SITUACAO_ATUAL": documento["SITUACAO_ATUAL"],
-            "IND_ATIVO": "S"
+            "IND_ATIVO": "S",
+            "LMIN": 0,
+            "LMAX": 1
+        }
+        return self.api.performGETRequest(self.path, params).content[0]
+
+    def getProximosFluxosFromDocumento(self, documento):
+        params = {
+            "ID_TIPO_DOC": documento["ID_TIPO_DOC"],
+            "SITUACAO_FUTURA": documento["SITUACAO_FUTURA"],
+            "IND_ATIVO": "S",
+            "LMIN": 0,
+            "LMAX": 1
         }
         return self.api.performGETRequest(self.path, params).content[0]

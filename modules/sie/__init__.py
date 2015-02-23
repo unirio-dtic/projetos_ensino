@@ -4,7 +4,6 @@ __all__ = [
     "SIEAlunos"
     "SIEBolsistas",
     "SIEDocumento",
-    "SIEFluxos",
     "SIEFuncionarios",
     "SIEProjetos",
     "SIEServidores",
