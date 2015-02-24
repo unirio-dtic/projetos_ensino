@@ -92,8 +92,8 @@ class FormProjetos(CustomFormHelper):
                 self._selectComponent(
                     'Curso*:',
                     'ID_CURSO',
-                    [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in
-                     self.cursos]
+                    [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in self.cursos],
+                    _onchange='ajax("%s", ["ID_CURSO"], "COD_DISCIPLINA")' % URL('registro', 'ajaxDisciplinas')
                 ),
                 self._selectComponent(
                     'Disciplina*:',
