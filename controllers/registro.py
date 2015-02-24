@@ -117,11 +117,10 @@ def relatorio_bolsista():
     return dict(locals())
 
 
-def getDisciplinasHTMLOptions():
+def ajaxDisciplinas():
     disciplinas = SIECursosDisciplinas().getDisciplinas(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
-    options = [str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"])) for disciplina in
-               disciplinas]
-    return options
+    for disciplina in disciplinas:
+        yield str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"]))
 
 
 def getIdUnidade():
