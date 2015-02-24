@@ -164,13 +164,13 @@ def deferidos():
             "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
             "LMIN": 0,
             "LMAX": 5000
-        }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"], cached=600)
+        }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"], cached=600)
 
         table = TableDeferimento(projetos.content)
         form = table.printTable()
         relatorio = relatorios.salvar(
             projetos.content,
-            ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"),
+            ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"),
             "deferidos"
         )
 
@@ -275,7 +275,7 @@ def xls():
         "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
         "LMIN": 0,
         "LMAX": 5000
-    }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO"], cached=0)
+    }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"], cached=0)
 
     class DictUnicodeProxy(object):
         def __init__(self, d):
@@ -291,7 +291,7 @@ def xls():
             return i
 
     with open(request.folder + 'static/relatorios/deferidos.csv', 'w') as outfile:
-        headers = ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_CURSO", "TITULO")
+        headers = ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO")
 
         writer = DictWriter(outfile, headers)
         writer.writeheader()
