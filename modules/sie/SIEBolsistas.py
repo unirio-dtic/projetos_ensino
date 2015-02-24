@@ -60,5 +60,21 @@ class SIEBolsistas(SIE):
             'LMIN': 0,
             'LMAX': 1
         }
-        return  self.api.performGETRequest(self.path, params, cached=self.cacheTime)
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime)
+
+    def atualizarDadosBancarios(self, ID_BOLSISTA, dados):
+        """
+        Método utilizado para atualizar dados bancários de um bolsista.
+
+        :type ID_BOLSISTA: int
+        :param ID_BOLSISTA: Identificador único de um bolsista na tabela BOLSISTAS
+        :type dados: dict
+        :param dados: dicionário de dados contendo as chaves ID_AGENCIA e CONTA_CORRENTE
+        """
+        params = {
+            'ID_BOLSISTA': ID_BOLSISTA,
+            'ID_AGENCIA': dados['ID_AGENCIA'],
+            'CONTA_CORRENTE': dados['CONTA_CORRENTE']
+        }
+        return self.api.performPUTRequest(self.path, params)
 

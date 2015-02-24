@@ -1,4 +1,5 @@
 # coding=utf-8
+from sie.SIEBancos import SIEAgencias
 from forms import FormBolsista
 from sie.SIEBolsistas import SIEBolsistas
 from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
@@ -19,13 +20,13 @@ def dados():
             yield p.getProjeto(part['ID_PROJETO'])
             yield b.getBolsista(part['ID_BOLSISTA'])
 
-    projetos, bolsistas = __getter(participacoes)
+    projetos, bolsas = __getter(participacoes)
 
     form = FormBolsista().formCadastroBolsista()
 
     if form.process().accepted:
-        # Atualizar entrada na tabela de bolsista para os dados bancários do form
-        pass
+        for bolsa in bolsas:
+            SIEBolsistas().atualizarDadosBancarios(bolsa['ID_BOLSISTA'], form.vars)
 
     return dict(locals())
 
@@ -47,3 +48,9 @@ def ajaxCadastrarParticipante():
         if aluno:
             SIEParticipantesProjs().criarParticipanteBolsista(request.vars.ID_PROJETO, aluno)
             return dict(success=True)
+
+
+def ajaxCarregarAgencias():
+    agencia = lambda ag: str(OPTION("%s-%s  %s" % (ag['COD_AGENCIA'], ag['DV_AGENCIA'], ag['NOME_AGENCIA']), _value=a['ID_AGENCIA']))
+    for a in SIEAgencias().getAgenciasDeBanco(request.vars.ID_BANCO):
+        yield agencia(a)

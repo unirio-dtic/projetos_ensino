@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import date
-
+from sie.SIEBancos import SIEBancos
 from gluon import IS_NOT_EMPTY, current, IS_UPLOAD_FILENAME
 from gluon.html import *
 
@@ -168,16 +167,18 @@ class FormPerguntas(CustomFormHelper):
 
 class FormBolsista(CustomFormHelper):
     def formCadastroBolsista(self):
-        bancos = current.api.performGETRequest('CAD_BANCOS', cached=84600*3).content
-
-        bancos_options = [OPTION(banco['NOME_BANCO'], _value=banco['ID_BANCO']) for banco in bancos]
+        bancos_options = [OPTION(banco['NOME_BANCO'], _value=banco['ID_BANCO']) for banco in SIEBancos().getBancos()]
 
         return FORM(
             FIELDSET(
                 LEGEND("Dados Bancários"),
-                self._selectComponent("Banco", "nome_banco", bancos_options, onchange='ajaxCarregarAgencias'),
-                self._inputComponent("Agência", "agencia"),
-                self._inputComponent("Conta Corrente", "cc"),
+                self._selectComponent("Banco*", "ID_BANCO", bancos_options, _onchange='ajax("%s", ["ID_BANCO"], "ID_AGENCIA")' % URL('bolsista', 'ajaxCarregarAgencias')),
+                self._selectComponent(
+                    'Agência*:',
+                    'ID_AGENCIA',
+                    [OPTION('Selecione o banco', _value='')]
+                ),
+                self._inputComponent("Conta Corrente*", "CONTA_CORRENTE"),
                 INPUT(_value='Enviar', _type='submit')
             )
         )
