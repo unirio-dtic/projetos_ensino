@@ -30,13 +30,10 @@ def registro():
 
         SIEClassifProjetos().criarClassifProjetos(novoProjeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])
 
-        SIEOrgaosProjetos().criarOrgaosProjetos(novoProjeto, form.vars.ID_UNIDADE)
+        SIEOrgaosProjetos().criarOrgaosProjetos(novoProjeto, SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO))
 
-        participantesProj = SIEParticipantesProjs()
-        novoParticipante = participantesProj.criarParticipanteCoordenador(
-            novoProjeto["ID_PROJETO"],
-            session.funcionario
-        )
+        SIEParticipantesProjs().criarParticipanteCoordenador(novoProjeto["ID_PROJETO"], session.funcionario)
+
         session.projeto = novoProjeto
 
         redirect(URL('registro', 'arquivo_projeto'))
@@ -121,10 +118,6 @@ def ajaxDisciplinas():
     disciplinas = SIECursosDisciplinas().getDisciplinas(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
     for disciplina in disciplinas:
         yield str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"]))
-
-
-def getIdUnidade():
-    return SIECursosDisciplinas().getIdUnidade(request.vars.ID_CURSO)
 
 
 @auth.requires(edicao.requires_edicao() and proj.isCoordenador())
