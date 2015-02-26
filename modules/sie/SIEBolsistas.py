@@ -24,7 +24,17 @@ class SIEBolsas(SIE):
             "LMIN": 0,
             "LMAX": 1
         }
-        return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content[0]
+        fields = [
+            'ID_BOLSA',
+            'COD_BOLSA',
+            'DESCR_BOLSA',
+            'VL_BOLSA',
+            'VAGAS_OFERECIDAS',
+            'TIPO_BOLSA',
+            'SITUACAO_BOLSA',
+            'IND_PERCENTUAL'
+        ]
+        return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content[0]
 
 
 class SIEBolsistas(SIE):
@@ -32,7 +42,7 @@ class SIEBolsistas(SIE):
         super(SIEBolsistas, self).__init__()
         self.path = "BOLSISTAS"
 
-    def criarBolsista(self, bolsa, edicao, aluno):
+    def criarBolsista(self, bolsa, edicao, aluno, projeto):
         """
 
         :type aluno: dict
@@ -50,7 +60,8 @@ class SIEBolsistas(SIE):
             "ID_PESSOA": aluno['ID_PESSOA'],
             "NUM_HORAS": 20,
             "SITUACAO_BOLSISTA": "A",
-            "VL_BOLSA": bolsa['VL_BOLSA']
+            "VL_BOLSA": bolsa['VL_BOLSA'],
+            "ID_UNIDADE": projeto['ID_UNIDADE']
         }
         return self.api.performPOSTRequest(self.path, params)
 
