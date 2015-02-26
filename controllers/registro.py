@@ -140,7 +140,7 @@ def bolsista():
                 "ORDERBY": "NOME_PESSOA"
             },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "NOME_PAI", "NOME_MAE", "SEXO",
-             "NOME_CIDADE", "DESCR_BAIRRO", "FOTO", "ANO"]
+             "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "FOTO", "ANO"]
         ).content
 
         apiAlunos = SIEAlunos()
@@ -159,9 +159,15 @@ def bolsista():
             return izip_longest(*args)
 
         groups = list(grouper(3, alunosPossiveis))
+
+        participantesBolsistas = SIEParticipantesProjs().getParticipantes({
+            'ID_PROJETO': request.vars.ID_PROJETO,
+            'FUNCAO_ITEM': 6
+        })
     except ValueError:
         groups = []
     return dict(
+        bolsistas=participantesBolsistas,
         projeto=projeto,
         groups=groups
     )

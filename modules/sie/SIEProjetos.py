@@ -5,7 +5,7 @@ from unirio.api.apiresult import APIException
 from sie import SIE
 from gluon import current
 from sie.SIEBolsistas import SIEBolsas, SIEBolsistas
-from sie.SIEDocumento import SIEDocumentos, SIETramitacoes
+from sie.SIEDocumento import SIEDocumentos, SIETramitacoes, SIEFluxos
 from sie.SIEFuncionarios import SIEFuncionarios
 from sie.SIETabEstruturada import SIETabEstruturada
 
@@ -258,9 +258,10 @@ class SIEProjetos(SIE):
         documento = SIEDocumentos().getDocumento(projeto['ID_DOCUMENTO'])
 
         if avaliacao == 9:
-            fluxo = None
+            # fluxo = SIEFluxos().getProximosFluxosFromDocumento(documento)
+            fluxo = NotImplementedError
         elif avaliacao == 2:
-            fluxo = None
+            fluxo = NotImplementedError
         else:
             raise ValueError("%d não é um tipo de avaliação reconhecido" % avaliacao)
 
@@ -406,12 +407,12 @@ class SIEParticipantesProjs(SIE):
             "TITULACAO_ITEM": escolaridade["ESCOLARIDADE_ITEM"],
             "ID_PESSOA": funcionario["ID_PESSOA"],
             "ID_CONTRATO_RH": funcionario["ID_CONTRATO_RH"]
-            # "DESCR_MAIL": funcionario["DESCR_MAIL"],   #TODO deveria constar na session.funcionario
+            # "DESCR_MAIL": funcionario["DESCR_MAIL"],   # TODO deveria constar na session.funcionario
         }
 
         return self._criarParticipante(ID_PROJETO, 1, participante)
 
-    def criarParticipanteBolsista(self, ID_PROJETO, aluno):
+    def criarParticipanteBolsista(self, projeto, aluno, edicao):
         """
         TITULACAO_ITEM = 9      => Superior Incompleto
         FUNCAO_ITEM = 3         => Bolsista
@@ -420,7 +421,7 @@ class SIEParticipantesProjs(SIE):
         :param aluno: Dicionário de atributos de um aluno
         :rtype : unirio.api.apiresult.APIPostResponse
         """
-        ID_BOLSISTA = SIEBolsistas().criarBolsista(SIEBolsas().getBolsa(6), current.edicao, aluno).insertId
+        ID_BOLSISTA = SIEBolsistas().criarBolsista(SIEBolsas().getBolsa(6), edicao, aluno, projeto).insertId
 
         participante = {
             "ID_PESSOA": aluno["ID_PESSOA"],
@@ -430,7 +431,7 @@ class SIEParticipantesProjs(SIE):
             "ID_BOLSISTA": ID_BOLSISTA
         }
 
-        return self._criarParticipante(ID_PROJETO, 3, participante)
+        return self._criarParticipante(projeto['ID_PROJETO'], 3, participante)
 
     def _criarParticipante(self, ID_PROJETO, FUNCAO_ITEM, participante={}):
         """
@@ -492,6 +493,10 @@ class SIEParticipantesProjs(SIE):
             return "Não foi possível recuperar"
 
     def getParticipantes(self, params):
+        """
+
+        :rtype : list
+        """
         params.update({
             'LMIN': 0,
             'LMAX': 9999
@@ -502,22 +507,22 @@ class SIEParticipantesProjs(SIE):
         except (ValueError, AttributeError):
             return None
 
-    def getParticipacoes(self, funcionario):
+    def getParticipacoes(self, pessoa, params={}):
         """
 
-        :param funcionario: Um dicionário da view V_FUNCIONARIO_IDS
+        :param pessoa: Um dicionário da view V_FUNCIONARIO_IDS
+        :param params: Um dicionários de parâmetros a serem utilizados na busca
         :return: Uma lista de participações em projetos
         :rtype: list
         """
-        params = {
-            "ID_PESSOA": funcionario["ID_PESSOA"],
+        params.update({
+            "ID_PESSOA": pessoa["ID_PESSOA"],
             "LMIN": 0,
             "LMAX": 9999
-        }
-        fields = ["ID_PROJETO", "FUNCAO_ITEM"]
+        })
 
         try:
-            return self.api.performGETRequest(self.path, params, fields).content
+            return self.api.performGETRequest(self.path, params).content
         except ValueError:
             return []
 
@@ -573,6 +578,10 @@ class SIECursosDisciplinas(SIE):
         return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
 
     def getIdUnidade(self, ID_CURSO):
+        """
+        :type ID_CURSO: int
+        :rtype : int
+        """
         params = {
             "ID_CURSO": ID_CURSO
         }

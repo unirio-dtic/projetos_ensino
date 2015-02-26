@@ -31,7 +31,7 @@ def dados():
     return dict(locals())
 
 
-@auth.requires(pessoa.isFuncionario() and proj.isCoordenador())
+@auth.requires(pessoa.isFuncionario() and proj.isCoordenador() and edicao.requires_edicao())
 def ajaxCadastrarParticipante():
     bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select().first().quantidade_bolsas
 
@@ -44,9 +44,14 @@ def ajaxCadastrarParticipante():
     })
 
     if not bolsistas or len(bolsistas) < bolsas:
-        aluno = (aluno for aluno in session.alunosPossiveis if aluno['ID_CURSO_ALUNO'] == request.vars.ID_CURSO_ALUNO)
+        for a in session.alunosPossiveis:
+            if a['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
+                aluno = a
+                break
+
         if aluno:
-            SIEParticipantesProjs().criarParticipanteBolsista(request.vars.ID_PROJETO, aluno)
+            projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
+            SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
             return dict(success=True)
 
 
