@@ -147,6 +147,15 @@ def bolsista():
         map(lambda a: a.update(apiAlunos.getCRA(a['ID_ALUNO'])), alunosPossiveis)
         session.alunosPossiveis = alunosPossiveis[:]
 
+        participantesBolsistas = [a['ID_CURSO_ALUNO'] for a in SIEParticipantesProjs().getParticipantes({
+            'ID_PROJETO': request.vars.ID_PROJETO,
+            'FUNCAO_ITEM': 3    # Bolsista
+        })]
+
+        bolsistas = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] in participantesBolsistas]
+        # Remove os alunso que já foram selecionados como bolsistas
+        alunosPossiveis[:] = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] not in participantesBolsistas]
+
         def grouper(n, iterable):
             """
             Usado para agrupar os alunos em grupos de 3 para poder usar corretamente bs`s row-fluid
@@ -158,16 +167,10 @@ def bolsista():
             args = [iter(iterable)] * n
             return izip_longest(*args)
 
-        groups = list(grouper(3, alunosPossiveis))
-
-        participantesBolsistas = SIEParticipantesProjs().getParticipantes({
-            'ID_PROJETO': request.vars.ID_PROJETO,
-            'FUNCAO_ITEM': 6
-        })
     except ValueError:
         groups = []
     return dict(
-        bolsistas=participantesBolsistas,
+        bolsistas=bolsistas,
         projeto=projeto,
-        groups=groups
+        groups=list(grouper(3, alunosPossiveis))
     )

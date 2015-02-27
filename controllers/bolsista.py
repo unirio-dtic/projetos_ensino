@@ -33,14 +33,14 @@ def dados():
 
 @auth.requires(pessoa.isFuncionario() and proj.isCoordenador() and edicao.requires_edicao())
 def ajaxCadastrarParticipante():
-    bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select().first().quantidade_bolsas
+    bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
 
     if not bolsas:
         return dict(success=False)
 
     bolsistas = SIEParticipantesProjs().getParticipantes({
         "ID_PROJETO": request.vars.ID_PROJETO,
-        "FUNCAO_ITEM": 3
+        "FUNCAO_ITEM": 3    # Bolsista
     })
 
     if not bolsistas or len(bolsistas) < bolsas:
@@ -48,11 +48,12 @@ def ajaxCadastrarParticipante():
             if a['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
                 aluno = a
                 break
-
-        if aluno:
+        try:
             projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
             SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
             return dict(success=True)
+        except NameError:
+            pass    # Aluno não está na lista de alunosPossíveis e não deve ser inscrito
 
 
 def ajaxCarregarAgencias():
