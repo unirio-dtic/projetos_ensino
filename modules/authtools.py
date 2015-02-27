@@ -24,7 +24,7 @@ class Edicao(object):
 
     def isValidEdicaoForRegistro(self, edicao):
         if self.db((self.db.edicao.dt_inicial <= date.today()) & (self.db.edicao.dt_conclusao >= date.today()) & (
-                    self.db.edicao.id == edicao.id)).select(cache=(current.cache.ram, 86400), cacheable=True):
+                    self.db.edicao.id == edicao.id)).select(cache=(current.cache.ram, 60), cacheable=True):
             return True
 
 
