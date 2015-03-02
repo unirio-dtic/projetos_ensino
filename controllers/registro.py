@@ -147,14 +147,18 @@ def bolsista():
         map(lambda a: a.update(apiAlunos.getCRA(a['ID_ALUNO'])), alunosPossiveis)
         session.alunosPossiveis = alunosPossiveis[:]
 
-        participantesBolsistas = [a['ID_CURSO_ALUNO'] for a in SIEParticipantesProjs().getParticipantes({
+        participantes = SIEParticipantesProjs().getParticipantes({
             'ID_PROJETO': request.vars.ID_PROJETO,
             'FUNCAO_ITEM': 3    # Bolsista
-        })]
+        })
+        if participantes:
+            participantesBolsistas = [a['ID_CURSO_ALUNO'] for a in participantes]
 
-        bolsistas = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] in participantesBolsistas]
-        # Remove os alunso que já foram selecionados como bolsistas
-        alunosPossiveis[:] = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] not in participantesBolsistas]
+            bolsistas = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] in participantesBolsistas]
+            # Remove os alunso que já foram selecionados como bolsistas
+            alunosPossiveis[:] = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] not in participantesBolsistas]
+        else:
+            bolsistas = []
 
         def grouper(n, iterable):
             """

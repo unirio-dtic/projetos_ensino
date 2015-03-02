@@ -1,4 +1,5 @@
 # coding=utf-8
+from mail import MailBolsista
 from sie.SIEBancos import SIEAgencias
 from forms import FormBolsista
 from sie.SIEBolsistas import SIEBolsistas
@@ -48,6 +49,10 @@ def ajaxCadastrarParticipante():
             if aluno['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
                 projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
                 SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
+                try:
+                    MailBolsista(aluno, projeto).sendConfirmationEmail()
+                except Exception:
+                    pass
                 return dict(success=True)
 
     return dict(success=False)    # Aluno não está na lista de alunosPossíveis e não deve ser inscrito
