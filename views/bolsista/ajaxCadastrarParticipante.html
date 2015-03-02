@@ -1,5 +1,13 @@
 {{if success:}}
-Aluno cadastrado como participante bolsista de projeto.
+<div class="alert alert-success alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    Aluno cadastrado como participante bolsista de projeto.
+</div>
+
 {{else:}}
-Aluno não foi cadastrado com participante.
+<div class="alert alert-danger alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    Aluno não foi cadastrado com participante.
+</div>
+
 {{pass}}
