@@ -38,3 +38,21 @@ class MailAvaliacao(object):
             "message": "Prezado professor, seu projeto foi avaliado. O resultado da avaliação ja está disponível em: " +
             "http://sistemas.unirio.br/projetos_ensino/consulta"
         }
+
+
+class MailBolsista(object):
+    def __init__(self, aluno, projeto):
+        self.to = aluno["DESCR_MAIL"]
+        self.reply_to = current.mail.settings.sender
+        self.subject = "[DTIC/PROGRAD] Projeto de ensino - Bolsa de monitoria"
+        self.footer = "**** E-MAIL AUTOMÁTICO - NÃO RESPONDA ****"
+        self.projeto = projeto
+
+    def sendConfirmationEmail(self):
+         current.mail.send(
+            to=self.to,
+            subject=self.subject,
+            reply_to=self.reply_to,
+            message="Prezado aluno, você foi selecionado como bolsista do projeto " + self.projeto['TITULO'] + "<br />"
+            "Visite http://sistemas.unirio.br/projetos_ensino/ para mais detalhes."
+         )
