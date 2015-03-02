@@ -10,9 +10,25 @@
     <a href="http://www2.unirio.br/unirio/prograd/programas/monitoria">edital de bolsa de projetos de ensino</a> e
     <a href="{{URL('static', 'RESOLUCAO1937.pdf')}}">resolução</a>. Esta lista é gerada automaticamente e não pode ser
     alterada.
-
 </div>
+
+{{if bolsistas:}}
+<div class="alert alert-info alert-block">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    Foram selecionados {{=len(bolsistas)}} aluno(s) de {{=bolsas}} bolsa(s) disponível(eis)
+</div>
+{{pass}}
+
 <div class="container">
+    {{if bolsistas:}}
+        <h4>Alunos selecionados</h4>
+        <ol>
+            {{for bolsista in bolsistas:}}
+                <li>{{=bolsista['NOME_PESSOA']}}</li>
+            {{pass}}
+        </ol>
+    {{pass}}
+    <h4>Alunos aptos</h4>
     <ul class="thumbnails">
     {{for alunosPossiveis in groups:}}
         <div class="row-fluid">
@@ -35,15 +51,14 @@
                             <li><b>CRA: </b>{{=aluno['COEFICIENTE']}}</li>
                             <li><b>Período Atual: </b> {{=aluno['PERIODO_ATUAL']}}</li>
                         </ul>
-
+                        {{if podeCadastrar:}}
                         <p align="center" id="btnCadastro{{=aluno['ID_PESSOA']}}">
-
-                            {{
-                                aAttr = { 'class': "btn btn-block", 'data-toggle': "modal", 'style': "margin-top:30px;", 'cid': 'btnCadastro%s' % aluno['ID_PESSOA']}
-                            }}
+                        {{
+                        aAttr = { '_class': "btn btn-block", 'data-toggle': "modal", '_style': "margin-top:30px;", 'cid': 'btnCadastro%s' % aluno['ID_PESSOA']}
+                        }}
                             {{=A('Cadastrar como participante', _href=URL('bolsista', 'ajaxCadastrarParticipante', vars={"ID_CURSO_ALUNO": aluno['ID_CURSO_ALUNO'], "ID_PROJETO": projeto['ID_PROJETO'] }), **aAttr)}}
-
                         </p>
+                        {{pass}}
                     </div>
                 </div>
             </li>

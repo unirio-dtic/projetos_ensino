@@ -169,8 +169,12 @@ def bolsista():
 
     except ValueError:
         groups = []
+
+    bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
     return dict(
+        bolsas=bolsas,
         bolsistas=bolsistas,
         projeto=projeto,
-        groups=list(grouper(3, alunosPossiveis))
+        groups=list(grouper(3, alunosPossiveis)),
+        podeCadastrar = not bolsistas or len(bolsistas) < bolsas
     )

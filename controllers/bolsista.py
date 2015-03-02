@@ -44,16 +44,13 @@ def ajaxCadastrarParticipante():
     })
 
     if not bolsistas or len(bolsistas) < bolsas:
-        for a in session.alunosPossiveis:
-            if a['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
-                aluno = a
-                break
-        try:
-            projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
-            SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
-            return dict(success=True)
-        except NameError:
-            pass    # Aluno não está na lista de alunosPossíveis e não deve ser inscrito
+        for aluno in session.alunosPossiveis:
+            if aluno['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
+                projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
+                SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
+                return dict(success=True)
+
+    return dict(success=False)    # Aluno não está na lista de alunosPossíveis e não deve ser inscrito
 
 
 def ajaxCarregarAgencias():
