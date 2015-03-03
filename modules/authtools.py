@@ -39,7 +39,8 @@ class Projeto(object):
     def registroBolsistaAberto(self, ID_PROJETO):
         if self.db((self.db.edicao.dt_inicial_bolsistas <= date.today()) & (
                     self.db.projetos.edicao == self.db.edicao.id) & (
-                    self.db.projetos.id_projeto == ID_PROJETO)).select().first():
+                    self.db.projetos.id_projeto == ID_PROJETO) & (
+                    self.db.edicao.dt_conclusao_bolsistas >= date.today())).select().first():
             return True
 
     def isCoordenador(self):
