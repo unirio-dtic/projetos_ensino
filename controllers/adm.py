@@ -308,3 +308,11 @@ def ajaxAlterarBolsas():
 
     if not proj.registroBolsistaAberto(ID_PROJETO):
         db(db.bolsas.id_projeto == ID_PROJETO).update(quantidade_bolsas=quantidade_bolsas)
+        db.log_admin.insert(
+            acao='update',
+            valor_anterior=db(db.bolsas.id_projeto == ID_PROJETO).select().first().quantidade_bolsas,
+            tablename='bolsas',
+            colname='quantidade_bolsas',
+            uid=ID_PROJETO,
+            user_id=auth.user_id
+        )
