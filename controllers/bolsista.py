@@ -26,7 +26,7 @@ def dados():
     form = FormBolsista().formCadastroBolsista()
 
     if form.process().accepted:
-        for bolsa in bolsas:
+        for bolsa in bolsas.content:
             SIEBolsistas().atualizarDadosBancarios(bolsa['ID_BOLSISTA'], form.vars)
 
     return dict(locals())
