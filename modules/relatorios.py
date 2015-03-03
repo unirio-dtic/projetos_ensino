@@ -19,10 +19,11 @@ class DictUnicodeProxy(object):
             return i
 
 
-def salvar(content, headers, filename):
+def salvar(content, headers, filename, bolsas):
     with open(current.request.folder + 'static/' + filename + '.csv', 'w') as outfile:
         writer = DictWriter(outfile, headers)
         writer.writeheader()
         for p in content:
+            p.update({"BOLSAS": bolsas[p['ID_PROJETO']]})
             writer.writerow(DictUnicodeProxy(p))
         return A("Baixar relatório", _href=URL('static', 'deferidos.csv?attachment'))
