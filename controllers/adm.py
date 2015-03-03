@@ -300,3 +300,11 @@ def xls():
         return dict(
             arquivo=A("download", _href=URL('static/relatorios', 'deferidos.csv?attachment'))
         )
+
+@auth.requires_permission('alterarBolsas')
+def ajaxAlterarBolsas():
+    ID_PROJETO = int(request.vars.keys()[0])
+    quantidade_bolsas = int(request.vars.values()[0])
+
+    if not proj.registroBolsistaAberto(ID_PROJETO):
+        db(db.bolsas.id_projeto == ID_PROJETO).update(quantidade_bolsas=quantidade_bolsas)

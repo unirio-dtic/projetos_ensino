@@ -65,9 +65,15 @@ class TableProjetos(object):
         except (TypeError, ValueError, AttributeError):
             return "Servidor não encontrado"
 
-    def bolsa(self, projeto):
+    def bolsa(self, p):
         try:
-            return str(self.bolsas[projeto["ID_PROJETO"]])
+            if not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(p['ID_PROJETO']):
+                return str(self.bolsas[p["ID_PROJETO"]])
+            else:
+                return SELECT(range(1, 3),
+                              _name=p['ID_PROJETO'],
+                              value=self.bolsas[p["ID_PROJETO"]],
+                              _onchange='ajax("%s", ["%s"], "bolsasRet")' % (URL('adm', 'ajaxAlterarBolsas'), p['ID_PROJETO']))
         except KeyError:
             return "Indefinido"
 
