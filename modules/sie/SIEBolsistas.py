@@ -65,13 +65,13 @@ class SIEBolsistas(SIE):
         }
         return self.api.performPOSTRequest(self.path, params)
 
-    def getBolsista(self, ID_BOLSISTA):
+    def getBolsista(self, ID_BOLSISTA, cached=True):
         params = {
             'ID_BOLSISTA': ID_BOLSISTA,
             'LMIN': 0,
             'LMAX': 1
         }
-        return self.api.performGETRequest(self.path, params, cached=self.cacheTime)
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime if cached else 0)
 
     def atualizarDadosBancarios(self, ID_BOLSISTA, dados):
         """
