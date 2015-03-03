@@ -8,6 +8,8 @@ edicao = Edicao(db)
 proj = Projeto(db)
 pessoa = Pessoa(db)
 
+current.proj = proj
+
 ## create all tables needed by auth if not custom tables
 auth.define_tables(username=True, signature=False)
 auth.settings.actions_disabled = [
@@ -30,7 +32,7 @@ db.define_table(
     Field('dt_inicial_projeto', 'date', notnull=True, required=True, label='Data inicial do projeto*'),
     Field('dt_conclusao_projeto', 'date', notnull=True, required=True, label="Data final do projeto*"),
     Field('dt_inicial_bolsistas', 'date', notnull=True, required=True, label="Data inicial de registro de bolsistas"),
-    Field('dt_final_bolsistas', 'date', required=True, label="Data final de registro de bolsistas"),
+    Field('dt_conclusao_bolsistas', 'date', required=True, label="Data final de registro de bolsistas"),
     Field('disciplinas_obrigatorias', 'boolean', notnull=True, required=True, label='Mostrar somente disciplinas obrigatórias?*')
 )
 
@@ -74,6 +76,17 @@ db.define_table(
     Field('pergunta', db.avaliacao_perguntas),
     Field('avaliacao', db.avaliacao),
     Field('resposta', 'boolean'),
+)
+
+db.define_table(
+    'log_admin',
+    Field('acao', notnull=True),
+    Field('valores', notnull=True, label='Valores antes da alteração'),
+    Field('tablename', requires=IS_IN_SET(db.tables)),
+    Field('colname', 'string'),
+    Field('uid', 'integer'),
+    Field('dt_alteracao', 'datetime', notnull=True),
+    Field('user_id', db.auth_user, notnull=True)
 )
 
 db.avaliacao_perguntas.edicao.requires = IS_IN_DB(db, 'edicao.id', '%(nome)s', zero='Selecione')
