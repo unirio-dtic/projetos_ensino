@@ -120,3 +120,4 @@ auth.settings.actions_disabled = [
 current.auth = auth
 
 piwik_host = '10.129.21.93'
+piwik_idSite = 1
