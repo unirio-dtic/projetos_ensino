@@ -134,7 +134,7 @@ def avaliacaoPerguntas():
             SIEProjetos().avaliarProjeto(request.vars.ID_PROJETO, 9)
 
             try:
-                coordenador = current.api.performGETRequest(
+                coordenador = api.performGETRequest(
                     "V_SERVIDORES_EMAIL",
                     {
                         "ID_PESSOA": SIEProjetos().getCoordenador(request.vars.ID_PROJETO)["ID_PESSOA"]
@@ -161,17 +161,21 @@ def deferidos():
             "ORDERBY": "COORDENADOR",
             "SORT": "ASC",
             "SITUACAO": "Em andamento",
-            "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
+            "DT_INICIAL": session.edicao.dt_inicial_projeto,
             "LMIN": 0,
             "LMAX": 5000
         }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"], cached=600)
+
+        projetosIds = [p["ID_PROJETO"] for p in projetos.content]
+        bolsas = {b.id_projeto: b.quantidade_bolsas for b in db(current.db.bolsas.id_projeto.belongs(projetosIds)).select()}
 
         table = TableDeferimento(projetos.content)
         form = table.printTable()
         relatorio = relatorios.salvar(
             projetos.content,
-            ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"),
-            "deferidos"
+            ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO", "BOLSAS"),
+            "deferidos",
+            bolsas
         )
 
         if form.process().accepted:
@@ -200,7 +204,7 @@ def deferidos():
                 __removerProjeto(form.vars.toDelete)
             response.flash = "Projetos removidos com sucesso"
 
-        return dict(relatorio=relatorio, tableForm=form)
+        return dict(relatorio=relatorio, tableForm=form, projetos=projetos)
     except (AttributeError, ValueError):
         return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
 
@@ -264,43 +268,6 @@ def download():
     return response.download(request, db)
 
 
-def xls():
-    from csv import DictWriter
-
-    projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-        "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
-        "ORDERBY": "COORDENADOR",
-        "SORT": "ASC",
-        "SITUACAO": "Em andamento",
-        "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
-        "LMIN": 0,
-        "LMAX": 5000
-    }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"], cached=0)
-
-    class DictUnicodeProxy(object):
-        def __init__(self, d):
-            self.d = d
-
-        def __iter__(self):
-            return self.d.__iter__()
-
-        def get(self, item, default=None):
-            i = self.d.get(item, default)
-            if isinstance(i, unicode):
-                return i.encode('latin1')
-            return i
-
-    with open(request.folder + 'static/relatorios/deferidos.csv', 'w') as outfile:
-        headers = ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO")
-
-        writer = DictWriter(outfile, headers)
-        writer.writeheader()
-        for p in projetos.content:
-            writer.writerow(DictUnicodeProxy(p))
-        return dict(
-            arquivo=A("download", _href=URL('static/relatorios', 'deferidos.csv?attachment'))
-        )
-
 @auth.requires_permission('alterarBolsas')
 def ajaxAlterarBolsas():
     ID_PROJETO = int(request.vars.keys()[0])
@@ -314,5 +281,6 @@ def ajaxAlterarBolsas():
             tablename='bolsas',
             colname='quantidade_bolsas',
             uid=ID_PROJETO,
-            user_id=auth.user_id
+            user_id=auth.user_id,
+            dt_alteracao=datetime.now()
         )
