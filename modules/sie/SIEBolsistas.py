@@ -8,7 +8,7 @@ __all__ = ['SIEBolsas', 'SIEBolsistas']
 class SIEBolsas(SIE):
     def __init__(self):
         super(SIEBolsas, self).__init__()
-        self.path = "BOLSAS"
+        self.path = 'BOLSAS'
 
     def getBolsa(self, ID_BOLSA):
         """
@@ -21,9 +21,9 @@ class SIEBolsas(SIE):
         :rtype: dict
         """
         params = {
-            "ID_BOLSA": ID_BOLSA,
-            "LMIN": 0,
-            "LMAX": 1
+            'ID_BOLSA': ID_BOLSA,
+            'LMIN': 0,
+            'LMAX': 1
         }
         fields = [
             'ID_BOLSA',
@@ -55,15 +55,15 @@ class SIEBolsistas(SIE):
         :rtype : unirio.api.apiresult.APIPostResponse
         """
         params = {
-            "DT_INICIO": edicao.dt_inicial_projeto,
-            "DT_INCLUSAO": date.today(),
-            "ID_BOLSA": bolsa['ID_BOLSA'],
-            "ID_CURSO_ALUNO": aluno['ID_CURSO_ALUNO'],
-            "ID_UNIDADE": projeto['ID_UNIDADE'],
-            "ID_PESSOA": aluno['ID_PESSOA'],
-            "NUM_HORAS": 20,
-            "SITUACAO_BOLSISTA": "A",
-            "VL_BOLSA": bolsa['VL_BOLSA'],
+            'DT_INICIO': edicao.dt_inicial_projeto,
+            'DT_INCLUSAO': date.today(),
+            'ID_BOLSA': bolsa['ID_BOLSA'],
+            'ID_CURSO_ALUNO': aluno['ID_CURSO_ALUNO'],
+            'ID_UNIDADE': projeto['ID_UNIDADE'],
+            'ID_PESSOA': aluno['ID_PESSOA'],
+            'NUM_HORAS': 20,
+            'SITUACAO_BOLSISTA': 'A',
+            'VL_BOLSA': bolsa['VL_BOLSA'],
         }
         return self.api.performPOSTRequest(self.path, params)
 
@@ -91,7 +91,7 @@ class SIEBolsistas(SIE):
         }
         return self.api.performPUTRequest(self.path, params)
 
-    def removerBolsista(self, ID_BOLSISTA):
+    def inativarBolsista(self, ID_BOLSISTA):
         """
         Método utilizado para remover um bolsista. Dado um bolsista, o método INATIVA sua entrada e registra a data.
 
