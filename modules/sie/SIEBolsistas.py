@@ -45,6 +45,8 @@ class SIEBolsistas(SIE):
 
     def criarBolsista(self, bolsa, edicao, aluno, projeto):
         """
+        SERVICO_TAG = 667   => Tipos de serviços bancários
+        SERVICO_ITEM = 3    => Com conta corrente
 
         :type aluno: dict
         :param aluno: Um dicionário contendo as entradas ID_PESSOA e ID_CURSO_ALUNO
@@ -57,11 +59,14 @@ class SIEBolsistas(SIE):
         params = {
             'DT_INICIO': edicao.dt_inicial_projeto,
             'DT_INCLUSAO': date.today(),
+            'DT_TERMINO': edicao.dt_conclusao_projeto,
             'ID_BOLSA': bolsa['ID_BOLSA'],
             'ID_CURSO_ALUNO': aluno['ID_CURSO_ALUNO'],
             'ID_UNIDADE': projeto['ID_UNIDADE'],
             'ID_PESSOA': aluno['ID_PESSOA'],
             'NUM_HORAS': 20,
+            'SERVICO_TAB': 667,
+            'SERVICO_ITEM': 3,
             'SITUACAO_BOLSISTA': 'A',
             'VL_BOLSA': bolsa['VL_BOLSA'],
         }
