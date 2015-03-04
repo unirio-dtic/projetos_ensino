@@ -183,6 +183,13 @@ def deferidos():
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
+                    db.log_admin.insert(
+                        acao='delete',
+                        tablename='PROJETOS',
+                        uid=ID_PROJETO,
+                        user_id=auth.user_id,
+                        dt_alteracao=datetime.now()
+                    )
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
@@ -229,11 +236,19 @@ def indeferidos():
         table = TableDeferimento(projetos.content)
         form = table.printTable()
 
+        # TODO essa lógica deveria estar encapsulada em um módulo, visto que é também usada em deferidos()
         if form.process().accepted:
             @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
+                    db.log_admin.insert(
+                        acao='delete',
+                        tablename='PROJETOS',
+                        uid=ID_PROJETO,
+                        user_id=auth.user_id,
+                        dt_alteracao=datetime.now()
+                    )
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
