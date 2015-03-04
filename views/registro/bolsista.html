@@ -24,7 +24,7 @@
         <h4>Alunos selecionados</h4>
         <ol>
             {{for bolsista in bolsistas:}}
-                <li>{{=bolsista['NOME_PESSOA']}}</li>
+                <li id="b{{=bolsista['ID_PARTICIPANTE']}}">{{=bolsista['NOME_PESSOA']}} {{=A("[x]", callback=URL('bolsista', 'ajaxRemoverParticipante', vars={'ID_PARTICIPANTE': bolsista['ID_PARTICIPANTE']})), delete="b"+bolsista['ID_PARTICIPANTE']}}</li>
             {{pass}}
         </ol>
     {{pass}}

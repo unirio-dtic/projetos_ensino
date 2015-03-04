@@ -467,14 +467,15 @@ class SIEParticipantesProjs(SIE):
         :rtype : unirio.api.apiresult.APIPostResponse
         """
         participante.update({
-            "ID_PROJETO": ID_PROJETO,
-            "TITULACAO_TAB": 168,
-            "FUNCAO_TAB": 6003,
-            "FUNCAO_ITEM": FUNCAO_ITEM,
             "CARGA_HORARIA": 20,
-            "SITUACAO": "A",
             "CH_SUGERIDA": 20,
+            "DT_INICIAL": date.today(),
+            "ID_PROJETO": ID_PROJETO,
+            "FUNCAO_ITEM": FUNCAO_ITEM,
+            "FUNCAO_TAB": 6003,
             "ID_PESSOA": participante["ID_PESSOA"],
+            "SITUACAO": "A",
+            "TITULACAO_TAB": 168,
         })
 
         return self.api.performPOSTRequest(self.path, participante)
@@ -527,6 +528,14 @@ class SIEParticipantesProjs(SIE):
         except ValueError:
             return []
 
+    def getParticipante(self, ID_PARTICIPANTE):
+        params = {
+            'ID_PARTICIPANTE': ID_PARTICIPANTE,
+            'LMIN': 0,
+            'LMAX': 1
+        }
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content
+
     def removerParticipante(self, ID_PARTICIPANTE):
         self.api.performDELETERequest(self.path, {"ID_PARTICIPANTE": ID_PARTICIPANTE})
 
@@ -540,8 +549,23 @@ class SIEParticipantesProjs(SIE):
             participantes = self.api.performGETRequest(self.path, params, ['ID_PARTICIPANTE'])
             for p in participantes.content:
                 self.removerParticipante(p['ID_PARTICIPANTE'])
-        except ValueError as e:
+        except ValueError:
             print "Nenhum participante para remover do projeto %d" % ID_PROJETO
+
+    def inativarParticipante(self, participante):
+        """
+        Dado um participante, o método inativa o mesmo e a bolsa referente.
+
+        :type participante: dict
+        :param participante: Uma entrada da tabela PARTICIPANTES_PROJ, contendo as keys ID_PARTICIPANTE e ID_BOLSISTA
+        """
+        params = {
+            'ID_PARTICIPANTE': participante['ID_PARTICIPANTE'],
+            'SITUACAO': 'I',
+            'DT_FINAL': date.today()
+        }
+        self.api.performPUTRequest(self.path, params)
+        SIEBolsistas().inativarBolsista(participante['ID_BOLSISTA'])
 
 
 class SIECursosDisciplinas(SIE):
