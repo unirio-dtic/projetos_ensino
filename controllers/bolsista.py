@@ -32,7 +32,7 @@ def dados():
     return dict(locals())
 
 
-@auth.requires(pessoa.isFuncionario() and proj.isCoordenador() and edicao.requires_edicao())
+@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
 def ajaxCadastrarParticipante():
     bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
 
@@ -56,6 +56,15 @@ def ajaxCadastrarParticipante():
                 return dict(success=True)
 
     return dict(success=False)    # Aluno não está na lista de alunosPossíveis e não deve ser inscrito
+
+
+@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
+def ajaxRemoverParticipante():
+    participante = SIEParticipantesProjs.getParticipante(request.vars.ID_PARTICIPANTE)
+    try:
+        SIEParticipantesProjs().inativarParticipante(participante)
+    except Exception:
+        return "Não foi possível remover participante"
 
 
 def ajaxCarregarAgencias():
