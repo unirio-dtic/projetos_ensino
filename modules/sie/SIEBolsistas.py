@@ -1,4 +1,5 @@
 # coding=utf-8
+from datetime import date
 from sie import SIE
 
 __all__ = ['SIEBolsas', 'SIEBolsistas']
@@ -55,13 +56,14 @@ class SIEBolsistas(SIE):
         """
         params = {
             "DT_INICIO": edicao.dt_inicial_projeto,
+            "DT_INCLUSAO": date.today(),
             "ID_BOLSA": bolsa['ID_BOLSA'],
             "ID_CURSO_ALUNO": aluno['ID_CURSO_ALUNO'],
+            "ID_UNIDADE": projeto['ID_UNIDADE'],
             "ID_PESSOA": aluno['ID_PESSOA'],
             "NUM_HORAS": 20,
             "SITUACAO_BOLSISTA": "A",
             "VL_BOLSA": bolsa['VL_BOLSA'],
-            "ID_UNIDADE": projeto['ID_UNIDADE']
         }
         return self.api.performPOSTRequest(self.path, params)
 
@@ -89,3 +91,16 @@ class SIEBolsistas(SIE):
         }
         return self.api.performPUTRequest(self.path, params)
 
+    def removerBolsista(self, ID_BOLSISTA):
+        """
+        Método utilizado para remover um bolsista. Dado um bolsista, o método INATIVA sua entrada e registra a data.
+
+        :type ID_BOLSISTA: int
+        :param ID_BOLSISTA: Identificador único de um bolsista na tabela BOLSISTAS
+        """
+        params = {
+            'ID_BOLSISTA': ID_BOLSISTA,
+            'SITUACAO_BOLSISTA': 'I',
+            'DT_TERMINO': date.today()
+        }
+        return self.api.performPUTRequest(self.path, params)
