@@ -141,6 +141,7 @@ class TableDeferimento(TableProjetos):
             "Disciplina",
             "Título",
             "Qtd. Bolsas",
+            "Avaliador",
             EMBED(_src=URL('static/images', 'delete.svg'), _width=24)
         )
 
@@ -150,7 +151,7 @@ class TableDeferimento(TableProjetos):
     def printTable(self):
         def row(p):
             return TR(p['ID_PROJETO'], p['COORDENADOR'], p['NOME_DISCIPLINA'], p['TITULO'], self.bolsa(p),
-                      self.removeBtn(p), _id=p['ID_PROJETO'])
+                      p['AVALIADOR'], self.removeBtn(p), _id=p['ID_PROJETO'])
 
         return FORM(
             TABLE(

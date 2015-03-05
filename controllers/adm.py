@@ -167,19 +167,17 @@ def deferidos():
             "LMAX": 5000
         }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"], cached=600)
 
+        avaliador = Avaliacao()
+        for p in projetos.content:
+            p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
+
         projetosIds = [p["ID_PROJETO"] for p in projetos.content]
-        bolsas = {b.id_projeto: b.quantidade_bolsas for b in db(current.db.bolsas.id_projeto.belongs(projetosIds)).select()}
+        bolsas = {b.id_projeto: b.quantidade_bolsas for b in db(db.bolsas.id_projeto.belongs(projetosIds)).select()}
+        bolsasCount = sum(v for k, v in bolsas.iteritems())
 
         table = TableDeferimento(projetos.content)
         form = table.printTable()
-        relatorio = relatorios.salvar(
-            projetos.content,
-            ("ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO", "BOLSAS"),
-            "deferidos",
-            bolsas
-        )
-
-        bolsasCount = sum(v for k, v in bolsas.iteritems())
+        relatorio = relatorios.salvar(projetos.content, projetos.content[0].keys(), "deferidos", bolsas)
 
         if form.process().accepted:
             @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
@@ -231,10 +229,14 @@ def indeferidos():
             "LMIN": 0,
             "LMAX": 5000
         })
-        avaliador = Avaliacao()
 
+        avaliador = Avaliacao()
         for p in projetos.content:
             p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
+
+        projetosIds = [p["ID_PROJETO"] for p in projetos.content]
+        bolsas = {b.id_projeto: b.quantidade_bolsas for b in db(db.bolsas.id_projeto.belongs(projetosIds)).select()}
+        bolsasCount = sum(v for k, v in bolsas.iteritems())
 
         table = TableDeferimento(projetos.content)
         form = table.printTable()
@@ -272,7 +274,7 @@ def indeferidos():
             else:
                 __removerProjeto(form.vars.toDelete)
 
-        return dict(tableForm=form)
+        return dict(tableForm=form, projetos=projetos, bolsasCount=bolsasCount)
     except (AttributeError, ValueError):
         return dict(tableForm="Nenhum projeto indeferido.")
 
