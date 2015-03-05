@@ -1,3 +1,5 @@
 {{extend "layout.html"}}
         <h1>Projetos Indeferidos - Edição "{{=session.edicao.nome}}"</h1>
+        <p><span class="label label-important">{{=len(projetos.content)}}</span> projetos deferidos</p>
+        <p><span class="label label-important">{{=bolsasCount}}</span> bolsas recusadas</p>
         {{=tableForm}}
