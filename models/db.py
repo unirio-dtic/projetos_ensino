@@ -82,7 +82,7 @@ db.define_table(
     'log_admin',
     Field('acao', notnull=True),
     Field('valores', label='Valores antes da alteração'),
-    Field('tablename', requires=IS_IN_SET(db.tables)),
+    Field('tablename'),
     Field('colname', 'string'),
     Field('uid', 'integer'),
     Field('dt_alteracao', 'datetime', notnull=True),
