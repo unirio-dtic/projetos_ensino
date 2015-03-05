@@ -209,7 +209,8 @@ class SIEProjetos(SIE):
                 {
                     "ID_PROJETO": ID_PROJETO,
                     "AVALIACAO_ITEM": 3,
-                    "SITUACAO_ITEM": avaliacao
+                    "SITUACAO_ITEM": avaliacao,
+                    "DT_ULTIMA_AVAL": date.today()
                 }
             )
             self.tramitarDocumentoProjeto(ID_PROJETO, avaliacao)
@@ -573,19 +574,28 @@ class SIECursosDisciplinas(SIE):
         super(SIECursosDisciplinas, self).__init__()
         self.path = "V_CURSOS_DISCIPLINAS"
 
-    def getCursos(self):
-        params = {
+    def getCursos(self, params={}):
+        params.update({
             "LMIN": 0,
             "LMAX": 99999,
             "ORDERBY": "NOME_CURSO",
             "DISTINCT": "T"
-        }
+        })
         fields = [
             "NOME_CURSO",
             "ID_CURSO"
         ]
         return self.api.performGETRequest(self.path, params, fields, cached=self.cacheTime).content
 
+    def getCursosGraduacao(self):
+        """
+        NIVEL_CURSO_ITEM = 3    => Graduação
+
+        :rtype : list
+        :return: Returna uma lista de cursos de graduação
+        """
+        params = {"NIVEL_CURSO_ITEM": 3}
+        return self.getCursos(params)
 
     def getDisciplinas(self, ID_CURSO, filtroObrigatorias=False):
         params = {
