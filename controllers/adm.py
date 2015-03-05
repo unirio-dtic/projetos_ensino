@@ -40,6 +40,7 @@ def cadastro_perguntas():
 def avaliacao():
     try:
         projetos = api.performGETRequest("V_PROJETOS_DADOS", {
+            "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
             "DT_INICIAL": session.edicao.dt_inicial_projeto,
             "LMIN": 0,
             "LMAX": 99999
@@ -178,6 +179,8 @@ def deferidos():
             bolsas
         )
 
+        bolsasCount = sum(v for k, v in bolsas.iteritems())
+
         if form.process().accepted:
             @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
             def __removerProjeto(ID_PROJETO):
@@ -211,7 +214,7 @@ def deferidos():
                 __removerProjeto(form.vars.toDelete)
             response.flash = "Projetos removidos com sucesso"
 
-        return dict(relatorio=relatorio, tableForm=form, projetos=projetos)
+        return dict(relatorio=relatorio, tableForm=form, projetos=projetos, bolsasCount=bolsasCount)
     except (AttributeError, ValueError):
         return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
 
