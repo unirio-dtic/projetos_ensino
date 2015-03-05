@@ -14,7 +14,7 @@ def registro():
         redirect(URL('default', 'edicoes'))
 
     classificacoes = SIEClassificacoesPrj().getClassificacoesPrj(1, 1)
-    cursos = SIECursosDisciplinas().getCursos()
+    cursos = SIECursosDisciplinas().getCursosGraduacao()
 
     form = FormProjetos(classificacoes, cursos).formRegistro()
     if form.process().accepted:
