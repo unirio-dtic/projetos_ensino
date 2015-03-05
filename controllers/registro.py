@@ -151,11 +151,22 @@ def bolsista():
             'ID_PROJETO': request.vars.ID_PROJETO,
             'FUNCAO_ITEM': 3    # Bolsista
         })
-        if participantes:
-            participantesBolsistas = [a['ID_CURSO_ALUNO'] for a in participantes]
 
-            bolsistas = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] in participantesBolsistas]
-            # Remove os alunso que já foram selecionados como bolsistas
+        if participantes:
+            def __bolsistas():
+                alunos = []
+                for p in participantes:
+                    for a in alunosPossiveis:
+                        if a['ID_PESSOA'] == p['ID_PESSOA']:
+                            aluno = a.copy()
+                            aluno.update(p)
+                            alunos.append(aluno)
+                return alunos
+
+            bolsistas = __bolsistas()
+            participantesBolsistas = [a['ID_CURSO_ALUNO'] for a in bolsistas]
+
+            # Remove os alunos que já foram selecionados como bolsistas
             alunosPossiveis[:] = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] not in participantesBolsistas]
         else:
             bolsistas = []
@@ -178,7 +189,8 @@ def bolsista():
     return dict(
         bolsas=bolsas,
         bolsistas=bolsistas,
+        participantesBolsistas=participantesBolsistas,
         projeto=projeto,
         groups=list(grouper(3, alunosPossiveis)),
-        podeCadastrar = not bolsistas or len(bolsistas) < bolsas
+        podeCadastrar = not bolsistas or len(participantesBolsistas) < bolsas
     )
