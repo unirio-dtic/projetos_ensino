@@ -64,6 +64,7 @@ def ajaxRemoverParticipante():
     participante = SIEParticipantesProjs().getParticipante(request.vars.ID_PARTICIPANTE)
     try:
         SIEParticipantesProjs().inativarParticipante(participante)
+        response.flash = "Aluno removido com sucesso."
     except Exception:
         return "Não foi possível remover participante"
 
