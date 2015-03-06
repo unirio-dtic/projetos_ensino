@@ -1,6 +1,5 @@
 # coding=utf-8
 from csv import DictWriter
-from twisted.names import cache
 from avaliacao import Avaliacao
 from gluon import current, URL, A
 
