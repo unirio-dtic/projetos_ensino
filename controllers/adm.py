@@ -1,7 +1,7 @@
 # coding=utf-8
 from datetime import datetime
 
-import relatorios
+from relatorios import Deferimento, salvarCSV
 from avaliacao import Avaliacao
 from mail import MailAvaliacao
 from forms import FormPerguntas
@@ -157,40 +157,17 @@ def avaliacaoPerguntas():
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def deferidos():
     try:
-        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-            "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
-            "ORDERBY": "COORDENADOR",
-            "SORT": "ASC",
-            "SITUACAO": "Em andamento",
-            "DT_INICIAL": session.edicao.dt_inicial_projeto,
-            "LMIN": 0,
-            "LMAX": 5000
-        }, ["ID_PROJETO", "COORDENADOR", "NOME_DISCIPLINA", "NOME_UNIDADE", "TITULO"], cached=600)
+        relatorio = Deferimento(session.edicao)
+        projetos = relatorio.projetosDeferidos()
 
-        avaliador = Avaliacao()
-        for p in projetos.content:
-            p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
-
-        projetosIds = [p["ID_PROJETO"] for p in projetos.content]
-        bolsas = {b.id_projeto: b.quantidade_bolsas for b in db(db.bolsas.id_projeto.belongs(projetosIds)).select()}
-        bolsasCount = sum(v for k, v in bolsas.iteritems())
-
-        table = TableDeferimento(projetos.content)
-        form = table.printTable()
-        relatorio = relatorios.salvar(projetos.content, projetos.content[0].keys(), "deferidos", bolsas)
+        form = TableDeferimento(projetos).printTable()
 
         if form.process().accepted:
             @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
-                    db.log_admin.insert(
-                        acao='delete',
-                        tablename='PROJETOS',
-                        uid=ID_PROJETO,
-                        user_id=auth.user_id,
-                        dt_alteracao=datetime.now()
-                    )
+                    db.log_admin.insert(acao='delete', tablename='PROJETOS', uid=ID_PROJETO, user_id=auth.user_id, dt_alteracao=datetime.now())
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
@@ -200,8 +177,6 @@ def deferidos():
             '''
             Essa verificação é necessária pela forma como o HTML trabalha com checkboxes. Se apenas um item for
             selecionado, a variável será uma string, caso vários items sejam selecionados, a variável será uma lista.
-            Não faz o mínimo sentido a forma como isso foi implementado, visto que uma um item poderia ser resprentado
-            como uma lista de apenas um elemento.
 
             Ref: http://comments.gmane.org/gmane.comp.python.web2py/13251
             '''
@@ -212,7 +187,12 @@ def deferidos():
                 __removerProjeto(form.vars.toDelete)
             response.flash = "Projetos removidos com sucesso"
 
-        return dict(relatorio=relatorio, tableForm=form, projetos=projetos, bolsasCount=bolsasCount)
+        return dict(
+            relatorio=salvarCSV(projetos, "deferidos"),
+            tableForm=form,
+            projetos=projetos,
+            bolsasCount=relatorio.bolsasCount
+        )
     except (AttributeError, ValueError):
         return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
 
@@ -220,63 +200,38 @@ def deferidos():
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def indeferidos():
     try:
-        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-            "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
-            "ORDERBY": "DT_REGISTRO",
-            "SITUACAO": "Indeferido",
-            "DT_INICIAL": current.session.edicao.dt_inicial_projeto,
-            "SORT": "DESC",
-            "LMIN": 0,
-            "LMAX": 5000
-        })
+        relatorio = Deferimento(session.edicao)
+        projetos = relatorio.projetosIndeferidos()
 
-        avaliador = Avaliacao()
-        for p in projetos.content:
-            p.update({"AVALIADOR": avaliador.getAvaliador(p["ID_PROJETO"])})
+        form = TableDeferimento(projetos).printTable()
 
-        projetosIds = [p["ID_PROJETO"] for p in projetos.content]
-        bolsas = {b.id_projeto: b.quantidade_bolsas for b in db(db.bolsas.id_projeto.belongs(projetosIds)).select()}
-        bolsasCount = sum(v for k, v in bolsas.iteritems())
-
-        table = TableDeferimento(projetos.content)
-        form = table.printTable()
-
-        # TODO essa lógica deveria estar encapsulada em um módulo, visto que é também usada em deferidos()
         if form.process().accepted:
             @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
-                    db.log_admin.insert(
-                        acao='delete',
-                        tablename='PROJETOS',
-                        uid=ID_PROJETO,
-                        user_id=auth.user_id,
-                        dt_alteracao=datetime.now()
-                    )
+                    db.log_admin.insert(acao='delete', tablename='PROJETOS', uid=ID_PROJETO, user_id=auth.user_id, dt_alteracao=datetime.now())
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
                 except Exception as e:
                     response.flash = e.message
 
-            '''
-            Essa verificação é necessária pela forma como o HTML trabalha com checkboxes. Se apenas um item for
-            selecionado, a variável será uma string, caso vários items sejam selecionados, a variável será uma lista.
-            Não faz o mínimo sentido a forma como isso foi implementado, visto que uma um item poderia ser resprentado
-            como uma lista de apenas um elemento.
-
-            Ref: http://comments.gmane.org/gmane.comp.python.web2py/13251
-            '''
             if isinstance(form.vars.toDelete, list):
                 for ID_PROJETO in form.vars.toDelete:
                     __removerProjeto(ID_PROJETO)
             else:
                 __removerProjeto(form.vars.toDelete)
+            response.flash = "Projetos removidos com sucesso"
 
-        return dict(tableForm=form, projetos=projetos, bolsasCount=bolsasCount)
+        return dict(
+            relatorio=salvarCSV(projetos, "indeferidos"),
+            tableForm=form,
+            projetos=projetos,
+            bolsasCount=relatorio.bolsasCount
+        )
     except (AttributeError, ValueError):
-        return dict(tableForm="Nenhum projeto indeferido.")
+        return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
 
 
 @cache.action()
