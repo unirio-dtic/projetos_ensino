@@ -19,10 +19,6 @@ class TableProjetos(object):
         """
         self.projetos = projetos
 
-        projetosIds = [p["ID_PROJETO"] for p in self.projetos]
-        bolsas = current.db(current.db.bolsas.id_projeto.belongs(projetosIds)).select()
-        self.bolsas = {bolsa.id_projeto: bolsa.quantidade_bolsas for bolsa in bolsas}
-
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
         if len(arquivos) > 3:
@@ -68,11 +64,11 @@ class TableProjetos(object):
     def bolsa(self, p):
         try:
             if not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(p['ID_PROJETO']):
-                return str(self.bolsas[p["ID_PROJETO"]])
+                return str(p["BOLSAS"])
             else:
                 return SELECT(range(1, 3),
                               _name=p['ID_PROJETO'],
-                              value=self.bolsas[p["ID_PROJETO"]],
+                              value=p["BOLSAS"],
                               _onchange='ajax("%s", ["%s"], "bolsasRet")' % (URL('adm', 'ajaxAlterarBolsas'), p['ID_PROJETO']))
         except KeyError:
             return "Indefinido"
