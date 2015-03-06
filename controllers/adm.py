@@ -6,7 +6,7 @@ from avaliacao import Avaliacao
 from mail import MailAvaliacao
 from forms import FormPerguntas
 from unirio.api.apiresult import APIException
-from sie.SIEProjetos import SIEProjetos
+from sie.SIEProjetos import SIEProjetos, SIEParticipantesProjs
 from tables import TableAvaliacao, TableDeferimento
 
 
@@ -167,7 +167,8 @@ def deferidos():
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
-                    db.log_admin.insert(acao='delete', tablename='PROJETOS', uid=ID_PROJETO, user_id=auth.user_id, dt_alteracao=datetime.now())
+                    db.log_admin.insert(acao='delete', tablename='PROJETOS', uid=ID_PROJETO, user_id=auth.user_id,
+                                        dt_alteracao=datetime.now())
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
@@ -210,7 +211,8 @@ def indeferidos():
             def __removerProjeto(ID_PROJETO):
                 try:
                     SIEProjetos().removerProjeto(ID_PROJETO)
-                    db.log_admin.insert(acao='delete', tablename='PROJETOS', uid=ID_PROJETO, user_id=auth.user_id, dt_alteracao=datetime.now())
+                    db.log_admin.insert(acao='delete', tablename='PROJETOS', uid=ID_PROJETO, user_id=auth.user_id,
+                                        dt_alteracao=datetime.now())
                     for p in projetos.content:
                         if p['ID_PROJETO'] == int(ID_PROJETO):
                             projetos.content.remove(p)
@@ -248,16 +250,26 @@ def ajaxAlterarBolsas():
     ID_PROJETO = int(request.vars.keys()[0])
     quantidade_bolsas = int(request.vars.values()[0])
 
-    if not proj.registroBolsistaAberto(ID_PROJETO):
-        valor_anterior=db(db.bolsas.id_projeto == ID_PROJETO).select().first().quantidade_bolsas
+    bolsistas = SIEParticipantesProjs().getParticipantes({
+        "ID_PROJETO": request.vars.ID_PROJETO,
+        "FUNCAO_ITEM": 3  # Bolsista
+    })
 
-        db(db.bolsas.id_projeto == ID_PROJETO).update(quantidade_bolsas=quantidade_bolsas)
-        db.log_admin.insert(
-            acao='update',
-            valores=valor_anterior,
-            tablename='bolsas',
-            colname='quantidade_bolsas',
-            uid=ID_PROJETO,
-            user_id=auth.user_id,
-            dt_alteracao=datetime.now()
-        )
+    if not proj.registroBolsistaAberto(ID_PROJETO):
+        if not bolsistas or len(bolsistas) < quantidade_bolsas:
+            valor_anterior = db(db.bolsas.id_projeto == ID_PROJETO).select().first().quantidade_bolsas
+
+            db(db.bolsas.id_projeto == ID_PROJETO).update(quantidade_bolsas=quantidade_bolsas)
+            db.log_admin.insert(
+                acao='update',
+                valores=valor_anterior,
+                tablename='bolsas',
+                colname='quantidade_bolsas',
+                uid=ID_PROJETO,
+                user_id=auth.user_id,
+                dt_alteracao=datetime.now()
+            )
+        else:
+            session.flash = "Não foi possível alterar a quantidade bolsas: Não é possível remover uma bolsa já alocada a um participante."
+    else:
+        session.flash = "Não foi possível alterar a quantidade bolsas: Registro de bolsistas aberto."
