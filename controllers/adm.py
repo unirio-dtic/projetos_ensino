@@ -195,7 +195,7 @@ def deferidos():
             bolsasCount=relatorio.bolsasCount
         )
     except (AttributeError, ValueError):
-        return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
+        return dict(projetos=None)
 
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
@@ -233,7 +233,7 @@ def indeferidos():
             bolsasCount=relatorio.bolsasCount
         )
     except (AttributeError, ValueError):
-        return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
+        return dict(projetos=None)
 
 
 @cache.action()
