@@ -53,6 +53,20 @@ class Deferimento(object):
         self.bolsas = {b.id_projeto: b.quantidade_bolsas for b in bolsas}
         self.bolsasCount = 0
 
+    def __bolsa(self, ID_PROJETO):
+        """
+        Método de acesso a quantidade de bolsas requisitadas. Caso, por algum motivo,
+        um projeto não tenha bolsas requisitadas, um erro precisa ser tratado e por
+        motivos de desempenho, esta função existe.
+
+        :param ID_PROJETO: Identificador únicio de um projeto na tabela PROJETOS
+        :rtype : int
+        """
+        try:
+            return self.bolsas[ID_PROJETO]
+        except KeyError:
+            return 0
+
     def __getProjetos(self, SITUACAO_ITEM):
         try:
             projetos = self.api.performGETRequest("V_PROJETOS_DADOS", {
@@ -68,9 +82,9 @@ class Deferimento(object):
             for p in projetos:
                 p.update({
                     "AVALIADOR": self.avaliacao.getAvaliador(p['ID_PROJETO']),
-                    "BOLSAS": self.bolsas[p['ID_PROJETO']]
+                    "BOLSAS": self.__bolsa(p['ID_PROJETO'])
                 })
-                self.bolsasCount += self.bolsas[p['ID_PROJETO']]
+                self.bolsasCount += self.__bolsa(p['ID_PROJETO'])
 
             return projetos
         except ValueError:
