@@ -3,5 +3,8 @@
         {{if projetos:}}
         <p><span class="label label-important">{{=len(projetos)}}</span> projetos indeferidos</p>
         <p><span class="label label-important">{{=bolsasCount}}</span> bolsas recusadas</p>
-        {{pass}}
         {{=tableForm}}
+        {{=relatorio}}
+        {{else:}}
+        <p>Nenhum projeto indeferido até o momento.</p>
+        {{pass}}
