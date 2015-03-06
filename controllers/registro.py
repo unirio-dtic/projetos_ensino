@@ -152,7 +152,8 @@ def bolsista():
 
         participantes = SIEParticipantesProjs().getParticipantes({
             'ID_PROJETO': request.vars.ID_PROJETO,
-            'FUNCAO_ITEM': 3    # Bolsista
+            'FUNCAO_ITEM': 3,    # Bolsista
+            'SITUACAO': "A"
         })
 
         def grouper(n, iterable):
