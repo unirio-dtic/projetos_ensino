@@ -21,8 +21,9 @@ class TableProjetos(object):
 
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
-        if len(arquivos) > 3:
-            n = 1
+        # TODO Não faço ideia do porquê....
+        # if len(arquivos) > 3:         # WTF ?
+        #     n = 1
         return UL([A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos])
 
     def coordenador(self, projeto):

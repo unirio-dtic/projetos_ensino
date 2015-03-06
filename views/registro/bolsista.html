@@ -24,47 +24,51 @@
         <h4>Alunos selecionados</h4>
         <ol>
             {{for bolsista in bolsistas:}}
-                <li id="b{{=bolsista['ID_PARTICIPANTE']}}">{{=bolsista['NOME_PESSOA']}} {{=A("[x]", callback=URL('bolsista', 'ajaxRemoverParticipante', vars={'ID_PARTICIPANTE': bolsista['ID_PARTICIPANTE']}), delete="b%d" % bolsista['ID_PARTICIPANTE'])}}</li>
+                <li id="b{{=bolsista['ID_PARTICIPANTE']}}">{{=bolsista['NOME_PESSOA']}} {{=A("[x]", callback=URL('bolsista', 'ajaxRemoverParticipante', vars={'ID_PARTICIPANTE': bolsista['ID_PARTICIPANTE'], 'ID_PROJETO': projeto['ID_PROJETO']}), delete="li#b%d" % bolsista['ID_PARTICIPANTE'])}}</li>
             {{pass}}
         </ol>
     {{pass}}
     <h4>Alunos aptos</h4>
-    <ul class="thumbnails">
-    {{for alunosPossiveis in groups:}}
-        <div class="row-fluid">
-        {{for aluno in alunosPossiveis:}}
-        {{if aluno:}}
-            <li class="span4" id="{{=aluno['ID_PESSOA']}}">
-                <div class="thumbnail">
-                {{if aluno['FOTO']:}}
-                    <img class="img-circle" src='data:image/jpeg;base64,{{=aluno['FOTO']}}' style="width: 140px; height: 140px;" alt="Foto de {{=aluno['NOME_PESSOA']}}" >
-                {{else:}}
-                    <img class="img-circle" src="{{=URL('static/images', 'profile-256.png')}}" style="width: 140px; height: 140px;" alt="Foto indisponível">
-                {{pass}}
-                    <div class="caption">
-                        <h3>{{=aluno['NOME_PESSOA']}}</h3>
-                        <ul>
-                            <li><b>Matrícula: </b>{{=aluno['MATR_ALUNO']}}</li>
-                            <li><b>Média Final: </b>{{=aluno['MEDIA_FINAL']}}</li>
-                            <li><b>Curso: </b>{{=aluno['MATR_ALUNO']}}</li>
-                            <li><b>Cursou a disciplina em: </b>{{=aluno['ANO']}}</li>
-                            <li><b>CRA: </b>{{=aluno['COEFICIENTE']}}</li>
-                            <li><b>Período Atual: </b> {{=aluno['PERIODO_ATUAL']}}</li>
-                        </ul>
-                        {{if podeCadastrar:}}
-                        <p align="center" id="btnCadastro{{=aluno['ID_PESSOA']}}">
-                        {{
-                        aAttr = { '_class': "btn btn-block", 'data-toggle': "modal", '_style': "margin-top:30px;", 'cid': 'btnCadastro%s' % aluno['ID_PESSOA']}
-                        }}
-                            {{=A('Cadastrar como participante', _href=URL('bolsista', 'ajaxCadastrarParticipante', vars={"ID_CURSO_ALUNO": aluno['ID_CURSO_ALUNO'], "ID_PROJETO": projeto['ID_PROJETO'] }), **aAttr)}}
-                        </p>
-                        {{pass}}
+    {{if groups:}}
+        <ul class="thumbnails">
+        {{for alunosPossiveis in groups:}}
+            <div class="row-fluid">
+            {{for aluno in alunosPossiveis:}}
+            {{if aluno:}}
+                <li class="span4" id="{{=aluno['ID_PESSOA']}}">
+                    <div class="thumbnail">
+                    {{if aluno['FOTO']:}}
+                        <img class="img-circle" src='data:image/jpeg;base64,{{=aluno['FOTO']}}' style="width: 140px; height: 140px;" alt="Foto de {{=aluno['NOME_PESSOA']}}" >
+                    {{else:}}
+                        <img class="img-circle" src="{{=URL('static/images', 'profile-256.png')}}" style="width: 140px; height: 140px;" alt="Foto indisponível">
+                    {{pass}}
+                        <div class="caption">
+                            <h3>{{=aluno['NOME_PESSOA']}}</h3>
+                            <ul>
+                                <li><b>Matrícula: </b>{{=aluno['MATR_ALUNO']}}</li>
+                                <li><b>Média Final: </b>{{=aluno['MEDIA_FINAL']}}</li>
+                                <li><b>Curso: </b>{{=aluno['MATR_ALUNO']}}</li>
+                                <li><b>Cursou a disciplina em: </b>{{=aluno['ANO']}}</li>
+                                <li><b>CRA: </b>{{=aluno['COEFICIENTE']}}</li>
+                                <li><b>Período Atual: </b> {{=aluno['PERIODO_ATUAL']}}</li>
+                            </ul>
+                            {{if podeCadastrar:}}
+                            <p align="center" id="btnCadastro{{=aluno['ID_PESSOA']}}">
+                            {{
+                            aAttr = { '_class': "btn btn-block", 'data-toggle': "modal", '_style': "margin-top:30px;", 'cid': 'btnCadastro%s' % aluno['ID_PESSOA']}
+                            }}
+                                {{=A('Cadastrar como participante', _href=URL('bolsista', 'ajaxCadastrarParticipante', vars={"ID_CURSO_ALUNO": aluno['ID_CURSO_ALUNO'], "ID_PROJETO": projeto['ID_PROJETO'] }), **aAttr)}}
+                            </p>
+                            {{pass}}
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            {{pass}}
+            {{pass}}
+            </div>
         {{pass}}
-        {{pass}}
-        </div>
+        </ul>
+    {{else:}}
+        <div class="alert alert-danger">Nenhum aluno apto a se candidatar a uma bolsa para esta disciplina.</div>
     {{pass}}
-    </ul>
 </div>
