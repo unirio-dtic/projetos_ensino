@@ -535,7 +535,7 @@ class SIEParticipantesProjs(SIE):
             'LMIN': 0,
             'LMAX': 1
         }
-        return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content[0]
 
     def removerParticipante(self, ID_PARTICIPANTE):
         self.api.performDELETERequest(self.path, {"ID_PARTICIPANTE": ID_PARTICIPANTE})
