@@ -154,7 +154,7 @@ def avaliacaoPerguntas():
     return dict(projeto=projeto, form=form)
 
 
-@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC') and edicao.requires_edicao())
 def deferidos():
     try:
         relatorio = Deferimento(session.edicao)
@@ -194,11 +194,11 @@ def deferidos():
             projetos=projetos,
             bolsasCount=relatorio.bolsasCount
         )
-    except (AttributeError, ValueError):
-        return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
+    except (AttributeError, ValueError) as e:
+        return dict(projetos=None)
 
 
-@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
+@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC') and edicao.requires_edicao())
 def indeferidos():
     try:
         relatorio = Deferimento(session.edicao)
@@ -233,7 +233,7 @@ def indeferidos():
             bolsasCount=relatorio.bolsasCount
         )
     except (AttributeError, ValueError):
-        return dict(relatorio=None, tableForm="Nenhum projeto deferido até o momento.")
+        return dict(projetos=None)
 
 
 @cache.action()

@@ -42,7 +42,8 @@ def ajaxCadastrarParticipante():
 
     bolsistas = SIEParticipantesProjs().getParticipantes({
         "ID_PROJETO": request.vars.ID_PROJETO,
-        "FUNCAO_ITEM": 3    # Bolsista
+        "FUNCAO_ITEM": 3,    # Bolsista
+        "SITUACAO": "A"
     })
 
     if not bolsistas or len(bolsistas) < bolsas:
@@ -61,9 +62,10 @@ def ajaxCadastrarParticipante():
 
 @auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
 def ajaxRemoverParticipante():
-    participante = SIEParticipantesProjs.getParticipante(request.vars.ID_PARTICIPANTE)
+    participante = SIEParticipantesProjs().getParticipante(request.vars.ID_PARTICIPANTE)
     try:
         SIEParticipantesProjs().inativarParticipante(participante)
+        response.flash = "Aluno removido com sucesso."
     except Exception:
         return "Não foi possível remover participante"
 
