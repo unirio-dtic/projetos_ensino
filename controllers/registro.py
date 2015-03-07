@@ -122,11 +122,14 @@ def ajaxDisciplinas():
 
 @auth.requires(edicao.requires_edicao() and proj.isCoordenador())
 def bolsista():
-    if not proj.registroBolsistaAberto(request.vars.ID_PROJETO):
+    ID_PROJETO = request.vars.ID_PROJETO
+    if not proj.registroBolsistaAberto(ID_PROJETO):
         session.flash = 'O período de cadastro de bolsistas não está aberto.'
         redirect(URL('consulta', 'aprovados'))
 
-    projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
+    projeto = SIEProjetos().getProjetoDados(ID_PROJETO)
+    bolsas = db(db.bolsas.id_projeto == ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
+
     try:
         session.alunosPossiveis = None
         alunosPossiveis = api.performGETRequest(
@@ -149,8 +152,17 @@ def bolsista():
 
         participantes = SIEParticipantesProjs().getParticipantes({
             'ID_PROJETO': request.vars.ID_PROJETO,
-            'FUNCAO_ITEM': 3    # Bolsista
+            'FUNCAO_ITEM': 3,    # Bolsista
+            'SITUACAO': "A"
         })
+
+        def grouper(n, iterable):
+            """
+            Usado para agrupar os alunos em grupos de 3 para poder usar corretamente bs`s row-fluid
+            grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx
+            """
+            args = [iter(iterable)] * n
+            return izip_longest(*args)
 
         if participantes:
             def __bolsistas():
@@ -169,28 +181,16 @@ def bolsista():
             # Remove os alunos que já foram selecionados como bolsistas
             alunosPossiveis[:] = [a for a in alunosPossiveis if a['ID_CURSO_ALUNO'] not in participantesBolsistas]
         else:
-            bolsistas = []
+            bolsistas = None
+            participantesBolsistas = None
 
-        def grouper(n, iterable):
-            """
-            Usado para agrupar os alunos em grupos de 3 para poder usar corretamente bs`s row-fluid
-
-            ref: http://stackoverflow.com/questions/1624883/alternative-way-to-split-a-list-into-groups-of-n
-            ref: http://stackoverflow.com/questions/15869169/bootstrap-thumbnails-not-stacking-properly
-            grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx
-            """
-            args = [iter(iterable)] * n
-            return izip_longest(*args)
-
+        return dict(
+            bolsas=bolsas,
+            bolsistas=bolsistas,
+            participantesBolsistas=participantesBolsistas,
+            projeto=projeto,
+            groups=list(grouper(3, alunosPossiveis)),
+            podeCadastrar=not bolsistas or len(participantesBolsistas) < bolsas
+        )
     except ValueError:
-        groups = []
-
-    bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
-    return dict(
-        bolsas=bolsas,
-        bolsistas=bolsistas,
-        participantesBolsistas=participantesBolsistas,
-        projeto=projeto,
-        groups=list(grouper(3, alunosPossiveis)),
-        podeCadastrar = not bolsistas or len(participantesBolsistas) < bolsas
-    )
+        return dict(groups=[])
