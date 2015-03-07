@@ -8,7 +8,8 @@ from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 
 @auth.requires(pessoa.isAluno())
 def dados():
-    participacoes = SIEParticipantesProjs().getParticipacoes(session.aluno, {'FUNCAO_ITEM': 3})
+    # Todas as participações como bolsista que estejam ativas
+    participacoes = SIEParticipantesProjs().getParticipacoes(session.aluno, {'FUNCAO_ITEM': 3, 'SITUACAO': 'A'})
 
     if not participacoes:
         session.flash = 'Você não foi selecionado como bolsista para nenhum projeto.'
@@ -29,7 +30,7 @@ def dados():
         for bolsa in bolsas.content:
             SIEBolsistas().atualizarDadosBancarios(bolsa['ID_BOLSISTA'], form.vars)
 
-    return dict(locals())
+    return dict(projetos=projetos, bolsas=bolsas)
 
 
 @auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
