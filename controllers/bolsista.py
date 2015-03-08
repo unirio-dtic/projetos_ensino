@@ -38,7 +38,7 @@ def ajaxCadastrarParticipante():
     bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
 
     if not bolsas:
-        return dict(success=False)
+        return dict(success=False, msg="Projeto não possui bolsas.")
 
     bolsistas = SIEParticipantesProjs().getParticipantes({
         "ID_PROJETO": request.vars.ID_PROJETO,
@@ -47,17 +47,20 @@ def ajaxCadastrarParticipante():
     })
 
     if not bolsistas or len(bolsistas) < bolsas:
-        for aluno in session.alunosPossiveis:
-            if aluno['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
-                projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
-                SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
-                try:
-                    MailBolsista(aluno, projeto).sendConfirmationEmail()
-                except Exception:
-                    pass
-                return dict(success=True)
+        if not SIEBolsistas().isBolsista(request.vars.ID_CURSO_ALUNO):
+            for aluno in session.alunosPossiveis:
+                if aluno['ID_CURSO_ALUNO'] == int(request.vars.ID_CURSO_ALUNO):
+                    projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
+                    SIEParticipantesProjs().criarParticipanteBolsista(projeto, aluno, session.edicao)
+                    try:
+                        MailBolsista(aluno, projeto).sendConfirmationEmail()
+                    except Exception:
+                        pass
+                    return dict(success=True)
+            return dict(success=False, msg="Aluno não está apto a receber uma bolsa.")
+        return dict(success=False, msg="Aluno já recebe outra bolsa.")
+    return dict(success=False, msg="Todas as bolsas já foram utilizadas. Remova algum participante e tente novamente.")
 
-    return dict(success=False)    # Aluno não está na lista de alunosPossíveis e não deve ser inscrito
 
 
 @auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
