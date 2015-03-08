@@ -109,3 +109,17 @@ class SIEBolsistas(SIE):
             'DT_TERMINO': date.today()
         }
         return self.api.performPUTRequest(self.path, params)
+    
+    def isBolsista(self, ID_CURSO_ALUNO):
+        params = {
+            'ID_CURSO_ALUNO': ID_CURSO_ALUNO,
+            'SITUACAO_BOLSISTA': 'A',
+            'LMIN': 0,
+            'LMAX': 1
+        }
+        try:
+            self.api.performGETRequest(self.path, params).content
+            return True
+        except ValueError:
+            return False
+        
