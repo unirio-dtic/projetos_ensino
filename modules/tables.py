@@ -18,6 +18,8 @@ class TableProjetos(object):
         :type projetos: list
         """
         self.projetos = projetos
+        self.podeAlterarBolsas = current.auth.has_permission("alterarBolsas")
+        self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
 
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
@@ -39,7 +41,7 @@ class TableProjetos(object):
     def situacao(self, p):
         try:
             situacao = p['SITUACAO']
-            if current.auth.has_permission("alterarSituacao"):
+            if self.podeAlterarSituacao:
                 situacoes = SIEProjetos().situacoes()
                 return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in situacoes],
                               value=p['SITUACAO_ITEM'], _onchange='alterarSituacao(%d, this.value)' % p['ID_PROJETO'])
@@ -64,13 +66,15 @@ class TableProjetos(object):
 
     def bolsa(self, p):
         try:
-            if not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(p['ID_PROJETO']):
+            if not self.podeAlterarBolsas or current.proj.registroBolsistaAberto(current.session.edicao):
                 return str(p["BOLSAS"])
             else:
-                return SELECT(range(1, 3),
-                              _name=p['ID_PROJETO'],
-                              value=p["BOLSAS"],
-                              _onchange='ajax("%s", ["%s"], "bolsasRet")' % (URL('adm', 'ajaxAlterarBolsas'), p['ID_PROJETO']))
+                return SELECT(
+                    range(1, 3),
+                    _name=p['ID_PROJETO'],
+                    value=p["BOLSAS"],
+                    _onchange='ajax("%s", ["%s"], "bolsasRet")' % (URL('adm', 'ajaxAlterarBolsas'), p['ID_PROJETO'])
+                )
         except KeyError:
             return "Indefinido"
 
