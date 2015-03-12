@@ -6,7 +6,7 @@ from avaliacao import Avaliacao
 from mail import MailAvaliacao
 from forms import FormPerguntas
 from unirio.api.apiresult import APIException
-from sie.SIEProjetos import SIEProjetos, SIEParticipantesProjs
+from sie.SIEProjetos import SIEProjetos, SIEParticipantesProjs, SIEClassifProjetos
 from tables import TableAvaliacao, TableDeferimento
 
 
@@ -100,6 +100,27 @@ def alterarSituacao():
             return T('Resource updated')
     except APIException:
         return T('Unable to update')
+
+@auth.requires(auth.has_permission('alterarDisciplina'))
+def alterarDisciplina():
+    try:
+        projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
+        classificacao = SIEClassifProjetos()
+
+        form = FORM()
+
+        if form.vars.accepted():
+            classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
+            try:
+                SIEClassifProjetos().criarClassifProjetos(projeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])
+                response.flash = "Disciplina atualizada com sucesso"
+            except APIException:
+                response.flash = "Não foi possível atualizar a disciplina."
+    except ValueError:
+        session.flash = 'Projeto não encontrado'
+        redirect(URL('default', 'index'))
+
+    return dict(form=form, projeto=projeto)
 
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
@@ -255,7 +276,7 @@ def ajaxAlterarBolsas():
         "FUNCAO_ITEM": 3  # Bolsista
     })
 
-    if not proj.registroBolsistaAberto(ID_PROJETO):
+    if not proj.registroBolsistaAberto(session.edicao):
         if not bolsistas or len(bolsistas) < quantidade_bolsas:
             valor_anterior = db(db.bolsas.id_projeto == ID_PROJETO).select().first().quantidade_bolsas
 

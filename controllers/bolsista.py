@@ -63,7 +63,7 @@ def ajaxCadastrarParticipante():
 
 
 
-@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
+@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
 def ajaxRemoverParticipante():
     participante = SIEParticipantesProjs().getParticipante(request.vars.ID_PARTICIPANTE)
     try:

@@ -36,11 +36,10 @@ class Projeto(object):
         if current.session.projeto:
             return True
 
-    def registroBolsistaAberto(self, ID_PROJETO):
+    def registroBolsistaAberto(self, edicao):
         if self.db((self.db.edicao.dt_inicial_bolsistas <= date.today()) & (
-                    self.db.projetos.edicao == self.db.edicao.id) & (
-                    self.db.projetos.id_projeto == ID_PROJETO) & (
-                    self.db.edicao.dt_conclusao_bolsistas >= date.today())).select(cache=(current.cache.ram, 60)).first():
+                    self.db.projetos.edicao == edicao.id) & (
+                    self.db.edicao.dt_conclusao_bolsistas >= date.today())).select(cache=(current.cache.ram, 120)).first():
             return True
 
     def isCoordenador(self):
