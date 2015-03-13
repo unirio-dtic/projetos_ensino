@@ -40,12 +40,7 @@ def cadastro_perguntas():
 @auth.requires((auth.has_membership('PROGRAD') or auth.has_membership('DTIC')) and edicao.requires_edicao())
 def avaliacao():
     try:
-        projetos = api.performGETRequest("V_PROJETOS_DADOS", {
-            "ID_CLASSIFICACAO": 40161,  # Projeto de ensino
-            "DT_INICIAL": session.edicao.dt_inicial_projeto,
-            "LMIN": 0,
-            "LMAX": 99999
-        }).content
+        projetos = SIEProjetos().projetosDadosEnsino(session.edicao)
     except ValueError:
         projetos = []
 

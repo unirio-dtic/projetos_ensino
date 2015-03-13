@@ -123,7 +123,7 @@ def ajaxDisciplinas():
 @auth.requires(edicao.requires_edicao() and proj.isCoordenador())
 def bolsista():
     ID_PROJETO = request.vars.ID_PROJETO
-    if not proj.registroBolsistaAberto(ID_PROJETO):
+    if not proj.registroBolsistaAberto(session.edicao):
         session.flash = 'O período de cadastro de bolsistas não está aberto.'
         redirect(URL('consulta', 'aprovados'))
 
@@ -142,7 +142,7 @@ def bolsista():
                 "FORMA_EVASAO_ITEM": 1,
                 "ORDERBY": "NOME_PESSOA"
             },
-            ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "NOME_PAI", "NOME_MAE", "SEXO",
+            ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
              "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "FOTO", "ANO"]
         ).content
 
