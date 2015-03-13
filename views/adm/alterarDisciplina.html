@@ -1,0 +1,12 @@
+{{extend "layout.html"}}
+    <div class="alert alert-danger">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <b>Atenção!</b> Mudanças realizadas são registradas e são públicas.
+    </div>
+    <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        Atualmente, a o projeto está associado a disciplina "{{=projeto['NOME_DISCIPLINA']}}"
+    </div>
+
+    <p>Selecione o novo curso e disciplina para o projeto "{{=projeto['TITULO']}}"</p>
+    {{=form}}
