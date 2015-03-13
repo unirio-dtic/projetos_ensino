@@ -153,7 +153,7 @@ class TableDeferimento(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(p['ID_PROJETO'], p['COORDENADOR'], p['NOME_DISCIPLINA'], p['TITULO'], self.bolsa(p),
+            return TR(p['ID_PROJETO'], p['COORDENADOR'], self.disciplina(p), p['TITULO'], self.bolsa(p),
                       p['AVALIADOR'], self.removeBtn(p), _id=p['ID_PROJETO'])
 
         return FORM(

@@ -16,9 +16,14 @@ class DictUnicodeProxy(object):
 
     def get(self, item, default=None):
         i = self.d.get(item, default)
-        if isinstance(i, unicode):
-            return i.encode('latin1')
+        try:
+            if isinstance(i, unicode):
+                return i.encode('latin1')
+        except UnicodeEncodeError:
+            #TODO isso não deveria ser necessário
+            return i.encode('utf-8')
         return i
+
 
 def salvarCSV(content, filename):
     """
