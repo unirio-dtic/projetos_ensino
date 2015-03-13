@@ -33,7 +33,7 @@ def dados():
     return dict(projetos=projetos, bolsas=bolsas, form=form)
 
 
-@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(request.vars.ID_PROJETO))
+@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
 def ajaxCadastrarParticipante():
     bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
 
