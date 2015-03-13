@@ -123,7 +123,7 @@ def ajaxDisciplinas():
 @auth.requires(edicao.requires_edicao() and proj.isCoordenador())
 def bolsista():
     ID_PROJETO = request.vars.ID_PROJETO
-    if not proj.registroBolsistaAberto(ID_PROJETO):
+    if not proj.registroBolsistaAberto(session.edicao):
         session.flash = 'O período de cadastro de bolsistas não está aberto.'
         redirect(URL('consulta', 'aprovados'))
 
