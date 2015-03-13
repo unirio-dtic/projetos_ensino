@@ -176,3 +176,25 @@ class FormBolsista(CustomFormHelper):
                 INPUT(_value='Enviar', _type='submit')
             )
         )
+
+
+class FormAlteracaoDisciplina(CustomFormHelper):
+    def __init__(self, cursos):
+        self.cursos = list(cursos)
+        self.cursos.insert(0, {'ID_CURSO': '', 'NOME_CURSO': 'Selecione'})
+
+    def form(self):
+        return FORM(
+            self._selectComponent(
+                'Curso*:',
+                'ID_CURSO',
+                [OPTION(curso['NOME_CURSO'], _value=curso['ID_CURSO']) for curso in self.cursos],
+                _onchange='ajax("%s", ["ID_CURSO"], "COD_DISCIPLINA")' % URL('registro', 'ajaxDisciplinas')
+            ),
+            self._selectComponent(
+                'Disciplina*:',
+                'COD_DISCIPLINA',
+                [OPTION('Selecione o curso', _value='')]
+            ),
+            INPUT(_value='Salvar Alterações', _type='submit')
+        )
