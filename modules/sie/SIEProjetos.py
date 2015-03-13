@@ -664,6 +664,37 @@ class SIEClassifProjetos(SIE):
         except ValueError:
             print "Nenhum CLASSIF_PROJETOS a deletar"
 
+    def getClassifProjetos(self, ID_PROJETO):
+        params = {
+            "ID_PROJETO": ID_PROJETO,
+            "LMIN": 0,
+            "LMAX": 9999
+        }
+        try:
+            return self.api.performGETRequest(self.path, params)
+        except ValueError:
+            return None
+
+    def getClassifProjetosEnsino(self, ID_PROJETO):
+        try:
+            return self.getClassifProjetos(ID_PROJETO).content[0]
+        except ValueError:
+            return None
+
+    def atualizar(self, ID_CLASSIF_PROJETO, ID_CLASSIFICACAO):
+        db.log_admin.insert(
+                    acao='update',
+                    valores=ID_CLASSIFICACAO,
+                    tablename='CLASSIF_PROJETOS',
+                    colname='ID_CLASSIFICACAO',
+                    uid=ID_CLASSIF_PROJETO,
+                    user_id=auth.user_id,
+                    dt_alteracao=datetime.now()
+            )
+        return self.api.performPUTRequest(self.path, {
+            'ID_CLASSIF_PROJETO': ID_CLASSIF_PROJETO,
+            'ID_CLASSIFICACAO': ID_CLASSIFICACAO
+        })
 
 
 class SIEOrgaosProjetos(SIE):
