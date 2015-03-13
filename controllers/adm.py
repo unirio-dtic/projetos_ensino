@@ -4,9 +4,10 @@ from datetime import datetime
 from relatorios import Deferimento, salvarCSV
 from avaliacao import Avaliacao
 from mail import MailAvaliacao
-from forms import FormPerguntas
+from forms import FormPerguntas, FormAlteracaoDisciplina
 from unirio.api.apiresult import APIException
-from sie.SIEProjetos import SIEProjetos, SIEParticipantesProjs, SIEClassifProjetos
+from sie.SIEProjetos import SIEProjetos, SIEParticipantesProjs, SIEClassifProjetos, SIEClassificacoesPrj, \
+    SIECursosDisciplinas
 from tables import TableAvaliacao, TableDeferimento
 
 
@@ -105,27 +106,29 @@ def alterarSituacao():
 def alterarDisciplina():
     try:
         projeto = SIEProjetos().getProjetoDados(request.vars.ID_PROJETO)
-        classificacao = SIEClassifProjetos()
 
-        form = FORM()
+        cursos = SIECursosDisciplinas().getCursosGraduacao()
+        form = FormAlteracaoDisciplina(cursos).form()
 
-        if form.vars.accepted():
+        if form.process().accepted:
             classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
             try:
-                SIEClassifProjetos().criarClassifProjetos(projeto["ID_PROJETO"], classificacao["ID_CLASSIFICACAO"])
+                classif = SIEClassifProjetos()
+                classifProjeto = classif.getClassifProjetosEnsino(projeto['ID_PROJETO'])
+                classif.atualizar(classifProjeto['ID_CLASSIF_PROJETO'], classificacao["ID_CLASSIFICACAO"])
+
                 response.flash = "Disciplina atualizada com sucesso"
             except APIException:
                 response.flash = "Não foi possível atualizar a disciplina."
+
+        return dict(form=form, projeto=projeto)
     except ValueError:
         session.flash = 'Projeto não encontrado'
         redirect(URL('default', 'index'))
 
-    return dict(form=form, projeto=projeto)
-
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
-    # TODO deveria ser um decorator?
     if Avaliacao().isAvaliado(request.vars.ID_PROJETO):
         session.flash = "Este projeto já foi avaliado."
         redirect(URL('adm', 'avaliacao'))

@@ -18,8 +18,9 @@ class TableProjetos(object):
         :type projetos: list
         """
         self.projetos = projetos
-        self.podeAlterarBolsas = current.auth.has_permission("alterarBolsas")
+        self.podeAlterarBolsas = not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(current.session.edicao)
         self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
+        self.podeAlterarDisciplina = current.auth.has_permission("alterarDisciplina")
 
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
@@ -28,15 +29,17 @@ class TableProjetos(object):
         #     n = 1
         return UL([A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos])
 
-    def coordenador(self, projeto):
+    def coordenador(self, p):
         try:
-            return SIEProjetos().getCoordenador(projeto['ID_PROJETO'])['NOME_PESSOA']
+            return SIEProjetos().getCoordenador(p['ID_PROJETO'])['NOME_PESSOA']
         except (TypeError, AttributeError):
             return "Indefinido"
 
-
-    def disciplina(self, projeto):
-        return SIEProjetos().getDisciplina(projeto['ID_PROJETO'])
+    def disciplina(self, p):
+        if not self.podeAlterarDisciplina:
+            return p['NOME_DISCIPLINA']
+        else:
+            return A(p['NOME_DISCIPLINA'], _href=URL('adm', 'alterarDisciplina', vars=dict(ID_PROJETO=p['ID_PROJETO'])))
 
     def situacao(self, p):
         try:
@@ -53,7 +56,6 @@ class TableProjetos(object):
     def avaliacao(self, p):
         return p['AVALIACAO'] if p['AVALIACAO'] else "Avaliação não cadastrada"
 
-
     def avaliador(self, projeto):
         user = current.db((current.db.avaliacao.avaliador == current.db.auth_user.id) & (
             current.db.avaliacao.id_projeto == projeto['ID_PROJETO'])).select(current.db.auth_user.username,
@@ -66,15 +68,15 @@ class TableProjetos(object):
 
     def bolsa(self, p):
         try:
-            if not self.podeAlterarBolsas or current.proj.registroBolsistaAberto(current.session.edicao):
-                return str(p["BOLSAS"])
-            else:
+            if self.podeAlterarBolsas:
                 return SELECT(
                     range(1, 3),
                     _name=p['ID_PROJETO'],
                     value=p["BOLSAS"],
                     _onchange='ajax("%s", ["%s"], "bolsasRet")' % (URL('adm', 'ajaxAlterarBolsas'), p['ID_PROJETO'])
                 )
+            else:
+                return str(p["BOLSAS"])
         except KeyError:
             return "Indefinido"
 
@@ -196,7 +198,7 @@ class TableAvaliacao(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(str(self.projetos.index(p) + 1), p['COORDENADOR'], p['NOME_DISCIPLINA'], self.arquivos(p),
+            return TR(str(self.projetos.index(p) + 1), p['COORDENADOR'], self.disciplina(p), self.arquivos(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.avaliar(p), _id=p['ID_PROJETO'])
 
         return TABLE(
