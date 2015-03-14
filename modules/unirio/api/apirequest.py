@@ -15,9 +15,9 @@ class UNIRIOAPIRequest(object):
     UNIRIOAPIRequest is the main class for
     """
     lastQuery = ""
-    _versions = {0: "Production", 1: "Development", 2: "Local"}
+    _versions = {0: "Production", 1: "Development", 2: "Local", 3: "Production Development"}
     baseAPIURL = {0: "https://sistemas.unirio.br/api", 1: "https://teste.sistemas.unirio.br/api",
-                  2: "http://localhost:8000/api"}
+                  2: "http://localhost:8000/api", 3: "https://sistemas.unirio.br/testapi"}
     timeout = 5  # 5 seconds
 
     def __init__(self, api_key, server=0, debug=False, cache=current.cache.ram):
@@ -164,13 +164,13 @@ class UNIRIOAPIRequest(object):
 
         if cached:
             uniqueHash = self.__cacheHash(path, params)
-            projeto = self.cache(
+            cachedContent = self.cache(
                 uniqueHash,
                 lambda: _get(),
                 time_expire=cached
             )
             print uniqueHash
-            return projeto
+            return cachedContent
         else:
             return _get()
 
