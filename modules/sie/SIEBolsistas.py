@@ -118,8 +118,7 @@ class SIEBolsistas(SIE):
             'LMAX': 1
         }
         try:
-            self.api.performGETRequest(self.path, params).content
-            return True
+            if self.api.performGETRequest(self.path, params):
+                return True
         except ValueError:
             return False
-        
