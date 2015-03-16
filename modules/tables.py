@@ -21,12 +21,10 @@ class TableProjetos(object):
         self.podeAlterarBolsas = not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(current.session.edicao)
         self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
         self.podeAlterarDisciplina = current.auth.has_permission("alterarDisciplina")
+        self.situacoes = SIEProjetos().situacoes()
 
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
-        # TODO Não faço ideia do porquê....
-        # if len(arquivos) > 3:         # WTF ?
-        #     n = 1
         return UL([A(arquivo["anexo_nome"], _href=URL(f='download', args=arquivo["arquivo"])) for arquivo in arquivos])
 
     def coordenador(self, p):
@@ -43,13 +41,11 @@ class TableProjetos(object):
 
     def situacao(self, p):
         try:
-            situacao = p['SITUACAO']
             if self.podeAlterarSituacao:
-                situacoes = SIEProjetos().situacoes()
-                return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in situacoes],
+                return SELECT([OPTION(s['DESCRICAO'], _value=s['ITEM_TABELA']) for s in self.situacoes],
                               value=p['SITUACAO_ITEM'], _onchange='alterarSituacao(%d, this.value)' % p['ID_PROJETO'])
             else:
-                return situacao
+                return p['SITUACAO']
         except AttributeError:
             return "Aguardando..."
 
