@@ -131,7 +131,7 @@ class SIEProjetos(SIE):
 
         return self.api.performGETRequest(self.path, params).content
 
-    def projetosDadosEnsino(self, edicao, params={}):
+    def eprojetosDadosEnsino(self, edicao, params={}):
         """
 
         :type edicao: gluon.storage.Storage
@@ -529,6 +529,13 @@ class SIEParticipantesProjs(SIE):
         except (ValueError, AttributeError):
             return None
 
+    def getBolsistas(self, ID_PROJETO):
+        params = {
+            'ID_PROJETO': ID_PROJETO,
+            'FUNCAO_ITEM': 3
+        }
+        return self.getParticipantes(params)
+
     def getParticipacoes(self, pessoa, params={}):
         """
 
@@ -701,13 +708,13 @@ class SIEClassifProjetos(SIE):
             return None
 
     def atualizar(self, ID_CLASSIF_PROJETO, ID_CLASSIFICACAO):
-        db.log_admin.insert(
+        self.db.log_admin.insert(
                     acao='update',
                     valores=ID_CLASSIFICACAO,
                     tablename='CLASSIF_PROJETOS',
                     colname='ID_CLASSIFICACAO',
                     uid=ID_CLASSIF_PROJETO,
-                    user_id=auth.user_id,
+                    user_id=current.auth.user_id,
                     dt_alteracao=datetime.now()
             )
         return self.api.performPUTRequest(self.path, {
