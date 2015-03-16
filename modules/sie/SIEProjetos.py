@@ -126,10 +126,29 @@ class SIEProjetos(SIE):
             "ID_CLASSIFICACAO": 40161,
             "DT_INICIAL": edicao.dt_inicial_projeto,
             "LMIN": 0,
-            "LMAX": 9999
+            "LMAX": 99999
         })
 
         return self.api.performGETRequest(self.path, params).content
+
+    def projetosDadosEnsino(self, edicao, params={}):
+        """
+
+        :type edicao: gluon.storage.Storage
+        :param edicao: Uma entrada da tabela `edicao`
+        :type params: dict
+        :param params: Um dicionário de parâmetros a serem usados na busca
+        :rtype : list
+        :return: Uma lista de projetos de ensino
+        """
+        params.update({
+            "ID_CLASSIFICACAO": 40161,
+            "DT_INICIAL": edicao.dt_inicial_projeto,
+            "LMIN": 0,
+            "LMAX": 99999
+        })
+
+        return self.api.performGETRequest('V_PROJETOS_DADOS', params).content
 
     @staticmethod
     def isAvaliado(projeto):
