@@ -52,6 +52,7 @@ def avaliacao():
     )
 
 
+
 @auth.requires(auth.has_membership('admin') or auth.has_membership('DTIC'))
 def avaliadores():
     grid = SQLFORM.grid(
@@ -106,15 +107,18 @@ def alterarDisciplina():
         form = FormAlteracaoDisciplina(cursos).form()
 
         if form.process().accepted:
-            classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
-            try:
-                classif = SIEClassifProjetos()
-                classifProjeto = classif.getClassifProjetosEnsino(projeto['ID_PROJETO'])
-                classif.atualizar(classifProjeto['ID_CLASSIF_PROJETO'], classificacao["ID_CLASSIFICACAO"])
+            if not SIEParticipantesProjs().getBolsistas(request.vars.ID_PROJETO):
+                classificacao = SIEClassificacoesPrj().getClassificacoesPrj(41, form.vars.COD_DISCIPLINA)[0]
+                try:
+                    classif = SIEClassifProjetos()
+                    classifProjeto = classif.getClassifProjetosEnsino(projeto['ID_PROJETO'])
+                    classif.atualizar(classifProjeto['ID_CLASSIF_PROJETO'], classificacao["ID_CLASSIFICACAO"])
 
-                response.flash = "Disciplina atualizada com sucesso"
-            except APIException:
-                response.flash = "Não foi possível atualizar a disciplina."
+                    response.flash = "Disciplina atualizada com sucesso"
+                except APIException:
+                    response.flash = "Não foi possível atualizar a disciplina."
+            else:
+                response.flash = "Não é possível atualizar a disciplina de um projeto com bolsistas cadastrados."
 
         return dict(form=form, projeto=projeto)
     except ValueError:
