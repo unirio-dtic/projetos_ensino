@@ -7,7 +7,8 @@ from gluon.html import *
 __all__ = [
     "TableAcompanhamento",
     "TableAvaliacao",
-    "TableDeferimento"
+    "TableDeferimento",
+    "TabelaProjetos"
 ]
 
 
@@ -17,11 +18,17 @@ class TableProjetos(object):
 
         :type projetos: list
         """
+        self.db = current.db
+        self.edicao = current.session.edicao
+        bolsas = self.db((self.db.bolsas.id_projeto == self.db.projetos.id_projeto) & (
+            self.db.projetos.edicao == self.edicao.id)).select(self.db.bolsas.ALL,
+                                                               cache=(current.cache.ram, 86400))
         self.projetos = projetos
         self.podeAlterarBolsas = not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(current.session.edicao)
         self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
         self.podeAlterarDisciplina = current.auth.has_permission("alterarDisciplina")
         self.situacoes = SIEProjetos().situacoes()
+        self.bolsas = {b.id_projeto: b.quantidade_bolsas for b in bolsas}
 
     def arquivos(self, projeto):
         arquivos = current.db(current.db.projetos.id_projeto == projeto["ID_PROJETO"]).select()
@@ -68,7 +75,7 @@ class TableProjetos(object):
                 return SELECT(
                     range(1, 3),
                     _name=p['ID_PROJETO'],
-                    value=p["BOLSAS"],
+                    value=self.bolsas[p['ID_PROJETO']],
                     _onchange='ajax("%s", ["%s"], "bolsasRet")' % (URL('adm', 'ajaxAlterarBolsas'), p['ID_PROJETO'])
                 )
             else:
