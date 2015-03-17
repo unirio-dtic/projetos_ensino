@@ -6,7 +6,7 @@ from sie.SIEBolsistas import SIEBolsistas
 from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 
 
-@auth.requires(pessoa.isAluno())
+@auth.requires(lambda: pessoa.isAluno())
 def dados():
     # Todas as participações como bolsista que estejam ativas
     participacoes = SIEParticipantesProjs().getParticipacoes(session.aluno, {'FUNCAO_ITEM': 3, 'SITUACAO': 'A'})
@@ -33,7 +33,7 @@ def dados():
     return dict(projetos=projetos, bolsas=bolsas, form=form)
 
 
-@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
+@auth.requires(lambda: proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
 def ajaxCadastrarParticipante():
     bolsas = db(db.bolsas.id_projeto == request.vars.ID_PROJETO).select(cache=(cache.ram, 600)).first().quantidade_bolsas
 
@@ -63,7 +63,7 @@ def ajaxCadastrarParticipante():
 
 
 
-@auth.requires(proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
+@auth.requires(lambda: proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
 def ajaxRemoverParticipante():
     participante = SIEParticipantesProjs().getParticipante(request.vars.ID_PARTICIPANTE)
     try:
