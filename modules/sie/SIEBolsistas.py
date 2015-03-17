@@ -78,7 +78,7 @@ class SIEBolsistas(SIE):
             'LMIN': 0,
             'LMAX': 1
         }
-        return self.api.performGETRequest(self.path, params, cached=self.cacheTime if cached else 0)
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime if cached else 0).content[0]
 
     def atualizarDadosBancarios(self, ID_BOLSISTA, dados):
         """
