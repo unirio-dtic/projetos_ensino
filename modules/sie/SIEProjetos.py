@@ -131,7 +131,7 @@ class SIEProjetos(SIE):
 
         return self.api.performGETRequest(self.path, params).content
 
-    def eprojetosDadosEnsino(self, edicao, params={}):
+    def projetosDadosEnsino(self, edicao, params={}):
         """
 
         :type edicao: gluon.storage.Storage
