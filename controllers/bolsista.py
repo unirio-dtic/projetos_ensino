@@ -19,15 +19,15 @@ def dados():
         p = SIEProjetos()
         b = SIEBolsistas()
         for part in participacoes:
-            yield p.getProjeto(part['ID_PROJETO'])
-            yield b.getBolsista(part['ID_BOLSISTA'])
+            yield p.getProjetoDados(part['ID_PROJETO'])
+            yield b.getBolsista(part['ID_BOLSISTA'], cached=False)
 
     projetos, bolsas = __getter(participacoes)
 
     form = FormBolsista().formCadastroBolsista()
 
     if form.process().accepted:
-        for bolsa in bolsas.content:
+        for bolsa in bolsas:
             SIEBolsistas().atualizarDadosBancarios(bolsa['ID_BOLSISTA'], form.vars)
 
     return dict(projetos=projetos, bolsas=bolsas, form=form)
