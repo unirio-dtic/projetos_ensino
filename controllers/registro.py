@@ -138,8 +138,8 @@ def bolsista():
                 "COD_ATIV_CURRIC": projeto['COD_DISCIPLINA'],
                 "LMIN": 0,
                 "LMAX": 2000,
-                "MEDIA_FINAL_MIN": 7.0,
-                "FORMA_EVASAO_ITEM": 1,
+                "SITUACAO_ITEM": 1,         # Aprovado
+                "FORMA_EVASAO_ITEM": 1,     # Sem evasão
                 "ORDERBY": "NOME_PESSOA"
             },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
@@ -147,7 +147,8 @@ def bolsista():
         ).content
 
         apiAlunos = SIEAlunos()
-        map(lambda a: a.update(apiAlunos.getCRA(a['ID_ALUNO'])), alunosPossiveis)
+        cras = apiAlunos.getCRAAlunos(tuple(a['ID_ALUNO'] for a in alunosPossiveis))
+        map(lambda a: a.update(cras[a['ID_ALUNO']]), alunosPossiveis)
         session.alunosPossiveis = alunosPossiveis[:]
 
         participantes = SIEParticipantesProjs().getParticipantes({
