@@ -48,7 +48,7 @@ class Projeto(object):
         try:
             if coordenador['ID_PESSOA'] == current.session.funcionario['ID_PESSOA']:
                 return True
-        except AttributeError:
+        except TypeError:
             return False
 
 
