@@ -62,7 +62,6 @@ def ajaxCadastrarParticipante():
     return dict(success=False, msg="Todas as bolsas já foram utilizadas. Remova algum participante e tente novamente.")
 
 
-
 @auth.requires(lambda: proj.isCoordenador() and proj.registroBolsistaAberto(session.edicao))
 def ajaxRemoverParticipante():
     participante = SIEParticipantesProjs().getParticipante(request.vars.ID_PARTICIPANTE)
@@ -74,6 +73,9 @@ def ajaxRemoverParticipante():
 
 
 def ajaxCarregarAgencias():
-    agencia = lambda ag: str(OPTION("%s-%s  %s" % (ag['COD_AGENCIA'], ag['DV_AGENCIA'], ag['NOME_AGENCIA']), _value=a['ID_AGENCIA']))
-    for a in SIEAgencias().getAgenciasDeBanco(request.vars.ID_BANCO):
-        yield agencia(a)
+    def _ag(ID_BANCO):
+        agencia = lambda ag: str(OPTION("%s-%s  %s" % (ag['COD_AGENCIA'], ag['DV_AGENCIA'], ag['NOME_AGENCIA']), _value=a['ID_AGENCIA']))
+        for a in SIEAgencias().getAgenciasDeBanco(ID_BANCO):
+            yield agencia(a)
+
+    return _ag(request.vars.ID_BANCO)
