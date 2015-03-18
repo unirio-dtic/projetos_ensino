@@ -7,7 +7,7 @@ from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjeto
 from forms import FormProjetos, FormArquivos, FormBolsista
 
 
-@auth.requires(edicao.requires_edicao() and pessoa.isFuncionario())
+@auth.requires(lambda: edicao.requires_edicao() and pessoa.isFuncionario())
 def registro():
     if not edicao.isValidEdicaoForRegistro(session.edicao):
         session.flash = "Edição não está aberta para registro"
@@ -41,7 +41,7 @@ def registro():
     return dict(form=form)
 
 
-@auth.requires(proj.requires_projeto())
+@auth.requires(lambda: proj.requires_projeto())
 def arquivo_projeto():
     response.title = 'Registro - Envio de arquivos 1/4'
     response.view = 'registro/envioArquivo.html'
@@ -58,7 +58,7 @@ def arquivo_projeto():
     return dict(locals())
 
 
-@auth.requires(proj.requires_projeto())
+@auth.requires(lambda: proj.requires_projeto())
 def ata_departamento():
     response.title = 'Registro - Envio de arquivos 2/4'
     response.view = 'registro/envioArquivo.html'
@@ -75,7 +75,7 @@ def ata_departamento():
     return dict(locals())
 
 
-@auth.requires(proj.requires_projeto())
+@auth.requires(lambda: proj.requires_projeto())
 def relatorio_docente():
     response.title = 'Registro - Envio de arquivos 3/4'
     response.view = 'registro/envioArquivo.html'
@@ -93,7 +93,7 @@ def relatorio_docente():
     return dict(locals())
 
 
-@auth.requires(proj.requires_projeto())
+@auth.requires(lambda: proj.requires_projeto())
 def relatorio_bolsista():
     response.title = 'Registro - Envio de arquivos 4/4'
     response.view = 'registro/envioArquivo.html'
@@ -115,12 +115,15 @@ def relatorio_bolsista():
 
 
 def ajaxDisciplinas():
-    disciplinas = SIECursosDisciplinas().getDisciplinas(request.vars.ID_CURSO, session.edicao.disciplinas_obrigatorias)
-    for disciplina in disciplinas:
-        yield str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"]))
+    def _disciplinas(ID_CURSO):
+        disciplinas = SIECursosDisciplinas().getDisciplinas(ID_CURSO, session.edicao.disciplinas_obrigatorias)
+        for disciplina in disciplinas:
+            yield str(OPTION(disciplina["NOME_DISCIPLINA"], _value=disciplina["COD_DISCIPLINA"]))
+
+    return _disciplinas(request.vars.ID_CURSO)
 
 
-@auth.requires(edicao.requires_edicao() and proj.isCoordenador())
+@auth.requires(lambda: edicao.requires_edicao() and proj.isCoordenador())
 def bolsista():
     ID_PROJETO = request.vars.ID_PROJETO
     if not proj.registroBolsistaAberto(session.edicao):
