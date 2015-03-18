@@ -25,6 +25,18 @@ class SIEAlunos(SIE):
         """
         return self.api.performGETRequest("V_COEF_REND_ACAD", {"ID_ALUNO": ID_ALUNO}, cached=self.cacheTime).content[0]
 
+    def getCRAAlunos(self, alunos):
+        try:
+            params = {
+                "ID_ALUNO_SET": alunos,
+                "LMIN": 0,
+                "LMAX": 99999
+            }
+            cras = self.api.performGETRequest("V_COEF_REND_ACAD", params, cached=self.cacheTime).content
+            return {a['ID_ALUNO']: a for a in cras}
+        except ValueError:
+            return {}
+
     def getAlunoAtivoFromCPF(self, cpf):
         """
         :type cpf: str
