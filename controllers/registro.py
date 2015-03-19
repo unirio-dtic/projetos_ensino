@@ -142,14 +142,14 @@ def bolsista():
                 "COD_ATIV_CURRIC": projeto['COD_DISCIPLINA'],
                 "LMIN": 0,
                 "LMAX": 2000,
-                "SITUACAO_ITEM": 1,         # Aprovado
+                "SITUACAO_ITEM": 1,                             # Aprovado
                 "FORMA_EVASAO_ITEM_SET": (1, 4, 7, 8, 18, 19),  #Aprovados com nota ou sem. dispensado ou mobilidade
                 "ORDERBY": "NOME_PESSOA"
                 },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
              "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "ANO"]
             ).content
-        except:
+        except ValueError:
             session.flash = """A Disciplina com código """+str(projeto['COD_DISCIPLINA']) + """não possui alunos aptos a receber a bolsa. Favor entrar em contato com a PROGRAD."""
             redirect(URL('consulta', 'aprovados'))
 
