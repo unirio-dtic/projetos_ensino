@@ -135,19 +135,23 @@ def bolsista():
 
     try:
         session.alunosPossiveis = None
-        alunosPossiveis = api.performGETRequest(
-            "V_NOTAS_FINAIS_ALUNOS_DISCIPLINAS",
-            {
+        try:
+            alunosPossiveis = api.performGETRequest(
+                "V_NOTAS_FINAIS_ALUNOS_DISCIPLINAS",
+             {
                 "COD_ATIV_CURRIC": projeto['COD_DISCIPLINA'],
                 "LMIN": 0,
                 "LMAX": 2000,
                 "SITUACAO_ITEM": 1,         # Aprovado
-                "FORMA_EVASAO_ITEM": 1,     # Sem evasão
+                "FORMA_EVASAO_ITEM_SET": (1, 4, 7, 8, 18, 19),  #Aprovados com nota ou sem. dispensado ou mobilidade
                 "ORDERBY": "NOME_PESSOA"
-            },
+                },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
-             "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "FOTO", "ANO"]
-        ).content
+             "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "ANO"]
+            ).content
+        except:
+            session.flash = """A Disciplina com código """+str(projeto['COD_DISCIPLINA']) + """não possui alunos aptos a receber a bolsa. Favor entrar em contato com a PROGRAD."""
+            redirect(URL('consulta', 'aprovados'))
 
         apiAlunos = SIEAlunos()
         cras = apiAlunos.getCRAAlunos(tuple(a['ID_ALUNO'] for a in alunosPossiveis))
