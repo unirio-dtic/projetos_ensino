@@ -150,7 +150,7 @@ def bolsista():
              "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "ANO"]
             ).content
         except ValueError:
-            session.flash = """A Disciplina com código """+str(projeto['COD_DISCIPLINA']) + """não possui alunos aptos a receber a bolsa. Favor entrar em contato com a PROGRAD."""
+            session.flash = "A Disciplina com código "+str(projeto['COD_DISCIPLINA']) + "não possui alunos aptos a receber a bolsa. Favor entrar em contato com a PROGRAD."
             redirect(URL('consulta', 'aprovados'))
 
         apiAlunos = SIEAlunos()
