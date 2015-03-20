@@ -23,7 +23,7 @@ class SIEAlunos(SIE):
         :return: O coeficiente de rendimento acumulado deste aluno
         :rtype : dict
         """
-        return self.api.performGETRequest("V_COEF_REND_ACAD", {"ID_ALUNO": ID_ALUNO}, cached=self.cacheTime).content[0]
+        return self.api.performGETRequest("V_COEF_REND_ACAD_ALL", {"ID_ALUNO": ID_ALUNO}, cached=self.cacheTime).content[0]
 
     def getCRAAlunos(self, alunos):
         try:
@@ -32,7 +32,7 @@ class SIEAlunos(SIE):
                 "LMIN": 0,
                 "LMAX": 99999
             }
-            cras = self.api.performGETRequest("V_COEF_REND_ACAD", params, cached=self.cacheTime).content
+            cras = self.api.performGETRequest("V_COEF_REND_ACAD_ALL", params, cached=self.cacheTime).content
             return {a['ID_ALUNO']: a for a in cras}
         except ValueError:
             return {}
