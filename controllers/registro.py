@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from cgi import FieldStorage
 from itertools import izip_longest
+from sie.SIEPessoas import SIEPessoas
 from sie.SIEAlunos import SIEAlunos
 from sie.SIEProjetos import SIEParticipantesProjs, SIECursosDisciplinas
 from sie.SIEProjetos import SIEProjetos, SIEClassificacoesPrj, SIEClassifProjetos, SIEOrgaosProjetos, SIEArquivosProj
-from forms import FormProjetos, FormArquivos, FormBolsista
+from forms import FormProjetos, FormArquivos
 
 
 @auth.requires(lambda: edicao.requires_edicao() and pessoa.isFuncionario())
@@ -145,7 +146,7 @@ def bolsista():
                 "SITUACAO_ITEM": 1,                             # Aprovado
                 "FORMA_EVASAO_ITEM_SET": (1, 4, 7, 8, 18, 19),  #Aprovados com nota ou sem. dispensado ou mobilidade
                 "ORDERBY": "NOME_PESSOA"
-                },
+            },
             ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
              "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "ANO"]
             ).content
@@ -181,6 +182,15 @@ def bolsista():
                             aluno = a.copy()
                             aluno.update(p)
                             alunos.append(aluno)
+                # TODO remover na próxima edição. Esse fix existe para que participantes que não estejam dentro do critério sejam adicionados
+                if len(alunos) < len(participantes):
+                    for participante in participantes:
+                        if not any(participante['ID_PESSOA'] == a['ID_PESSOA'] for a in alunos):
+                            pessoa = SIEPessoas().getPessoa(participante['ID_PESSOA'])
+                            alunos.append({
+                                'ID_PARTICIPANTE': participante['ID_PARTICIPANTE'],
+                                'NOME_PESSOA': pessoa['NOME_PESSOA']
+                            })
                 return alunos
 
             bolsistas = __bolsistas()
