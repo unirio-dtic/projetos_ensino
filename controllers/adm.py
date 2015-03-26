@@ -1,5 +1,6 @@
 # coding=utf-8
 from datetime import datetime
+from operator import itemgetter
 
 from relatorios import Deferimento, salvarCSV
 from avaliacao import Avaliacao
@@ -98,6 +99,7 @@ def alterarSituacao():
     except APIException:
         return T('Unable to update')
 
+
 @auth.requires(auth.has_permission('alterarDisciplina'))
 def alterarDisciplina():
     try:
@@ -126,7 +128,7 @@ def alterarDisciplina():
         redirect(URL('default', 'index'))
 
 
-@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
+@auth.requires(lambda: auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
 def avaliacaoPerguntas():
     if Avaliacao().isAvaliado(request.vars.ID_PROJETO):
         session.flash = "Este projeto já foi avaliado."
@@ -177,7 +179,7 @@ def avaliacaoPerguntas():
     return dict(projeto=projeto, form=form)
 
 
-@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC') and edicao.requires_edicao())
+@auth.requires(lambda: auth.has_membership('PROGRAD') or auth.has_membership('DTIC') and edicao.requires_edicao())
 def deferidos():
     try:
         relatorio = Deferimento(session.edicao)
@@ -221,7 +223,7 @@ def deferidos():
         return dict(projetos=None)
 
 
-@auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC') and edicao.requires_edicao())
+@auth.requires(lambda: auth.has_membership('PROGRAD') or auth.has_membership('DTIC') and edicao.requires_edicao())
 def indeferidos():
     try:
         relatorio = Deferimento(session.edicao)
@@ -296,3 +298,26 @@ def ajaxAlterarBolsas():
             session.flash = "Não foi possível alterar a quantidade bolsas: Não é possível remover uma bolsa já alocada a um participante."
     else:
         session.flash = "Não foi possível alterar a quantidade bolsas: Registro de bolsistas aberto."
+
+
+@auth.requires(lambda: auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
+def bolsistas_ativos():
+    bolsistas = api.performGETRequest(
+        'V_BOLSISTAS_MONITORIA',
+        {
+            'LMIN': 0,
+            'LMAX': 99999
+        },
+        ('AGENCIA', 'COD_BANCO', 'CONTA_CORRENTE', 'CPF', 'DESC_BANCO', 'MATRICULA', 'VL_BOLSA', 'PARTICIPANTE')
+    ).content
+
+    bolsistas[:] = sorted(bolsistas, key=itemgetter('PARTICIPANTE'))
+
+    table = TABLE(
+        THEAD(TR(*[TD(B(k)) for k in bolsistas[0].keys()])),
+        *[TR(*[TD(v) for k, v in b.iteritems()]) for b in bolsistas]
+    )
+
+    csv = salvarCSV(bolsistas, 'bolsas_a_pagar')
+
+    return dict(table=table, bolsistas=bolsistas, csv=csv)
