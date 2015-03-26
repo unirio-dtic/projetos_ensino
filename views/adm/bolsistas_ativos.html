@@ -1,0 +1,12 @@
+{{extend 'layout.html'}}
+
+<h1>Bolsas ativos</h1>
+<p><span class="label label-success">{{=len(bolsistas)}}</span> bolsistas ativos.</p>
+<p><span class="label label-success">R${{=sum((b['VL_BOLSA'] for b in bolsistas))}}</span> a pagar.</p>
+<div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        Os dados contidos nesta página são atualizados a cada novo acesso e não possui <i>cache</i>
+</div>
+
+{{=table}}
+{{=csv}}

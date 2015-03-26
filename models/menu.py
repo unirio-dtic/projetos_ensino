@@ -44,7 +44,8 @@ admin_menu = [
         ('Avaliação de Projetos', False, URL("adm", "avaliacao"), []),
         ('Relatórios', False, False, [
             ('Lista de Deferidos', False, URL("adm", "deferidos"), []),
-            ('Lista de Indeferidos', False, URL("adm", "indeferidos"), [])
+            ('Lista de Indeferidos', False, URL("adm", "indeferidos"), []),
+            ('Bolsistas Ativos', False, URL('adm', 'bolsistas_ativos'), [])
         ]),
         ('Avaliadores', False, URL('adm', 'avaliadores'), [])
     ])
