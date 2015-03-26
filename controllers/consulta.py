@@ -3,6 +3,7 @@ from tables import TableAcompanhamento
 from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 
 
+@auth.requires(lambda: edicao.requires_edicao())
 def index():
     if not session.funcionario:
         redirect(URL("default", "index"))
@@ -31,7 +32,7 @@ def index():
     )
 
 
-@auth.requires(edicao.requires_edicao() and pessoa.isFuncionario())
+@auth.requires(lambda: edicao.requires_edicao() and pessoa.isFuncionario())
 def aprovados():
     try:
         projetos = api.performGETRequest("V_PROJETOS_DADOS", {
