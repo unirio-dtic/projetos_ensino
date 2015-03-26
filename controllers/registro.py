@@ -147,7 +147,7 @@ def bolsista():
                 "SITUACAO_ITEM_SET": (1, 4, 7, 8, 18, 19),  #Aprovados com nota ou sem. dispensado ou mobilidade
                 "ORDERBY": "NOME_PESSOA"
             },
-            ["ID_PESSOA", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
+            ["ID_PESSOA", "ID_CURSO_ALUNO", "ID_ALUNO", "MATR_ALUNO", "NOME_PESSOA", "MEDIA_FINAL", "SEXO",
              "NOME_CIDADE", "DESCR_BAIRRO", "DESCR_MAIL", "ANO"]
             ).content
         except ValueError:
