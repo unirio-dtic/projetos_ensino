@@ -46,7 +46,7 @@
                             <h3>{{=aluno['NOME_PESSOA']}}</h3>
                             <ul>
                                 <li><b>Matrícula: </b>{{=aluno['MATR_ALUNO']}}</li>
-                                <li><b>Média Final: </b>{{=aluno['MEDIA_FINAL']}}</li>
+                                <li><b>Média Final: </b>{{=aluno['MEDIA_FINAL'] if aluno['MEDIA_FINAL'] else '--'}}</li>
                                 <li><b>Curso: </b>{{=aluno['MATR_ALUNO']}}</li>
                                 <li><b>Cursou a disciplina em: </b>{{=aluno['ANO']}}</li>
                                 <li><b>CRA: </b>{{=aluno['COEFICIENTE']}}</li>
