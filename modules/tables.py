@@ -12,21 +12,51 @@ __all__ = [
 ]
 
 
-class TableProjetos(object):
+class TableHelper(object):
+    def __init__(self):
+        self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
+        self.podeAlterarDisciplina = current.auth.has_permission("alterarDisciplina")
+        self.humanHeaders = {
+            'BOLSAS': 'Qtd. Bolsas',
+            'BOLSISTA': 'Bolsista',
+            'COD_DISCIPLINA': 'Cód. Disciplina',
+            'COORDENADOR': 'Coordenador',
+            'DT_REGISTRO': 'Data de registro',
+            'NOME_DISCIPLINA': 'Disciplina',
+            'NOME_UNIDADE': 'Departamento',
+            'NUM_PROCESSO': 'Num. Processo',
+            'VL_BOLSA': 'Valor'
+        }
+
+    def disciplina(self, p):
+        if not self.podeAlterarDisciplina:
+            return p['NOME_DISCIPLINA']
+        else:
+            return A(p['NOME_DISCIPLINA'], _href=URL('adm', 'alterarDisciplina', vars=dict(ID_PROJETO=p['ID_PROJETO'])))
+
+    def num_processo(self, NUM_PROCESSO):
+        return A(NUM_PROCESSO, _href=URL('processos', 'default', 'index', scheme='http', host='sistemas.unirio.br',
+                                         vars={'NUM_PROCESSO': NUM_PROCESSO}))
+
+    def vl_bolsa(self, VL_BOLSA):
+        return 'R$%s' % VL_BOLSA
+
+
+class TableProjetos(TableHelper):
     def __init__(self, projetos):
         """
 
-        :type projetos: list
-        """
+            :type projetos: list
+            """
+        super(TableProjetos, self).__init__()
         self.db = current.db
         self.edicao = current.session.edicao
         bolsas = self.db((self.db.bolsas.id_projeto == self.db.projetos.id_projeto) & (
             self.db.projetos.edicao == self.edicao.id)).select(self.db.bolsas.ALL,
                                                                cache=(current.cache.ram, 86400))
         self.projetos = projetos
-        self.podeAlterarBolsas = not current.auth.has_permission("alterarBolsas") or current.proj.registroBolsistaAberto(current.session.edicao)
-        self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
-        self.podeAlterarDisciplina = current.auth.has_permission("alterarDisciplina")
+        self.podeAlterarBolsas = not current.auth.has_permission(
+            "alterarBolsas") or current.proj.registroBolsistaAberto(current.session.edicao)
         self.situacoes = SIEProjetos().situacoes()
         self.bolsas = {b.id_projeto: b.quantidade_bolsas for b in bolsas}
 
@@ -39,12 +69,6 @@ class TableProjetos(object):
             return SIEProjetos().getCoordenador(p['ID_PROJETO'])['NOME_PESSOA']
         except (TypeError, AttributeError):
             return "Indefinido"
-
-    def disciplina(self, p):
-        if not self.podeAlterarDisciplina:
-            return p['NOME_DISCIPLINA']
-        else:
-            return A(p['NOME_DISCIPLINA'], _href=URL('adm', 'alterarDisciplina', vars=dict(ID_PROJETO=p['ID_PROJETO'])))
 
     def situacao(self, p):
         try:
@@ -128,7 +152,8 @@ class TableAcompanhamento(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], p['NUM_PROCESSO'], p['TITULO'], self.funcao(p),
+            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], self.num_processo(p['NUM_PROCESSO']), p['TITULO'],
+                      self.funcao(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p),
                       _id=p['ID_PROJETO'])
 
@@ -207,4 +232,25 @@ class TableAvaliacao(TableProjetos):
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
             TBODY([row(p) for p in self.projetos if p])
+        )
+
+
+class TableTransparenciaBolsistas(TableHelper):
+    def __init__(self, content):
+        """
+
+        :type content: list
+        """
+        super(TableTransparenciaBolsistas, self).__init__()
+        self.content = content
+        self.headers = ('Número do processo', 'Disciplina', 'Valor', 'Coordenador', 'Bolsista')
+
+    def printTable(self):
+        def parsedRow(c):
+            return TR(self.num_processo(c['NUM_PROCESSO']), self.disciplina(c), self.vl_bolsa(c['VL_BOLSA']),
+                      c['COORDENADOR'], c['BOLSISTA'])
+
+        return TABLE(
+            THEAD(TR([TH(h) for h in self.headers])),
+            TBODY([parsedRow(c) for c in self.content])
         )
