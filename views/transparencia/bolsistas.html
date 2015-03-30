@@ -1,0 +1,7 @@
+{{extend 'layout.html'}}
+<h1>Bolsistas Ativos</h1>
+
+{{if ativos:}}
+<p><span class="label label-success">{{=len(ativos)}}</span> bolsistas ativos</p>
+{{=table.printTable()}}
+{{pass}}
