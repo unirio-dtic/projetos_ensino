@@ -22,18 +22,23 @@ response.google_analytics_id = None
 ## this is the main application menu add/remove items as required
 #########################################################################
 
-menu = [
-    ('Página Inicial', False, URL('default', 'index'), []),
-    ('Edições', False, URL('default', 'edicoes'), []),
-    ('Registro', False, False, [
-        ("Registro de Projeto", False, URL('registro', 'registro')),
-        ("Registro de Bolsista", False, URL('consulta', 'aprovados'))
-    ]),
-    ("Acompanhamento", False, URL('consulta', 'index'))
+response.menu = [
+    ('Transparência', False, False, [
+        ('Bolsistas Ativos', False, URL('transparencia', 'bolsistas'), []),
+        ('Bolsas por unidade', False, URL('transparencia', 'bolsas_unidades'), []),
+        ('Projetos Aprovados', False, URL('transparencia', 'projetos_aprovados'), [])
+    ])
 ]
 
 if auth.is_logged_in():
-    response.menu = menu
+    response.menu[:] += [
+        ('Edições', False, URL('default', 'edicoes'), []),
+        ('Registro', False, False, [
+            ("Registro de Projeto", False, URL('registro', 'registro')),
+            ("Registro de Bolsista", False, URL('consulta', 'aprovados'))
+        ]),
+        ("Acompanhamento", False, URL('consulta', 'index'))
+    ]
 
 admin_menu = [
     ('Administração', False, False, [
@@ -49,7 +54,6 @@ admin_menu = [
         ]),
         ('Avaliadores', False, URL('adm', 'avaliadores'), [])
     ])
-
 ]
 
 if auth.has_membership('DTIC') or auth.has_membership('PROGRAD'):
