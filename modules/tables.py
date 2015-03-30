@@ -261,21 +261,29 @@ class TableTransparenciaBolsistas(TableHelper):
         )
 
 
-class TableTransparenciaProjetos(TableHelper):
+class TableAPIResult(TableHelper):
     def __init__(self, resultObject):
         """
 
         :type resultObject: unirio.api.apiresult.APIResultObject
         """
-        super(TableTransparenciaProjetos, self).__init__()
+        super(TableAPIResult, self).__init__()
         self.content = resultObject.content
         self.fields = resultObject.fields
-        self.headers = (self.T(k) for k in self.fields)
+        self.headers = tuple(self.T(k) for k in self.fields)
 
     def __parseRow(self, row):
+        """
+
+        :rtype : gluon.html.TR
+        """
         return TR(tuple(self.parse(k, row) for k in self.fields))
 
     def printTable(self):
+        """
+
+        :rtype : gluon.html.TABLE
+        """
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
             TBODY([self.__parseRow(row) for row in self.content])
