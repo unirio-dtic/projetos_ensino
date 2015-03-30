@@ -141,7 +141,7 @@ class UNIRIOAPIRequest(object):
         :param path: string with an API ENDPOINT
         :type params: dict
         :param params: dictionary with URL parameters
-        :type fields: list
+        :type fields: list or tuple
         :param fields: list with de desired return fields. Empty list or None will return all Fields
         :type cached: int
         :param cached int for cached expiration time. 0 means no cached is applied
