@@ -92,7 +92,8 @@ class SIEBolsistas(SIE):
         params = {
             'ID_BOLSISTA': ID_BOLSISTA,
             'ID_AGENCIA': dados['ID_AGENCIA'],
-            'CONTA_CORRENTE': dados['CONTA_CORRENTE']
+            'CONTA_CORRENTE': dados['CONTA_CORRENTE'],
+            'SITUACAO_BOLSISTA': 'A'
         }
         return self.api.performPUTRequest(self.path, params)
 
