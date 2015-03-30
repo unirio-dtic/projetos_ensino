@@ -14,18 +14,13 @@ __all__ = [
 
 class TableHelper(object):
     def __init__(self):
+        self.T = current.T
         self.podeAlterarSituacao = current.auth.has_permission("alterarSituacao")
         self.podeAlterarDisciplina = current.auth.has_permission("alterarDisciplina")
-        self.humanHeaders = {
-            'BOLSAS': 'Qtd. Bolsas',
-            'BOLSISTA': 'Bolsista',
-            'COD_DISCIPLINA': 'Cód. Disciplina',
-            'COORDENADOR': 'Coordenador',
-            'DT_REGISTRO': 'Data de registro',
-            'NOME_DISCIPLINA': 'Disciplina',
-            'NOME_UNIDADE': 'Departamento',
-            'NUM_PROCESSO': 'Num. Processo',
-            'VL_BOLSA': 'Valor'
+        self.xpto = {
+            'NOME_DISCIPLINA': lambda row: self.disciplina(row),
+            'VL_BOLSA': lambda row: self.vl_bolsa(row),
+            'NUM_PROCESSO': lambda row: self.num_processo(row)
         }
 
     def disciplina(self, p):
@@ -34,12 +29,24 @@ class TableHelper(object):
         else:
             return A(p['NOME_DISCIPLINA'], _href=URL('adm', 'alterarDisciplina', vars=dict(ID_PROJETO=p['ID_PROJETO'])))
 
-    def num_processo(self, NUM_PROCESSO):
-        return A(NUM_PROCESSO, _href=URL('processos', 'default', 'index', scheme='http', host='sistemas.unirio.br',
-                                         vars={'NUM_PROCESSO': NUM_PROCESSO}))
+    def num_processo(self, row):
+        return A(row['NUM_PROCESSO'], _href=URL('processos', 'default', 'index', scheme='http', host='sistemas.unirio.br',
+                                         vars={'NUM_PROCESSO': row['NUM_PROCESSO']}))
 
-    def vl_bolsa(self, VL_BOLSA):
-        return 'R$%s' % VL_BOLSA
+    def vl_bolsa(self, row):
+        return 'R$%s' % row['VL_BOLSA']
+
+    def parse(self, k, row):
+        """
+
+        :type k: str
+        :type row: dict
+        :rtype: str
+        """
+        try:
+            return self.xpto[k](row)
+        except KeyError:
+            return row[k]
 
 
 class TableProjetos(TableHelper):
@@ -152,8 +159,7 @@ class TableAcompanhamento(TableProjetos):
 
     def printTable(self):
         def row(p):
-            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], self.num_processo(p['NUM_PROCESSO']), p['TITULO'],
-                      self.funcao(p),
+            return TR(p['ID_PROJETO'], p['DT_REGISTRO'], self.num_processo(p), p['TITULO'], self.funcao(p),
                       self.situacao(p), self.avaliacao(p), self.bolsa(p), self.arquivos(p), self.observacao(p),
                       _id=p['ID_PROJETO'])
 
@@ -247,10 +253,30 @@ class TableTransparenciaBolsistas(TableHelper):
 
     def printTable(self):
         def parsedRow(c):
-            return TR(self.num_processo(c['NUM_PROCESSO']), self.disciplina(c), self.vl_bolsa(c['VL_BOLSA']),
-                      c['COORDENADOR'], c['BOLSISTA'])
+            return TR(self.num_processo(c), self.disciplina(c), self.vl_bolsa(c), c['COORDENADOR'], c['BOLSISTA'])
 
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
             TBODY([parsedRow(c) for c in self.content])
+        )
+
+
+class TableTransparenciaProjetos(TableHelper):
+    def __init__(self, resultObject):
+        """
+
+        :type resultObject: unirio.api.apiresult.APIResultObject
+        """
+        super(TableTransparenciaProjetos, self).__init__()
+        self.content = resultObject.content
+        self.fields = resultObject.fields
+        self.headers = (self.T(k) for k in self.fields)
+
+    def __parseRow(self, row):
+        return TR(tuple(self.parse(k, row) for k in self.fields))
+
+    def printTable(self):
+        return TABLE(
+            THEAD(TR([TH(h) for h in self.headers])),
+            TBODY([self.__parseRow(row) for row in self.content])
         )
