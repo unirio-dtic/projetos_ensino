@@ -35,6 +35,7 @@ class APIResultObject(object):
         try:
             json = r.json()
             self.content = json["content"]
+            self.fields = tuple(k for k in self.content[0].keys())
             self.lmin = json["subset"][0]
             self.lmax = json["subset"][1]
             self.count = json["count"]
