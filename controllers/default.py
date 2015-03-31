@@ -14,7 +14,7 @@ def index():
     else:
         return dict()
 
-@auth.requires_login()
+
 def edicoes():
     from forms import FormEdicoes
 
