@@ -17,7 +17,7 @@ def bolsistas():
     return dict(ativos=ativos, table=table)
 
 
-# @cache.action(time_expire=600, cache_model=cache.ram)
+@cache.action(time_expire=600, cache_model=cache.ram)
 def bolsas_unidades():
     unidades = api.performGETRequest(
         'V_BOLSISTAS_DEPARTAMENTOS',
@@ -35,8 +35,8 @@ def bolsas_unidades():
     return dict(unidades=unidades, table=table, total=total)
 
 
-@auth.requires(lambda: edicao.requires_edicao())
-# @cache.action(time_expire=3000, session=True, cache_model=cache.ram)
+@auth.requires(lambda: edicao.requires_edicao(), requires_login=False)
+@cache.action(time_expire=3000, session=True, cache_model=cache.ram)
 def projetos_aprovados():
     try:
         projetos = api.performGETRequest(
@@ -52,7 +52,6 @@ def projetos_aprovados():
         )
 
         table = TableAPIResult(projetos)
+        return dict(table=table.printTable(), projetos=projetos)
     except ValueError:
         pass
-
-    return dict(table=table.printTable())
