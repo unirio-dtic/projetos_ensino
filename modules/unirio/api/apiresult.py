@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import ujson
 
 __all__ = [
     "APIException",
@@ -14,7 +15,6 @@ class APIException(Exception):
 
 
 class APIResultObject(object):
-    count = 0
     lmin = 0
     lmax = 0
     content = []
@@ -33,12 +33,11 @@ class APIResultObject(object):
         :raise ValueError:
         """
         try:
-            json = r.json()
+            json = ujson.loads(r.text)
             self.content = json["content"]
             self.fields = tuple(k for k in self.content[0].keys())
             self.lmin = json["subset"][0]
             self.lmax = json["subset"][1]
-            self.count = json["count"]
         except ValueError:
             raise ValueError("JSON decoding failed. Value may be None.")
         self.request = APIRequest
