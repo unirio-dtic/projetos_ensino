@@ -75,13 +75,12 @@ class UNIRIOAPIRequest(object):
         return requestURL
 
     def __addRequest(self, method, path, params):
-        if self.debug:
-            self.requests.append({
-                "method": method,
-                "path": path,
-                "params": params,
-                "timestamp": datetime.now()
-            })
+        self.requests.append({
+            "method": method,
+            "path": path,
+            "params": params,
+            "timestamp": datetime.now()
+        })
 
     def URLQueryData(self, params=None, fields=None):
         """
@@ -182,7 +181,8 @@ class UNIRIOAPIRequest(object):
         payload = self.payload(params)
 
         response = requests.post(url, payload, verify=False)
-        self.__addRequest("POST", path, payload)
+        if self.debug:
+            self.__addRequest("POST", path, payload)
         return APIPOSTResponse(response, self)
 
     def performDELETERequest(self, path, params):
