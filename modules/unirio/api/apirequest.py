@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-
-import requests
-
 from gluon import current
-from apiresult import APIResultObject, APIPOSTResponse, APIPUTResponse, APIDELETEResponse
+from datetime import datetime
+import requests
+from .apiresult import APIResultObject, APIPOSTResponse, APIPUTResponse, APIDELETEResponse
 
 
 __all__ = ["UNIRIOAPIRequest"]
@@ -22,8 +20,6 @@ class UNIRIOAPIRequest(object):
 
     def __init__(self, api_key, server=0, debug=False, cache=current.cache.ram):
         """
-
-
         :type cache: gluon.cache.CacheInRam
         :param api_key: The 'API Key' that will the used to perform the requests
         :param server: The server that will used. Production or Development
