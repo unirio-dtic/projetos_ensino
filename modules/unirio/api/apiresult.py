@@ -21,8 +21,6 @@ class APIResultObject(object):
 
     def __init__(self, r, APIRequest):
         """
-
-
         :type r: Response
         :type self.content: list
         :type self.lmin: int
@@ -35,6 +33,8 @@ class APIResultObject(object):
         try:
             json = ujson.loads(r.text)
             self.content = json["content"]
+            # TODO Remover esta linha, já que count não é mais usado a partir da versão 1.1 da API
+            self.count = json.get("count", None)
             self.fields = tuple(k for k in self.content[0].keys())
             self.lmin = json["subset"][0]
             self.lmax = json["subset"][1]
