@@ -5,11 +5,11 @@ from operator import itemgetter
 from relatorios import Deferimento, salvarCSV
 from avaliacao import Avaliacao
 from mail import MailAvaliacao
-from forms import FormPerguntas, FormAlteracaoDisciplina
+from forms import FormPerguntas, FormAlteracaoDisciplina, FormMeses
 from unirio.api.apiresult import APIException
 from sie.SIEProjetos import SIEProjetos, SIEParticipantesProjs, SIEClassifProjetos, SIEClassificacoesPrj, \
     SIECursosDisciplinas
-from tables import TableAvaliacao, TableDeferimento
+from tables import TableAvaliacao, TableDeferimento, TableAPIResult
 
 
 @auth.requires(auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
@@ -309,15 +309,31 @@ def bolsistas_ativos():
             'LMAX': 99999
         },
         ('AGENCIA', 'COD_BANCO', 'CONTA_CORRENTE', 'CPF', 'DESC_BANCO', 'MATRICULA', 'VL_BOLSA', 'PARTICIPANTE')
-    ).content
-
-    bolsistas[:] = sorted(bolsistas, key=itemgetter('PARTICIPANTE'))
-
-    table = TABLE(
-        THEAD(TR(*[TD(B(k)) for k in bolsistas[0].keys()])),
-        *[TR(*[TD(v) for k, v in b.iteritems()]) for b in bolsistas]
     )
 
-    csv = salvarCSV(bolsistas, 'bolsas_a_pagar')
+    return dict(table=TableAPIResult(bolsistas, 'bolsistas_ativos'), bolsistas=bolsistas)
 
-    return dict(table=table, bolsistas=bolsistas, csv=csv)
+
+@auth.requires(lambda: auth.has_membership('PROGRAD') or auth.has_membership('DTIC'))
+def bolsistas_com_presenca():
+    form = FormMeses().form()
+
+    if form.process().accepted:
+        presentes = db((db.presencas.ano == form.vars.ano)
+                       &(db.presencas.mes == form.vars.mes)).select(db.presencas.id_bolsista)
+        try:
+            bolsistas = api.performGETRequest(
+                'V_BOLSISTAS',
+                {
+                    'LMIN': 0,
+                    'LMAX': 99999,
+                    'ID_BOLSISTA_SET': tuple(b.id_bolsista for b in presentes)
+                },
+                ('ID_BOLSISTA', 'AGENCIA', 'COD_BANCO', 'CONTA_CORRENTE', 'CPF', 'DESC_BANCO', 'MATRICULA', 'VL_BOLSA', 'PARTICIPANTE')
+            )
+
+            return dict(form=form, table=TableAPIResult(bolsistas, 'bolsas_a_pagar'))
+        except ValueError:
+            response.flash = "Nenhum bolsista encontrado para mês %s de %s" % (form.vars.mes, form.vars.ano)
+
+    return dict(form=form)
