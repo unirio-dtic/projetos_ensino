@@ -1,0 +1,7 @@
+{{extend "layout.html"}}
+
+{{=form}}
+{{try:}}
+    {{=table.printTable()}}
+{{except NameError:}}
+{{pass}}
