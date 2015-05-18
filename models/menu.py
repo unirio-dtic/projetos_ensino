@@ -37,7 +37,10 @@ if auth.is_logged_in():
             ("Registro de Projeto", False, URL('registro', 'registro')),
             ("Registro de Bolsista", False, URL('consulta', 'aprovados'))
         ]),
-        ("Acompanhamento", False, URL('consulta', 'index'))
+        ("Acompanhamento", False, False, [
+            ("Projeto", False, URL('consulta', 'index')),
+            ("Presenças", False, URL('presenca', 'index'))
+        ])
     ]
 
 admin_menu = [
@@ -50,7 +53,8 @@ admin_menu = [
         ('Relatórios', False, False, [
             ('Lista de Deferidos', False, URL("adm", "deferidos"), []),
             ('Lista de Indeferidos', False, URL("adm", "indeferidos"), []),
-            ('Bolsistas Ativos', False, URL('adm', 'bolsistas_ativos'), [])
+            ('Bolsistas Ativos', False, URL('adm', 'bolsistas_ativos'), []),
+            ('Relatório de presenças', False, URL('adm', 'bolsistas_com_presenca'), [])
         ]),
         ('Avaliadores', False, URL('adm', 'avaliadores'), [])
     ])
