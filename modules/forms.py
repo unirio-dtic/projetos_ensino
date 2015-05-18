@@ -218,6 +218,5 @@ class FormMeses(CustomFormHelper):
         return FORM(
             self._selectComponent('Ano :', 'ano', self.anos),
             self._selectComponent('Mês :', 'mes', self.meses),
-            self._checkboxComponenet('Filtrar ativos ?', 'ativos', False),
             INPUT(_value='Buscar', _type='submit')
         )
