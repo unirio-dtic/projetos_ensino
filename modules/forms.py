@@ -198,3 +198,26 @@ class FormAlteracaoDisciplina(CustomFormHelper):
             ),
             INPUT(_value='Salvar Alterações', _type='submit')
         )
+
+
+class FormMeses(CustomFormHelper):
+    def __init__(self):
+        self.db = current.db
+
+    @property
+    def anos(self):
+        #TODO Esse hack não deveria ser necessário. A consulta de dates não está retornando dt_presenca como chave
+        dates = self.db().select(self.db.edicao.dt_inicial_projeto.year(), distinct=True)
+        return [int(ano[0]) for ano in dates.response]
+
+    @property
+    def meses(self):
+        return range(1, 13)
+
+    def form(self):
+        return FORM(
+            self._selectComponent('Ano :', 'ano', self.anos),
+            self._selectComponent('Mês :', 'mes', self.meses),
+            self._checkboxComponenet('Filtrar ativos ?', 'ativos', False),
+            INPUT(_value='Buscar', _type='submit')
+        )
