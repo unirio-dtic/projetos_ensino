@@ -1,8 +1,10 @@
 # coding=utf-8
 from gluon import current
+from relatorios import salvarCSV
 from sie.SIEProjetos import SIEParticipantesProjs, SIEProjetos
 from sie.SIEServidores import SIEServidores
 from gluon.html import *
+from datetime import datetime
 
 __all__ = [
     "TableAcompanhamento",
@@ -262,7 +264,7 @@ class TableTransparenciaBolsistas(TableHelper):
 
 
 class TableAPIResult(TableHelper):
-    def __init__(self, resultObject):
+    def __init__(self, resultObject, csv_filename=''):
         """
 
         :type resultObject: unirio.api.apiresult.APIResultObject
@@ -271,6 +273,7 @@ class TableAPIResult(TableHelper):
         self.content = resultObject.content
         self.fields = resultObject.fields
         self.headers = tuple(self.T(k) for k in self.fields)
+        self.csv_filename = csv_filename
 
     def __parseRow(self, row):
         """
@@ -279,6 +282,13 @@ class TableAPIResult(TableHelper):
         """
         return TR(tuple(self.parse(k, row) for k in self.fields))
 
+    def __footer(self):
+        if self.csv_filename:
+            return TFOOT(
+                TR(TD(salvarCSV(self.content, "%s-%s" % (self.csv_filename, datetime.now())), _colspan=len(self.fields)))
+            )
+        return "--"
+
     def printTable(self):
         """
 
@@ -286,5 +296,6 @@ class TableAPIResult(TableHelper):
         """
         return TABLE(
             THEAD(TR([TH(h) for h in self.headers])),
-            TBODY([self.__parseRow(row) for row in self.content])
+            TBODY([self.__parseRow(row) for row in self.content]),
+            self.__footer()
         )
