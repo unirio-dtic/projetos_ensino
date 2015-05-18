@@ -43,8 +43,8 @@ class Projeto(object):
                     self.db.edicao.dt_conclusao_bolsistas >= date.today())).select(cache=(current.cache.ram, 120)).first():
             return True
 
-    def isCoordenador(self):
-        coordenador = SIEProjetos().getCoordenador(current.request.vars.ID_PROJETO)
+    def isCoordenador(self, ID_PROJETO=current.request.vars.ID_PROJETO):
+        coordenador = SIEProjetos().getCoordenador(ID_PROJETO)
         try:
             if coordenador['ID_PESSOA'] == current.session.funcionario['ID_PESSOA']:
                 return True
