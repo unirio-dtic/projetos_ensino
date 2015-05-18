@@ -1,6 +1,7 @@
 # coding=utf-8
 from authtools import Edicao, Projeto, Pessoa
 from gluon.tools import Auth, Service
+from datetime import date
 
 auth = Auth(db)
 service = Service()
@@ -86,6 +87,15 @@ db.define_table(
     Field('colname', 'string'),
     Field('uid', 'integer'),
     Field('dt_alteracao', 'datetime', notnull=True),
+    Field('user_id', db.auth_user, notnull=True)
+)
+
+db.define_table(
+    'presencas',
+    Field('id_bolsista', 'integer', notnull=True),
+    Field('dt_presenca', 'datetime', notnull=True),
+    Field('ano', 'integer', notnull=True, requires=IS_INT_IN_RANGE(1, date.today().year + 1)),
+    Field('mes', 'integer', notnull=True, requires=IS_IN_SET(range(1, 13))),
     Field('user_id', db.auth_user, notnull=True)
 )
 
