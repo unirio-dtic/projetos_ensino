@@ -5,7 +5,7 @@ from datetime import datetime
 from sie.SIEBolsistas import SIEBolsistas
 
 
-@auth.requires(lambda: proj.isCoordenador())
+# @auth.requires(lambda: proj.isCoordenador())
 def index():
     locale.setlocale(locale.LC_ALL, 'pt_BR')
     meses = {mes: calendar.month_name[mes] for mes in range(1, 13)}
@@ -23,6 +23,7 @@ def index():
                 uid = "%i%i" % (mes, bolsista['ID_BOLSISTA'])
                 return TD(A("Dar presença",
                             target=uid,
+                            _class="btn",
                             callback=URL('presenca', 'ajaxAdicionarPresenca', vars={'ID_BOLSISTA': bolsista['ID_BOLSISTA'],
                                                                                     'mes': mes,
                                                                                     'ano': datetime.today().year})),
