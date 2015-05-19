@@ -11,7 +11,7 @@ def index():
     meses = {mes: calendar.month_name[mes] for mes in range(1, 13)}
 
     try:
-        bolsistas = api.performGETRequest('V_BOLSISTAS_ATIVOS_DADOS', {'ID_PROJETO': request.vars.ID_PROJETO}, cached=4634).content
+        bolsistas = api.performGETRequest('V_BOLSISTAS_ATIVOS_DADOS', {'ID_PROJETO': request.vars.ID_PROJETO}).content
 
         presencas = {b['ID_BOLSISTA']: [] for b in bolsistas}
         presencas_meses = db(db.presencas.id_bolsista.belongs([b['ID_BOLSISTA'] for b in bolsistas])).select()
