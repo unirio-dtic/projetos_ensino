@@ -119,4 +119,14 @@
 'You are successfully running web2py': 'You are successfully running web2py',
 'You can modify this application and adapt it to your needs': 'You can modify this application and adapt it to your needs',
 'You visited the url %s': 'You visited the url %s',
+'BOLSAS': 'Qtd. Bolsas',
+'BOLSISTA': 'Bolsista',
+'COD_DISCIPLINA': 'Cód. Disciplina',
+'COORDENADOR': 'Coordenador',
+'DT_REGISTRO': 'Data de registro',
+'ID_PROJETO': '#',
+'NOME_DISCIPLINA': 'Disciplina',
+'NOME_UNIDADE': 'Departamento',
+'NUM_PROCESSO': 'Num. Processo',
+'VL_BOLSA': 'Valor'
 }
