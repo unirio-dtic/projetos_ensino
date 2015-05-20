@@ -12,4 +12,4 @@ class SIEPessoas(SIE):
             'LMIN': 0,
             'LMAX': 1
         }
-        return self.api.performGETRequest(self.path, params, cached=self.cacheTime)
+        return self.api.performGETRequest(self.path, params, cached=self.cacheTime).content[0]
