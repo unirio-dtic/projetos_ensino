@@ -98,7 +98,7 @@ db.projetos.arquivo.represent = lambda value, row: A(row.anexo_nome, _href=URL('
 mail = auth.settings.mailer
 mail.settings.server = 'smtp.gmail.com:587'
 mail.settings.sender = 'naoresponder.projetos@unirio.br'
-mail.settings.login = 'naoresponder.projetos@unirio.br***REMOVED***'
+mail.settings.login = 'naoresponder.projetos@unirio.br:senha'
 
 current.mail = mail
 
