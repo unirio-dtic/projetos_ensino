@@ -311,7 +311,7 @@ class SIEArquivosProj(SIE):
         :param arquivo: Um arquivo a ser convertido
         :return: Uma string correspondente ao conteúdo de um arquivo binário, na forma de base64
         """
-        return base64.b64encode(arquivo.file.read())
+        return base64.b64encode(open(arquivo.fp.name, mode="rb").read())
 
     def salvarArquivo(self, arquivo, projeto, funcionario, TIPO_ARQUIVO_ITEM):
         """
@@ -334,9 +334,9 @@ class SIEArquivosProj(SIE):
             "NOME_ARQUIVO": arquivo.filename,
             "CONTEUDO_ARQUIVO": self.__conteudoDoArquivo(arquivo)
         }
-        # TODO remover comentários quando BLOB estiver sendo salvo no DB2
-        # novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
-        # arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
+        # TODO não foi testado, mas deve estar funcionando.
+        novoArquivoProj = self.api.performPOSTRequest(self.path, arquivoProj)
+        arquivoProj.update({"ID_ARQUIVO_PROJ": novoArquivoProj.insertId})
 
         self.salvarCopiaLocal(arquivo, arquivoProj, funcionario)
 
